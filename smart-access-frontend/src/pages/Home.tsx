@@ -27,32 +27,32 @@ import {
 const Home: React.FC = () => {
   const features = [
     {
-      icon: <School sx={{ fontSize: 48, color: '#14b8a6' }} />,
+      icon: <School sx={{ fontSize: 48, color: '#F87060' }} />,
       title: 'Student ID Integration',
       description: 'Seamlessly integrate with existing student ID cards and campus databases for unified access management.'
     },
     {
-      icon: <SecuritySharp sx={{ fontSize: 48, color: '#14b8a6' }} />,
+      icon: <SecuritySharp sx={{ fontSize: 48, color: '#F87060' }} />,
       title: 'Advanced Security',
       description: 'Multi-layer security protocols including biometric verification and encrypted access logs.'
     },
     {
-      icon: <Dashboard sx={{ fontSize: 48, color: '#14b8a6' }} />,
+      icon: <Dashboard sx={{ fontSize: 48, color: '#F87060' }} />,
       title: 'Real-time Monitoring',
       description: 'Live dashboard for security personnel to monitor all campus access points and activities.'
     },
     {
-      icon: <AccessTime sx={{ fontSize: 48, color: '#14b8a6' }} />,
+      icon: <AccessTime sx={{ fontSize: 48, color: '#F87060' }} />,
       title: 'Schedule-based Access',
       description: 'Automated access control based on class schedules, events, and facility operating hours.'
     },
     {
-      icon: <AdminPanelSettings sx={{ fontSize: 48, color: '#14b8a6' }} />,
+      icon: <AdminPanelSettings sx={{ fontSize: 48, color: '#F87060' }} />,
       title: 'Role Management',
       description: 'Granular permission system for students, faculty, staff, and visitors with customizable access levels.'
     },
     {
-      icon: <Notifications sx={{ fontSize: 48, color: '#14b8a6' }} />,
+      icon: <Notifications sx={{ fontSize: 48, color: '#F87060' }} />,
       title: 'Instant Alerts',
       description: 'Real-time notifications for security breaches, unauthorized access attempts, and system status.'
     }
@@ -85,13 +85,13 @@ const Home: React.FC = () => {
         position="static" 
         elevation={0} 
         sx={{ 
-          backgroundColor: '#1a1a1a',
-          borderBottom: '3px solid #14b8a6'
+          backgroundColor: '#102542',
+          borderBottom: '3px solid #F87060'
         }}
       >
         <Toolbar sx={{ py: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            <Badge sx={{ fontSize: 32, color: '#14b8a6', mr: 2 }} />
+            <Badge sx={{ fontSize: 32, color: '#F87060', mr: 2 }} />
             <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: 'white' }}>
               Smart Access
             </Typography>
@@ -105,11 +105,11 @@ const Home: React.FC = () => {
             variant="contained" 
             onClick={handleLogin}
             sx={{ 
-              backgroundColor: '#14b8a6',
+              backgroundColor: '#F87060',
               fontWeight: 'bold',
               px: 3,
               ml: { xs: 0, md: 3 },
-              '&:hover': { backgroundColor: '#0f9488' }
+              '&:hover': { backgroundColor: '#e55a4a' }
             }}
             startIcon={<Login />}
           >
@@ -121,7 +121,7 @@ const Home: React.FC = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)',
+          background: 'linear-gradient(135deg, #102542 0%, #1a3a5c 50%, #102542 100%)',
           color: 'white',
           py: { xs: 8, md: 12 },
           position: 'relative',
@@ -136,8 +136,8 @@ const Home: React.FC = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: `radial-gradient(circle at 20% 80%, rgba(20, 184, 166, 0.1) 0%, transparent 50%),
-                             radial-gradient(circle at 80% 20%, rgba(20, 184, 166, 0.1) 0%, transparent 50%)`,
+            backgroundImage: `radial-gradient(circle at 20% 80%, rgba(248, 112, 96, 0.1) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 20%, rgba(248, 112, 96, 0.1) 0%, transparent 50%)`,
             zIndex: 1
           }}
         />
@@ -153,11 +153,11 @@ const Home: React.FC = () => {
               <Chip 
                 label="Smart Access Control System" 
                 sx={{ 
-                  backgroundColor: 'rgba(20, 184, 166, 0.2)',
-                  color: '#14b8a6',
+                  backgroundColor: 'rgba(248, 112, 96, 0.2)',
+                  color: '#F87060',
                   fontWeight: 'bold',
                   mb: 3,
-                  border: '1px solid rgba(20, 184, 166, 0.3)'
+                  border: '1px solid rgba(248, 112, 96, 0.3)'
                 }}
               />
               <Typography 
@@ -166,7 +166,7 @@ const Home: React.FC = () => {
                 gutterBottom 
                 sx={{ 
                   fontWeight: 'bold',
-                  background: 'linear-gradient(45deg, #ffffff 30%, #14b8a6 90%)',
+                  background: 'linear-gradient(45deg, #ffffff 30%, #F87060 90%)',
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -190,12 +190,12 @@ const Home: React.FC = () => {
                   size="large" 
                   onClick={handleAccessSystem}
                   sx={{ 
-                    backgroundColor: '#14b8a6',
+                    backgroundColor: '#F87060',
                     color: 'white',
                     fontWeight: 'bold',
                     py: 1.5,
                     px: 4,
-                    '&:hover': { backgroundColor: '#0f9488' }
+                    '&:hover': { backgroundColor: '#e55a4a' }
                   }}
                   startIcon={<Login />}
                 >
@@ -206,14 +206,14 @@ const Home: React.FC = () => {
                   size="large" 
                   onClick={handleLearnMore}
                   sx={{ 
-                    borderColor: '#14b8a6', 
-                    color: '#14b8a6',
+                    borderColor: '#F87060', 
+                    color: '#F87060',
                     fontWeight: 'bold',
                     py: 1.5,
                     px: 4,
                     '&:hover': { 
-                      borderColor: '#14b8a6', 
-                      backgroundColor: 'rgba(20, 184, 166, 0.1)' 
+                      borderColor: '#F87060', 
+                      backgroundColor: 'rgba(248, 112, 96, 0.1)' 
                     }
                   }}
                 >
@@ -228,25 +228,25 @@ const Home: React.FC = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   height: { xs: 300, md: 400 },
-                  background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
+                  background: 'linear-gradient(135deg, rgba(248, 112, 96, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
                   borderRadius: 4,
-                  border: '1px solid rgba(20, 184, 166, 0.2)',
+                  border: '1px solid rgba(248, 112, 96, 0.2)',
                   position: 'relative'
                 }}
               >
-                <LocalLibrary sx={{ fontSize: { xs: 80, md: 120 }, color: '#14b8a6', opacity: 0.8 }} />
+                <LocalLibrary sx={{ fontSize: { xs: 80, md: 120 }, color: '#F87060', opacity: 0.8 }} />
                 <Box
                   sx={{
                     position: 'absolute',
                     top: 20,
                     right: 20,
-                    backgroundColor: 'rgba(20, 184, 166, 0.2)',
+                    backgroundColor: 'rgba(248, 112, 96, 0.2)',
                     borderRadius: 2,
                     p: 2,
                     backdropFilter: 'blur(10px)'
                   }}
                 >
-                  <Groups sx={{ color: '#14b8a6', fontSize: 32 }} />
+                  <Groups sx={{ color: '#F87060', fontSize: 32 }} />
                 </Box>
               </Box>
             </Box>
@@ -263,7 +263,7 @@ const Home: React.FC = () => {
             gutterBottom 
             sx={{ 
               fontWeight: 'bold', 
-              color: '#1a1a1a',
+              color: '#102542',
               fontSize: { xs: '2rem', md: '3rem' }
             }}
           >
@@ -293,8 +293,8 @@ const Home: React.FC = () => {
                   transition: 'all 0.3s ease-in-out',
                   '&:hover': {
                     transform: 'translateY(-8px)',
-                    boxShadow: '0 20px 40px rgba(20, 184, 166, 0.15)',
-                    borderColor: '#14b8a6'
+                    boxShadow: '0 20px 40px rgba(248, 112, 96, 0.15)',
+                    borderColor: '#F87060'
                   }
                 }}
               >
@@ -302,7 +302,7 @@ const Home: React.FC = () => {
                   <Box sx={{ mb: 3 }}>
                     {feature.icon}
                   </Box>
-                  <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 'bold', color: '#1a1a1a' }}>
+                  <Typography variant="h5" component="h3" gutterBottom sx={{ fontWeight: 'bold', color: '#102542' }}>
                     {feature.title}
                   </Typography>
                   <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
@@ -316,7 +316,7 @@ const Home: React.FC = () => {
       </Container>
 
       {/* CTA Section */}
-      <Box sx={{ backgroundColor: '#1a1a1a', py: { xs: 8, md: 10 } }}>
+      <Box sx={{ backgroundColor: '#102542', py: { xs: 8, md: 10 } }}>
         <Container maxWidth="md" sx={{ textAlign: 'center' }}>
           <Typography 
             variant="h3" 
@@ -340,12 +340,12 @@ const Home: React.FC = () => {
               size="large" 
               onClick={handleLogin}
               sx={{
-                backgroundColor: '#14b8a6',
+                backgroundColor: '#F87060',
                 color: 'white',
                 fontWeight: 'bold',
                 py: 2,
                 px: 5,
-                '&:hover': { backgroundColor: '#0f9488' }
+                '&:hover': { backgroundColor: '#e55a4a' }
               }}
               startIcon={<Login />}
             >
@@ -356,14 +356,14 @@ const Home: React.FC = () => {
               size="large" 
               onClick={handleContactSupport}
               sx={{
-                borderColor: '#14b8a6',
-                color: '#14b8a6',
+                borderColor: '#F87060',
+                color: '#F87060',
                 fontWeight: 'bold',
                 py: 2,
                 px: 5,
                 '&:hover': { 
-                  borderColor: '#14b8a6', 
-                  backgroundColor: 'rgba(20, 184, 166, 0.1)' 
+                  borderColor: '#F87060', 
+                  backgroundColor: 'rgba(248, 112, 96, 0.1)' 
                 }
               }}
             >
@@ -374,12 +374,12 @@ const Home: React.FC = () => {
       </Box>
 
       {/* Footer */}
-      <Box sx={{ backgroundColor: '#0d0d0d', color: 'white', py: 8 }}>
+      <Box sx={{ backgroundColor: '#0a1829', color: 'white', py: 8 }}>
         <Container maxWidth="lg">
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 32px)' } }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <Badge sx={{ fontSize: 32, color: '#14b8a6', mr: 2 }} />
+                <Badge sx={{ fontSize: 32, color: '#F87060', mr: 2 }} />
                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                   Smart Access
                 </Typography>
@@ -390,7 +390,7 @@ const Home: React.FC = () => {
               </Typography>
             </Box>
             <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 32px)' } }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#14b8a6' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#F87060' }}>
                 System Features
               </Typography>
               <Stack spacing={1}>
@@ -401,7 +401,7 @@ const Home: React.FC = () => {
               </Stack>
             </Box>
             <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 32px)' } }}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#14b8a6' }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#F87060' }}>
                 Support
               </Typography>
               <Stack spacing={1}>
@@ -417,7 +417,7 @@ const Home: React.FC = () => {
               </Stack>
             </Box>
           </Box>
-          <Box sx={{ mt: 6, pt: 4, borderTop: '1px solid rgba(20, 184, 166, 0.2)', textAlign: 'center' }}>
+          <Box sx={{ mt: 6, pt: 4, borderTop: '1px solid rgba(248, 112, 96, 0.2)', textAlign: 'center' }}>
             <Typography variant="body2" sx={{ opacity: 0.6 }}>
               © 2025 Smart Access Control System. All rights reserved.
             </Typography>
