@@ -16,15 +16,15 @@ import {
   SecuritySharp, 
   Dashboard, 
   AccessTime,
-  ArrowForward,
   AdminPanelSettings,
   Badge,
   LocalLibrary,
   Groups,
-  Notifications
+  Notifications,
+  Login
 } from '@mui/icons-material';
 
-const CollegeAccessControl: React.FC = () => {
+const Home: React.FC = () => {
   const features = [
     {
       icon: <School sx={{ fontSize: 48, color: '#14b8a6' }} />,
@@ -58,12 +58,25 @@ const CollegeAccessControl: React.FC = () => {
     }
   ];
 
-  const stats = [
-    { number: '50+', label: 'Universities Trust Us' },
-    { number: '99.9%', label: 'System Uptime' },
-    { number: '24/7', label: 'Security Monitoring' },
-    { number: '1M+', label: 'Daily Access Logs' }
-  ];
+  const handleLogin = () => {
+    // Add navigation logic here
+    console.log('Login clicked');
+  };
+
+  const handleAccessSystem = () => {
+    // Add navigation logic here
+    console.log('Access System clicked');
+  };
+
+  const handleLearnMore = () => {
+    // Add navigation logic here
+    console.log('Learn More clicked');
+  };
+
+  const handleContactSupport = () => {
+    // Add navigation logic here
+    console.log('Contact Support clicked');
+  };
 
   return (
     <Box sx={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
@@ -80,25 +93,28 @@ const CollegeAccessControl: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
             <Badge sx={{ fontSize: 32, color: '#14b8a6', mr: 2 }} />
             <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: 'white' }}>
-              CampusGuard
+              Smart Access
             </Typography>
           </Box>
-          <Stack direction="row" spacing={3}>
+          <Stack direction="row" spacing={3} sx={{ display: { xs: 'none', md: 'flex' } }}>
             <Button sx={{ color: 'white', fontWeight: 500 }}>Features</Button>
             <Button sx={{ color: 'white', fontWeight: 500 }}>Solutions</Button>
             <Button sx={{ color: 'white', fontWeight: 500 }}>Support</Button>
-            <Button 
-              variant="contained" 
-              sx={{ 
-                backgroundColor: '#14b8a6',
-                fontWeight: 'bold',
-                px: 3,
-                '&:hover': { backgroundColor: '#0f9488' }
-              }}
-            >
-              Get Demo
-            </Button>
           </Stack>
+          <Button 
+            variant="contained" 
+            onClick={handleLogin}
+            sx={{ 
+              backgroundColor: '#14b8a6',
+              fontWeight: 'bold',
+              px: 3,
+              ml: { xs: 0, md: 3 },
+              '&:hover': { backgroundColor: '#0f9488' }
+            }}
+            startIcon={<Login />}
+          >
+            Login
+          </Button>
         </Toolbar>
       </AppBar>
 
@@ -107,7 +123,7 @@ const CollegeAccessControl: React.FC = () => {
         sx={{
           background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)',
           color: 'white',
-          py: 12,
+          py: { xs: 8, md: 12 },
           position: 'relative',
           overflow: 'hidden'
         }}
@@ -127,10 +143,15 @@ const CollegeAccessControl: React.FC = () => {
         />
         
         <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', gap: 6 }}>
-            <Box sx={{ flex: 1 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' }, 
+            alignItems: 'center', 
+            gap: { xs: 4, md: 6 } 
+          }}>
+            <Box sx={{ flex: 1, textAlign: { xs: 'center', md: 'left' } }}>
               <Chip 
-                label="Next-Gen Campus Security" 
+                label="Smart Access Control System" 
                 sx={{ 
                   backgroundColor: 'rgba(20, 184, 166, 0.2)',
                   color: '#14b8a6',
@@ -149,7 +170,8 @@ const CollegeAccessControl: React.FC = () => {
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  mb: 3
+                  mb: 3,
+                  fontSize: { xs: '2rem', md: '3.75rem' }
                 }}
               >
                 Secure Your Campus with Smart Access Control
@@ -158,10 +180,15 @@ const CollegeAccessControl: React.FC = () => {
                 Comprehensive access management solution designed specifically for colleges and universities. 
                 Protect students, faculty, and assets with intelligent, automated security systems.
               </Typography>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={2} 
+                sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }}
+              >
                 <Button 
                   variant="contained" 
                   size="large" 
+                  onClick={handleAccessSystem}
                   sx={{ 
                     backgroundColor: '#14b8a6',
                     color: 'white',
@@ -170,13 +197,14 @@ const CollegeAccessControl: React.FC = () => {
                     px: 4,
                     '&:hover': { backgroundColor: '#0f9488' }
                   }}
-                  endIcon={<ArrowForward />}
+                  startIcon={<Login />}
                 >
-                  Schedule Demo
+                  Access System
                 </Button>
                 <Button 
                   variant="outlined" 
                   size="large" 
+                  onClick={handleLearnMore}
                   sx={{ 
                     borderColor: '#14b8a6', 
                     color: '#14b8a6',
@@ -189,24 +217,24 @@ const CollegeAccessControl: React.FC = () => {
                     }
                   }}
                 >
-                  View Features
+                  Learn More
                 </Button>
               </Stack>
             </Box>
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, width: '100%' }}>
               <Box
                 sx={{
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  height: 400,
+                  height: { xs: 300, md: 400 },
                   background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
                   borderRadius: 4,
                   border: '1px solid rgba(20, 184, 166, 0.2)',
                   position: 'relative'
                 }}
               >
-                <LocalLibrary sx={{ fontSize: 120, color: '#14b8a6', opacity: 0.8 }} />
+                <LocalLibrary sx={{ fontSize: { xs: 80, md: 120 }, color: '#14b8a6', opacity: 0.8 }} />
                 <Box
                   sx={{
                     position: 'absolute',
@@ -226,37 +254,20 @@ const CollegeAccessControl: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Stats Section */}
-      <Box sx={{ backgroundColor: '#14b8a6', py: 6 }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center' }}>
-            {stats.map((stat, index) => (
-              <Box 
-                key={index}
-                sx={{ 
-                  flex: { xs: '1 1 calc(50% - 16px)', md: '1 1 calc(25% - 24px)' },
-                  textAlign: 'center', 
-                  color: 'white',
-                  minWidth: '200px'
-                }}
-              >
-                <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {stat.number}
-                </Typography>
-                <Typography variant="h6" sx={{ opacity: 0.9 }}>
-                  {stat.label}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        </Container>
-      </Box>
-
       {/* Features Section */}
-      <Container maxWidth="lg" sx={{ py: 10 }}>
+      <Container maxWidth="lg" sx={{ py: { xs: 8, md: 10 } }}>
         <Box sx={{ textAlign: 'center', mb: 8 }}>
-          <Typography variant="h3" component="h2" gutterBottom sx={{ fontWeight: 'bold', color: '#1a1a1a' }}>
-            Built for Modern Campuses
+          <Typography 
+            variant="h3" 
+            component="h2" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 'bold', 
+              color: '#1a1a1a',
+              fontSize: { xs: '2rem', md: '3rem' }
+            }}
+          >
+            Comprehensive Access Management
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
             Our comprehensive suite of features ensures your campus remains secure while providing 
@@ -270,7 +281,8 @@ const CollegeAccessControl: React.FC = () => {
               key={index}
               sx={{ 
                 flex: { xs: '1 1 100%', md: '1 1 calc(50% - 16px)', lg: '1 1 calc(33.333% - 21px)' },
-                maxWidth: { xs: '100%', lg: '400px' }
+                maxWidth: { xs: '100%', lg: '400px' },
+                minWidth: { xs: '280px' }
               }}
             >
               <Card 
@@ -304,19 +316,29 @@ const CollegeAccessControl: React.FC = () => {
       </Container>
 
       {/* CTA Section */}
-      <Box sx={{ backgroundColor: '#1a1a1a', py: 10 }}>
+      <Box sx={{ backgroundColor: '#1a1a1a', py: { xs: 8, md: 10 } }}>
         <Container maxWidth="md" sx={{ textAlign: 'center' }}>
-          <Typography variant="h3" component="h2" gutterBottom sx={{ fontWeight: 'bold', color: 'white' }}>
-            Ready to Secure Your Campus?
+          <Typography 
+            variant="h3" 
+            component="h2" 
+            gutterBottom 
+            sx={{ 
+              fontWeight: 'bold', 
+              color: 'white',
+              fontSize: { xs: '2rem', md: '3rem' }
+            }}
+          >
+            Ready to Access the System?
           </Typography>
           <Typography variant="h6" sx={{ mb: 6, opacity: 0.8, color: 'white', lineHeight: 1.6 }}>
-            Join leading universities worldwide who trust CampusGuard to protect their students, 
-            faculty, and facilities with cutting-edge access control technology.
+            Access your Smart Access Control dashboard to manage campus security, 
+            monitor access points, and control user permissions.
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} justifyContent="center">
             <Button 
               variant="contained" 
               size="large" 
+              onClick={handleLogin}
               sx={{
                 backgroundColor: '#14b8a6',
                 color: 'white',
@@ -325,13 +347,14 @@ const CollegeAccessControl: React.FC = () => {
                 px: 5,
                 '&:hover': { backgroundColor: '#0f9488' }
               }}
-              endIcon={<ArrowForward />}
+              startIcon={<Login />}
             >
-              Start Free Trial
+              Login to System
             </Button>
             <Button 
               variant="outlined" 
               size="large" 
+              onClick={handleContactSupport}
               sx={{
                 borderColor: '#14b8a6',
                 color: '#14b8a6',
@@ -344,7 +367,7 @@ const CollegeAccessControl: React.FC = () => {
                 }
               }}
             >
-              Contact Sales
+              Contact Support
             </Button>
           </Stack>
         </Container>
@@ -358,45 +381,45 @@ const CollegeAccessControl: React.FC = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <Badge sx={{ fontSize: 32, color: '#14b8a6', mr: 2 }} />
                 <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                  CampusGuard
+                  Smart Access
                 </Typography>
               </Box>
               <Typography variant="body1" sx={{ opacity: 0.8, lineHeight: 1.6 }}>
-                Leading the future of campus security with intelligent access control solutions 
-                designed specifically for educational institutions.
+                Leading access control solutions designed specifically for educational institutions 
+                and modern campus security needs.
               </Typography>
             </Box>
             <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 32px)' } }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#14b8a6' }}>
-                Solutions
+                System Features
               </Typography>
               <Stack spacing={1}>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>Student Access Management</Typography>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>Faculty & Staff Control</Typography>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>Visitor Management</Typography>
-                <Typography variant="body2" sx={{ opacity: 0.8 }}>Emergency Response</Typography>
+                <Typography variant="body2" sx={{ opacity: 0.8 }}>Security Monitoring</Typography>
               </Stack>
             </Box>
             <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 32px)' } }}>
               <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#14b8a6' }}>
-                Contact Us
+                Support
               </Typography>
               <Stack spacing={1}>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  Email: info@campusguard.edu
+                  Email: support@smartaccess.com
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  Phone: +1 (555) 123-GUARD
+                  Phone: +1 (555) 123-ACCESS
                 </Typography>
                 <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                  24/7 Support Available
+                  24/7 Technical Support
                 </Typography>
               </Stack>
             </Box>
           </Box>
           <Box sx={{ mt: 6, pt: 4, borderTop: '1px solid rgba(20, 184, 166, 0.2)', textAlign: 'center' }}>
             <Typography variant="body2" sx={{ opacity: 0.6 }}>
-              © 2025 CampusGuard. All rights reserved. | Securing Education Since 2018
+              © 2025 Smart Access Control System. All rights reserved.
             </Typography>
           </Box>
         </Container>
@@ -405,4 +428,4 @@ const CollegeAccessControl: React.FC = () => {
   );
 };
 
-export default CollegeAccessControl;
+export default Home;
