@@ -36,7 +36,7 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
       title: 'Administrator',
       subtitle: 'System Management',
       description: 'Access admin dashboard, manage users, and control system settings',
-      icon: <AdminPanelSettings sx={{ fontSize: 64, color: colors.primary.main }} />,
+      icon: <AdminPanelSettings sx={{ fontSize: 48, color: colors.primary.main }} />,
       bgGradient: `linear-gradient(135deg, ${colors.primary.light} 0%, rgba(248, 112, 96, 0.05) 100%)`
     },
     {
@@ -44,7 +44,7 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
       title: 'Registration Officer',
       subtitle: 'Student Management',
       description: 'Manage student registrations and access control permissions',
-      icon: <PersonAdd sx={{ fontSize: 64, color: colors.primary.main }} />,
+      icon: <PersonAdd sx={{ fontSize: 48, color: colors.primary.main }} />,
       bgGradient: `linear-gradient(135deg, ${colors.secondary.light} 0%, rgba(16, 37, 66, 0.05) 100%)`
     }
   ];
@@ -53,7 +53,7 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="lg"
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
@@ -72,7 +72,7 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
         sx={{
           background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
           color: colors.neutral.white,
-          p: 4,
+          p: 3,
           position: 'relative',
           textAlign: 'center'
         }}
@@ -81,8 +81,8 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
           onClick={onClose}
           sx={{
             position: 'absolute',
-            right: 16,
-            top: 16,
+            right: 12,
+            top: 12,
             color: colors.neutral.white,
             backgroundColor: 'rgba(255, 255, 255, 0.1)',
             '&:hover': {
@@ -94,17 +94,17 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
         </IconButton>
         
         <Typography
-          variant="h3"
+          variant="h4"
           sx={{
             fontWeight: 'bold',
-            mb: 2,
-            fontSize: { xs: '2rem', md: '2.5rem' }
+            mb: 1,
+            fontSize: { xs: '1.75rem', md: '2rem' }
           }}
         >
           Choose Your Access Level
         </Typography>
         <Typography
-          variant="h6"
+          variant="body1"
           sx={{
             opacity: 0.9,
             fontWeight: 400
@@ -115,10 +115,10 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
       </Box>
 
       <DialogContent sx={{ p: 0 }}>
-        <Box sx={{ p: { xs: 3, md: 6 } }}>
+        <Box sx={{ p: { xs: 2, md: 4 } }}>
           <Stack
             direction={{ xs: 'column', md: 'row' }}
-            spacing={4}
+            spacing={3}
             sx={{ justifyContent: 'center' }}
           >
             {loginTypes.map((loginType, index) => (
@@ -126,7 +126,7 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
                 key={loginType.type}
                 sx={{
                   flex: 1,
-                  maxWidth: { md: 400 },
+                  maxWidth: { md: 320 },
                   cursor: 'pointer',
                   border: `3px solid transparent`,
                   borderRadius: 3,
@@ -135,15 +135,15 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
                   overflow: 'hidden',
                   background: loginType.bgGradient,
                   '&:hover': {
-                    transform: 'translateY(-12px) scale(1.02)',
+                    transform: 'translateY(-8px) scale(1.02)',
                     borderColor: colors.primary.main,
-                    boxShadow: `0 20px 40px rgba(248, 112, 96, 0.3)`,
+                    boxShadow: `0 16px 32px rgba(248, 112, 96, 0.3)`,
                     '& .arrow-icon': {
-                      transform: 'translateX(8px)',
+                      transform: 'translateX(6px)',
                       opacity: 1
                     },
                     '& .card-content': {
-                      transform: 'translateY(-4px)'
+                      transform: 'translateY(-2px)'
                     }
                   }
                 }}
@@ -156,10 +156,10 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
                 <Box
                   sx={{
                     position: 'absolute',
-                    top: -20,
-                    right: -20,
-                    width: 100,
-                    height: 100,
+                    top: -15,
+                    right: -15,
+                    width: 80,
+                    height: 80,
                     borderRadius: '50%',
                     background: `radial-gradient(circle, ${colors.primary.light} 0%, transparent 70%)`,
                     opacity: 0.3
@@ -169,7 +169,7 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
                 <CardContent 
                   className="card-content"
                   sx={{ 
-                    p: 4,
+                    p: 3,
                     textAlign: 'center',
                     transition: 'transform 0.3s ease',
                     position: 'relative',
@@ -180,11 +180,11 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
                   <Box
                     sx={{
                       display: 'inline-flex',
-                      p: 3,
+                      p: 2,
                       borderRadius: '50%',
                       backgroundColor: colors.neutral.white,
-                      mb: 3,
-                      boxShadow: `0 8px 24px ${colors.primary.light}`,
+                      mb: 2,
+                      boxShadow: `0 6px 18px ${colors.primary.light}`,
                       border: `2px solid ${colors.primary.light}`
                     }}
                   >
@@ -193,12 +193,12 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
 
                   {/* Title */}
                   <Typography
-                    variant="h4"
+                    variant="h5"
                     sx={{
                       fontWeight: 'bold',
                       color: colors.secondary.main,
-                      mb: 1,
-                      fontSize: { xs: '1.5rem', md: '2rem' }
+                      mb: 0.5,
+                      fontSize: { xs: '1.25rem', md: '1.5rem' }
                     }}
                   >
                     {loginType.title}
@@ -206,25 +206,26 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
 
                   {/* Subtitle */}
                   <Typography
-                    variant="h6"
+                    variant="body2"
                     sx={{
                       color: colors.primary.main,
                       fontWeight: 600,
-                      mb: 2
+                      mb: 1.5
                     }}
                   >
                     {loginType.subtitle}
                   </Typography>
 
-                  <Divider sx={{ my: 2, backgroundColor: colors.primary.light }} />
+                  <Divider sx={{ my: 1.5, backgroundColor: colors.primary.light }} />
 
                   {/* Description */}
                   <Typography
-                    variant="body1"
+                    variant="body2"
                     sx={{
                       color: colors.neutral.text,
-                      lineHeight: 1.6,
-                      mb: 3
+                      lineHeight: 1.5,
+                      mb: 2,
+                      fontSize: '0.9rem'
                     }}
                   >
                     {loginType.description}
@@ -236,18 +237,18 @@ const LoginTypeModal: React.FC<LoginTypeModalProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: 1,
+                      gap: 0.5,
                       color: colors.primary.main,
                       fontWeight: 'bold'
                     }}
                   >
-                    <Typography variant="button">
+                    <Typography variant="caption" sx={{ fontSize: '0.85rem' }}>
                       Click to Login
                     </Typography>
                     <ArrowForward
                       className="arrow-icon"
                       sx={{
-                        fontSize: 20,
+                        fontSize: 16,
                         transition: 'all 0.3s ease',
                         opacity: 0.7
                       }}
