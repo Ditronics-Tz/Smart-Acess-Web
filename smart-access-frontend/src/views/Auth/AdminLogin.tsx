@@ -9,7 +9,8 @@ import {
   Alert,
   InputAdornment,
   IconButton,
-  Divider
+  Divider,
+  Stack
 } from '@mui/material';
 import {
   AdminPanelSettings,
@@ -17,11 +18,21 @@ import {
   Lock,
   Visibility,
   VisibilityOff,
-  Login
+  Login,
+  ArrowBack,
+  Home
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
 
-const AdminLogin: React.FC = () => {
+interface AdminLoginProps {
+  onBackToHome?: () => void;
+  onBackToSelection?: () => void;
+}
+
+const AdminLogin: React.FC<AdminLoginProps> = ({ 
+  onBackToHome, 
+  onBackToSelection 
+}) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -68,17 +79,80 @@ const AdminLogin: React.FC = () => {
         background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
         display: 'flex',
         alignItems: 'center',
-        py: 4
+        py: 4,
+        position: 'relative'
       }}
     >
-      <Container maxWidth="sm">
+      {/* Background Pattern */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `radial-gradient(circle at 20% 80%, ${colors.primary.light} 0%, transparent 50%),
+                           radial-gradient(circle at 80% 20%, ${colors.primary.light} 0%, transparent 50%)`,
+          opacity: 0.3
+        }}
+      />
+
+      {/* Navigation Buttons */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+          zIndex: 10
+        }}
+      >
+        <Stack direction="row" spacing={2}>
+          {onBackToHome && (
+            <Button
+              variant="outlined"
+              onClick={onBackToHome}
+              startIcon={<Home />}
+              sx={{
+                color: colors.neutral.white,
+                borderColor: colors.neutral.white,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: colors.neutral.white
+                }
+              }}
+            >
+              Home
+            </Button>
+          )}
+          {onBackToSelection && (
+            <Button
+              variant="outlined"
+              onClick={onBackToSelection}
+              startIcon={<ArrowBack />}
+              sx={{
+                color: colors.neutral.white,
+                borderColor: colors.neutral.white,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderColor: colors.neutral.white
+                }
+              }}
+            >
+              Back to Selection
+            </Button>
+          )}
+        </Stack>
+      </Box>
+
+      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 5 }}>
         <Paper
           elevation={24}
           sx={{
             p: 4,
-            borderRadius: 3,
+            borderRadius: 4,
             backgroundColor: colors.neutral.white,
-            border: `1px solid ${colors.primary.light}`
+            border: `1px solid ${colors.primary.light}`,
+            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)'
           }}
         >
           {/* Header */}
@@ -86,27 +160,32 @@ const AdminLogin: React.FC = () => {
             <Box
               sx={{
                 display: 'inline-flex',
-                p: 2,
+                p: 3,
                 borderRadius: '50%',
-                backgroundColor: colors.primary.light,
-                mb: 2
+                background: `linear-gradient(135deg, ${colors.primary.light} 0%, rgba(248, 112, 96, 0.1) 100%)`,
+                mb: 3,
+                border: `2px solid ${colors.primary.light}`
               }}
             >
-              <AdminPanelSettings sx={{ fontSize: 40, color: colors.primary.main }} />
+              <AdminPanelSettings sx={{ fontSize: 48, color: colors.primary.main }} />
             </Box>
             <Typography
-              variant="h4"
+              variant="h3"
               gutterBottom
-              sx={{ fontWeight: 'bold', color: colors.secondary.main }}
+              sx={{ 
+                fontWeight: 'bold', 
+                color: colors.secondary.main,
+                fontSize: { xs: '2rem', md: '2.5rem' }
+              }}
             >
               Administrator Login
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
               Access the admin dashboard to manage the system
             </Typography>
           </Box>
 
-          <Divider sx={{ mb: 3 }} />
+          <Divider sx={{ mb: 4, backgroundColor: colors.primary.light }} />
 
           {/* Login Form */}
           <form onSubmit={handleSubmit}>
@@ -127,6 +206,7 @@ const AdminLogin: React.FC = () => {
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
                   '&.Mui-focused fieldset': {
                     borderColor: colors.primary.main,
                   },
@@ -164,6 +244,7 @@ const AdminLogin: React.FC = () => {
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
                   '&.Mui-focused fieldset': {
                     borderColor: colors.primary.main,
                   },
@@ -175,7 +256,7 @@ const AdminLogin: React.FC = () => {
             />
 
             {error && (
-              <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+              <Alert severity="error" sx={{ mt: 2, mb: 2, borderRadius: 2 }}>
                 {error}
               </Alert>
             )}
@@ -188,14 +269,18 @@ const AdminLogin: React.FC = () => {
               disabled={loading}
               startIcon={<Login />}
               sx={{
-                mt: 3,
+                mt: 4,
                 mb: 2,
-                py: 1.5,
+                py: 2,
+                borderRadius: 2,
                 backgroundColor: colors.primary.main,
                 '&:hover': {
                   backgroundColor: colors.primary.hover,
+                  transform: 'translateY(-2px)',
                 },
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                fontSize: '1.1rem',
+                transition: 'all 0.3s ease'
               }}
             >
               {loading ? 'Signing In...' : 'Sign In as Administrator'}
@@ -206,13 +291,13 @@ const AdminLogin: React.FC = () => {
           <Box
             sx={{
               mt: 3,
-              p: 2,
+              p: 3,
               backgroundColor: colors.neutral.gray,
-              borderRadius: 2,
+              borderRadius: 3,
               border: `1px solid ${colors.primary.light}`
             }}
           >
-            <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1, color: colors.secondary.main }}>
               Demo Credentials:
             </Typography>
             <Typography variant="body2" color="text.secondary">

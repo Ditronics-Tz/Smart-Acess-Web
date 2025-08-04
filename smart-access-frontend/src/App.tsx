@@ -25,22 +25,37 @@ function App() {
     } else {
       setCurrentPage('registration-login');
     }
+    setLoginModalOpen(false);
   };
 
   const handleBackToHome = () => {
     setCurrentPage('home');
   };
 
+  const handleBackToSelection = () => {
+    setLoginModalOpen(true);
+  };
+
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'admin-login':
-        return <AdminLogin />;
+        return (
+          <AdminLogin 
+            onBackToHome={handleBackToHome}
+            onBackToSelection={handleBackToSelection}
+          />
+        );
       case 'registration-login':
-        return <RegistrationLogin />;
+        return (
+          <RegistrationLogin 
+            onBackToHome={handleBackToHome}
+            onBackToSelection={handleBackToSelection}
+          />
+        );
       default:
         return (
           <Layout onLoginClick={handleLoginClick}>
-            <Home />
+            <Home onLoginClick={handleLoginClick} />
           </Layout>
         );
     }
