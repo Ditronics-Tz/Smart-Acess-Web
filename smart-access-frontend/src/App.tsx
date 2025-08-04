@@ -1,7 +1,7 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import Home from './pages/Home';
+import Home from './views/Home';
 
 // Create a custom theme
 const theme = createTheme({
