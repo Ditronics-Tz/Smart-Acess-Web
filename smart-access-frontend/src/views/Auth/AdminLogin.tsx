@@ -79,7 +79,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
         background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
         display: 'flex',
         alignItems: 'center',
-        py: 4,
+        py: { xs: 1, md: 2 },
         position: 'relative'
       }}
     >
@@ -101,27 +101,34 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
       <Box
         sx={{
           position: 'absolute',
-          top: 20,
-          left: 20,
+          top: { xs: 8, md: 16 },
+          left: { xs: 8, md: 16 },
           zIndex: 10
         }}
       >
-        <Stack direction="row" spacing={2}>
+        <Stack 
+          direction={{ xs: 'column', sm: 'row' }} 
+          spacing={1}
+        >
           {onBackToHome && (
             <Button
               variant="outlined"
               onClick={onBackToHome}
               startIcon={<Home />}
+              size="small"
               sx={{
                 color: colors.neutral.white,
                 borderColor: colors.neutral.white,
+                fontSize: { xs: '0.7rem', md: '0.875rem' },
+                px: { xs: 1, md: 2 },
+                py: { xs: 0.5, md: 1 },
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderColor: colors.neutral.white
                 }
               }}
             >
-              Home
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Home</Box>
             </Button>
           )}
           {onBackToSelection && (
@@ -129,63 +136,88 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
               variant="outlined"
               onClick={onBackToSelection}
               startIcon={<ArrowBack />}
+              size="small"
               sx={{
                 color: colors.neutral.white,
                 borderColor: colors.neutral.white,
+                fontSize: { xs: '0.7rem', md: '0.875rem' },
+                px: { xs: 1, md: 2 },
+                py: { xs: 0.5, md: 1 },
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   borderColor: colors.neutral.white
                 }
               }}
             >
-              Back to Selection
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Back</Box>
             </Button>
           )}
         </Stack>
       </Box>
 
-      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 5 }}>
+      <Container 
+        maxWidth="xs" 
+        sx={{ 
+          position: 'relative', 
+          zIndex: 5,
+          px: { xs: 1.5, sm: 2 }
+        }}
+      >
         <Paper
           elevation={24}
           sx={{
-            p: 4,
-            borderRadius: 4,
+            p: { xs: 2.5, sm: 3, md: 4 },
+            borderRadius: { xs: 2, md: 3 },
             backgroundColor: colors.neutral.white,
             border: `1px solid ${colors.primary.light}`,
-            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)'
+            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
+            width: '100%',
+            maxWidth: { xs: '100%', sm: 380, md: 420 },
+            mx: 'auto'
           }}
         >
           {/* Header */}
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Box sx={{ textAlign: 'center', mb: { xs: 2, md: 3 } }}>
             <Box
               sx={{
                 display: 'inline-flex',
-                p: 3,
+                p: { xs: 1.5, md: 2 },
                 borderRadius: '50%',
                 background: `linear-gradient(135deg, ${colors.primary.light} 0%, rgba(248, 112, 96, 0.1) 100%)`,
-                mb: 3,
+                mb: { xs: 1.5, md: 2 },
                 border: `2px solid ${colors.primary.light}`
               }}
             >
-              <AdminPanelSettings sx={{ fontSize: 48, color: colors.primary.main }} />
+              <AdminPanelSettings sx={{ 
+                fontSize: { xs: 28, sm: 36, md: 42 }, 
+                color: colors.primary.main 
+              }} />
             </Box>
             <Typography
-              variant="h3"
+              variant="h4"
               gutterBottom
               sx={{ 
                 fontWeight: 'bold', 
                 color: colors.secondary.main,
-                fontSize: { xs: '2rem', md: '2.5rem' }
+                fontSize: { xs: '1.3rem', sm: '1.5rem', md: '1.8rem' },
+                mb: { xs: 0.5, md: 1 }
               }}
             >
               Administrator Login
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ fontSize: '1.1rem' }}>
+            <Typography 
+              variant="body2" 
+              color="text.secondary" 
+              sx={{ 
+                fontSize: { xs: '0.8rem', md: '0.9rem' },
+                px: { xs: 0.5, md: 0 }
+              }}
+            >
               Access the admin dashboard to manage the system
             </Typography>
           </Box>
 
-          <Divider sx={{ mb: 4, backgroundColor: colors.primary.light }} />
+          <Divider sx={{ mb: { xs: 2, md: 3 }, backgroundColor: colors.primary.light }} />
 
           {/* Login Form */}
           <form onSubmit={handleSubmit}>
@@ -195,24 +227,33 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
               type="email"
               value={formData.email}
               onChange={handleChange('email')}
-              margin="normal"
+              margin="dense"
               required
+              size="small"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Email sx={{ color: colors.primary.main }} />
+                    <Email sx={{ 
+                      color: colors.primary.main,
+                      fontSize: { xs: 18, md: 20 }
+                    }} />
                   </InputAdornment>
                 ),
               }}
               sx={{
+                mb: { xs: 1, md: 1.5 },
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
+                  fontSize: { xs: '0.85rem', md: '0.95rem' },
                   '&.Mui-focused fieldset': {
                     borderColor: colors.primary.main,
                   },
                 },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: colors.primary.main,
+                '& .MuiInputLabel-root': {
+                  fontSize: { xs: '0.85rem', md: '0.95rem' },
+                  '&.Mui-focused': {
+                    color: colors.primary.main,
+                  },
                 },
               }}
             />
@@ -223,12 +264,16 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={handleChange('password')}
-              margin="normal"
+              margin="dense"
               required
+              size="small"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock sx={{ color: colors.primary.main }} />
+                    <Lock sx={{ 
+                      color: colors.primary.main,
+                      fontSize: { xs: 18, md: 20 }
+                    }} />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -236,27 +281,45 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
                     <IconButton
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      size="small"
                     >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                      {showPassword ? 
+                        <VisibilityOff sx={{ fontSize: { xs: 18, md: 20 } }} /> : 
+                        <Visibility sx={{ fontSize: { xs: 18, md: 20 } }} />
+                      }
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
               sx={{
+                mb: { xs: 1, md: 1.5 },
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 2,
+                  fontSize: { xs: '0.85rem', md: '0.95rem' },
                   '&.Mui-focused fieldset': {
                     borderColor: colors.primary.main,
                   },
                 },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: colors.primary.main,
+                '& .MuiInputLabel-root': {
+                  fontSize: { xs: '0.85rem', md: '0.95rem' },
+                  '&.Mui-focused': {
+                    color: colors.primary.main,
+                  },
                 },
               }}
             />
 
             {error && (
-              <Alert severity="error" sx={{ mt: 2, mb: 2, borderRadius: 2 }}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  mt: 1, 
+                  mb: 1, 
+                  borderRadius: 2,
+                  fontSize: { xs: '0.7rem', md: '0.8rem' },
+                  py: { xs: 0.5, md: 1 }
+                }}
+              >
                 {error}
               </Alert>
             )}
@@ -265,46 +328,26 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
               type="submit"
               fullWidth
               variant="contained"
-              size="large"
+              size="medium"
               disabled={loading}
-              startIcon={<Login />}
+              startIcon={<Login sx={{ fontSize: { xs: 16, md: 18 } }} />}
               sx={{
-                mt: 4,
-                mb: 2,
-                py: 2,
+                mt: { xs: 2, md: 3 },
+                py: { xs: 1.2, md: 1.5 },
                 borderRadius: 2,
                 backgroundColor: colors.primary.main,
+                fontSize: { xs: '0.85rem', md: '0.95rem' },
                 '&:hover': {
                   backgroundColor: colors.primary.hover,
-                  transform: 'translateY(-2px)',
+                  transform: 'translateY(-1px)',
                 },
                 fontWeight: 'bold',
-                fontSize: '1.1rem',
                 transition: 'all 0.3s ease'
               }}
             >
               {loading ? 'Signing In...' : 'Sign In as Administrator'}
             </Button>
           </form>
-
-          {/* Demo Credentials */}
-          <Box
-            sx={{
-              mt: 3,
-              p: 3,
-              backgroundColor: colors.neutral.gray,
-              borderRadius: 3,
-              border: `1px solid ${colors.primary.light}`
-            }}
-          >
-            <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1, color: colors.secondary.main }}>
-              Demo Credentials:
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Email: admin@smartaccess.com<br />
-              Password: admin123
-            </Typography>
-          </Box>
         </Paper>
       </Container>
     </Box>
