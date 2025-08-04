@@ -22,7 +22,11 @@ import {
 } from '@mui/icons-material';
 import { colors } from '../styles/themes/colors';
 
-const Home: React.FC = () => {
+interface HomeProps {
+  onLoginClick?: () => void;
+}
+
+const Home: React.FC<HomeProps> = ({ onLoginClick }) => {
   const features = [
     {
       icon: <School sx={{ fontSize: 48, color: colors.primary.main }} />,
@@ -57,8 +61,9 @@ const Home: React.FC = () => {
   ];
 
   const handleAccessSystem = () => {
-    // Add navigation logic here
-    console.log('Access System clicked');
+    if (onLoginClick) {
+      onLoginClick();
+    }
   };
 
   const handleLearnMore = () => {
