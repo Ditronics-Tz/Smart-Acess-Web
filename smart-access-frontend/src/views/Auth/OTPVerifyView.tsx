@@ -23,6 +23,8 @@ import {
 import { colors } from '../../styles/themes/colors';
 import AdminAuthService from '../../service/AdminAuthService';
 import RegistrationAuthService from '../../service/RegistrationAuthService';
+import type { OTPVerifyResponse as AdminOTPResponse } from '../../service/AdminAuthService';
+import type { OTPVerifyResponse as RegistrationOTPResponse } from '../../service/RegistrationAuthService';
 
 interface OTPVerifyViewProps {
   sessionId: string;
@@ -31,18 +33,6 @@ interface OTPVerifyViewProps {
   onBackToLogin?: () => void;
   onBackToHome?: () => void;
   onOTPVerified?: (userType: string) => void;
-}
-
-// Unified interfaces for type safety
-interface UnifiedOTPRequest {
-  session_id: string;
-  otp_code: string;
-  user_type: 'administrator' | 'registration_officer';
-}
-
-interface UnifiedResendRequest {
-  session_id: string;
-  user_type: 'administrator' | 'registration_officer';
 }
 
 const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
@@ -101,7 +91,7 @@ const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
     }
 
     try {
-      let response;
+      let response: AdminOTPResponse | RegistrationOTPResponse;
       
       if (userType === 'administrator') {
         response = await AdminAuthService.verifyOTP({
