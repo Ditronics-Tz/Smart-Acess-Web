@@ -117,7 +117,8 @@ class RegistrationAuthService {
     } else if (error.request) {
       return new Error('Network error. Please check your connection.');
     }
+    return new Error('An unexpected error occurred.');
+  }
+}
 
-        return new Error('An unexpected error occurred.');
-      }
-    }
+export default new RegistrationAuthService();

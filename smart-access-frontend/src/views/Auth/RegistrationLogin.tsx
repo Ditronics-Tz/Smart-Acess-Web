@@ -23,18 +23,21 @@ import {
   Home
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
+import RegistrationAuthService from '../../service/RegistrationAuthService';
 
 interface RegistrationLoginProps {
   onBackToHome?: () => void;
   onBackToSelection?: () => void;
+  onLoginSuccess?: (sessionId: string, userEmail: string) => void;
 }
 
 const RegistrationLogin: React.FC<RegistrationLoginProps> = ({ 
   onBackToHome, 
-  onBackToSelection 
+  onBackToSelection,
+  onLoginSuccess
 }) => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -54,22 +57,35 @@ const RegistrationLogin: React.FC<RegistrationLoginProps> = ({
     setLoading(true);
     setError('');
 
-    if (!formData.email || !formData.password) {
+    if (!formData.username || !formData.password) {
       setError('Please fill in all fields.');
       setLoading(false);
       return;
     }
 
-    // Simulate login API call
-    setTimeout(() => {
-      if (formData.email === 'officer@smartaccess.com' && formData.password === 'officer123') {
-        alert('Registration Officer login successful! Redirecting to dashboard...');
-        // Navigate to registration dashboard
-      } else {
-        setError('Invalid email or password. Please try again.');
-      }
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long.');
       setLoading(false);
-    }, 1000);
+      return;
+    }
+
+    try {
+      const response = await RegistrationAuthService.login({
+        username: formData.username,
+        password: formData.password,
+        user_type: 'registration_officer'
+      });
+
+      // Successfully got session_id, now redirect to OTP verification
+      if (onLoginSuccess) {
+        onLoginSuccess(response.session_id, formData.username);
+      }
+
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -223,10 +239,9 @@ const RegistrationLogin: React.FC<RegistrationLoginProps> = ({
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Email Address"
-              type="email"
-              value={formData.email}
-              onChange={handleChange('email')}
+              label="Username"
+              value={formData.username}
+              onChange={handleChange('username')}
               margin="dense"
               required
               size="small"
@@ -345,7 +360,7 @@ const RegistrationLogin: React.FC<RegistrationLoginProps> = ({
                 transition: 'all 0.3s ease'
               }}
             >
-              {loading ? 'Signing In...' : 'Sign In as Officer'}
+              {loading ? 'Signing In...' : 'Continue to Verification'}
             </Button>
           </form>
         </Paper>

@@ -23,18 +23,21 @@ import {
   Home
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
+import AdminAuthService from '../../service/AdminAuthService';
 
 interface AdminLoginProps {
   onBackToHome?: () => void;
   onBackToSelection?: () => void;
+  onLoginSuccess?: (sessionId: string, userEmail: string) => void;
 }
 
 const AdminLogin: React.FC<AdminLoginProps> = ({ 
   onBackToHome, 
-  onBackToSelection 
+  onBackToSelection,
+  onLoginSuccess
 }) => {
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -54,22 +57,35 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
     setLoading(true);
     setError('');
 
-    if (!formData.email || !formData.password) {
+    if (!formData.username || !formData.password) {
       setError('Please fill in all fields.');
       setLoading(false);
       return;
     }
 
-    // Simulate login API call
-    setTimeout(() => {
-      if (formData.email === 'admin@smartaccess.com' && formData.password === 'admin123') {
-        alert('Admin login successful! Redirecting to dashboard...');
-        // Navigate to admin dashboard
-      } else {
-        setError('Invalid email or password. Please try again.');
-      }
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long.');
       setLoading(false);
-    }, 1000);
+      return;
+    }
+
+    try {
+      const response = await AdminAuthService.login({
+        username: formData.username,
+        password: formData.password,
+        user_type: 'administrator'
+      });
+
+      // Successfully got session_id, now redirect to OTP verification
+      if (onLoginSuccess) {
+        onLoginSuccess(response.session_id, formData.username);
+      }
+
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -223,10 +239,9 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Email Address"
-              type="email"
-              value={formData.email}
-              onChange={handleChange('email')}
+              label="Username"
+              value={formData.username}
+              onChange={handleChange('username')}
               margin="dense"
               required
               size="small"
@@ -345,7 +360,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
                 transition: 'all 0.3s ease'
               }}
             >
-              {loading ? 'Signing In...' : 'Sign In as Administrator'}
+              {loading ? 'Signing In...' : 'Continue to Verification'}
             </Button>
           </form>
         </Paper>
