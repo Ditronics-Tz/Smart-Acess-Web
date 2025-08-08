@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { theme } from './styles/themes/themes';
@@ -10,6 +10,8 @@ import OTPVerifyView from './views/Auth/OTPVerifyView';
 import AdminDashboard from './views/Admin/Dashboard';
 import RegistersDashboard from './views/Registers/Dashboard';
 import LoginTypeModal from './components/common/LoginTypeModal';
+import AdminAuthService from './service/AdminAuthService';
+import RegistrationAuthService from './service/RegistrationAuthService';
 import './styles/global.css';
 
 type CurrentPage = 'home' | 'admin-login' | 'registration-login' | 'otp-verify' | 'admin-dashboard' | 'registers-dashboard';
@@ -24,6 +26,47 @@ function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [otpData, setOtpData] = useState<OTPData | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Check authentication status on app load
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      try {
+        console.log('Checking authentication status...');
+        
+        // Check for access tokens directly from localStorage
+        const accessToken = localStorage.getItem('access_token');
+        const userType = localStorage.getItem('user_type');
+        
+        console.log('Access token exists:', !!accessToken);
+        console.log('User type:', userType);
+        
+        if (accessToken && userType) {
+          if (userType === 'administrator') {
+            console.log('Redirecting to admin dashboard');
+            setCurrentPage('admin-dashboard');
+          } else if (userType === 'registration_officer') {
+            console.log('Redirecting to registration dashboard');
+            setCurrentPage('registers-dashboard');
+          } else {
+            console.log('Unknown user type, staying on home');
+            // Unknown user type, clear tokens and stay on home
+            localStorage.clear();
+          }
+        } else {
+          console.log('No valid authentication found, staying on home');
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        // Clear any corrupted tokens
+        localStorage.clear();
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   const handleLoginClick = () => {
     setLoginModalOpen(true);
@@ -80,10 +123,66 @@ function App() {
     setOtpData(null);
   };
 
-  const handleLogout = () => {
-    setCurrentPage('home');
-    setOtpData(null);
+  const handleLogout = async () => {
+    try {
+      // Determine which auth service to use based on stored user type
+      const userType = localStorage.getItem('user_type');
+      
+      if (userType === 'administrator') {
+        console.log('Logging out admin user');
+        await AdminAuthService.logout();
+      } else if (userType === 'registration_officer') {
+        console.log('Logging out registration officer');
+        await RegistrationAuthService.logout();
+      } else {
+        // Fallback: clear localStorage directly
+        console.log('Clearing localStorage as fallback');
+        localStorage.clear();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      // If logout fails, clear localStorage anyway
+      localStorage.clear();
+    } finally {
+      // Always redirect to home and clear state
+      setCurrentPage('home');
+      setOtpData(null);
+    }
   };
+
+  // Show loading spinner while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          flexDirection: 'column'
+        }}>
+          <div style={{ 
+            width: '40px', 
+            height: '40px', 
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #3498db',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+          <p style={{ marginTop: '20px', color: '#666' }}>Loading...</p>
+        </div>
+        <style>
+          {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+        </style>
+      </ThemeProvider>
+    );
+  }
 
   const renderCurrentPage = () => {
     switch (currentPage) {
@@ -117,7 +216,7 @@ function App() {
       case 'admin-dashboard':
         return <AdminDashboard onLogout={handleLogout} />;
       case 'registers-dashboard':
-        return <RegistersDashboard />;
+        return <RegistersDashboard onLogout={handleLogout} />;
       default:
         return (
           <Layout onLoginClick={handleLoginClick}>

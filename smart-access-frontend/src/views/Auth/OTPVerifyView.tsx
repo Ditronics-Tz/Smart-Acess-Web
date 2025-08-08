@@ -47,29 +47,7 @@ const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
-  const [canResend, setCanResend] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          setCanResend(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, ''); // Only numbers
@@ -141,9 +119,7 @@ const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
       }
 
       setSuccessMessage('New OTP sent to your email');
-      setTimeLeft(300);
-      setCanResend(false);
-
+      
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(''), 3000);
 
@@ -363,20 +339,6 @@ const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
               }}
             />
 
-            {/* Timer */}
-            <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: timeLeft > 60 ? colors.secondary.main : colors.primary.main,
-                  fontWeight: 'bold',
-                  fontSize: '1rem'
-                }}
-              >
-                {timeLeft > 0 ? `Code expires in ${formatTime(timeLeft)}` : 'Code expired'}
-              </Typography>
-            </Box>
-
             {/* Success Message */}
             {successMessage && (
               <Alert 
@@ -444,17 +406,17 @@ const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
               <Button
                 variant="text"
                 onClick={handleResendOTP}
-                disabled={!canResend || resendLoading}
+                disabled={resendLoading}
                 startIcon={<Refresh />}
                 sx={{
-                  color: canResend ? colors.primary.main : colors.neutral.text,
+                  color: colors.primary.main,
                   fontSize: '0.9rem',
                   '&:disabled': {
                     color: colors.neutral.text,
                   }
                 }}
               >
-                {resendLoading ? 'Sending...' : canResend ? 'Resend OTP' : `Resend in ${formatTime(timeLeft)}`}
+                {resendLoading ? 'Sending...' : 'Resend OTP'}
               </Button>
             </Box>
           </form>
