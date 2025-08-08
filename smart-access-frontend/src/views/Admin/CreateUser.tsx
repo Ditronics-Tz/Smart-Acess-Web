@@ -171,7 +171,7 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
         </Box>
       )}
 
-      <Container maxWidth="md" sx={{ position: 'relative', zIndex: 5 }}>
+      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 5 }}>
         <Paper
           elevation={24}
           sx={{
@@ -183,24 +183,24 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
           }}
         >
           {/* Header */}
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Box
               sx={{
                 display: 'inline-flex',
-                p: 3,
+                p: 2,
                 borderRadius: '50%',
                 background: `linear-gradient(135deg, ${colors.primary.light} 0%, rgba(248, 112, 96, 0.1) 100%)`,
                 mb: 2,
-                border: `3px solid ${colors.primary.light}`
+                border: `2px solid ${colors.primary.light}`
               }}
             >
               <PersonAdd sx={{ 
-                fontSize: 48, 
+                fontSize: 36, 
                 color: colors.primary.main 
               }} />
             </Box>
             <Typography
-              variant="h3"
+              variant="h4"
               gutterBottom
               sx={{ 
                 fontWeight: 'bold', 
@@ -211,223 +211,218 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
               Create Registration Officer
             </Typography>
             <Typography 
-              variant="body1" 
+              variant="body2" 
               color="text.secondary" 
-              sx={{ fontSize: '1.1rem' }}
+              sx={{ fontSize: '1rem' }}
             >
               Add a new registration officer to manage student access control
             </Typography>
           </Box>
 
-          <Divider sx={{ mb: 4, backgroundColor: colors.primary.light }} />
+          <Divider sx={{ mb: 3, backgroundColor: colors.primary.light }} />
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
-            {/* Form Fields Container using Flexbox like your Home component */}
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3 }}>
+            <Stack spacing={2.5}>
               {/* Username */}
-              <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(50% - 12px)' } }}>
-                <TextField
-                  fullWidth
-                  label="Username"
-                  value={formData.username}
-                  onChange={handleChange('username')}
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AccountBox sx={{ color: colors.primary.main }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&.Mui-focused fieldset': {
-                        borderColor: colors.primary.main,
-                      },
+              <TextField
+                fullWidth
+                size="small"
+                label="Username"
+                value={formData.username}
+                onChange={handleChange('username')}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AccountBox sx={{ color: colors.primary.main, fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&.Mui-focused fieldset': {
+                      borderColor: colors.primary.main,
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: colors.primary.main,
-                    },
-                  }}
-                />
-              </Box>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: colors.primary.main,
+                  },
+                }}
+              />
 
               {/* Full Name */}
-              <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(50% - 12px)' } }}>
-                <TextField
-                  fullWidth
-                  label="Full Name"
-                  value={formData.full_name}
-                  onChange={handleChange('full_name')}
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person sx={{ color: colors.primary.main }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&.Mui-focused fieldset': {
-                        borderColor: colors.primary.main,
-                      },
+              <TextField
+                fullWidth
+                size="small"
+                label="Full Name"
+                value={formData.full_name}
+                onChange={handleChange('full_name')}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Person sx={{ color: colors.primary.main, fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&.Mui-focused fieldset': {
+                      borderColor: colors.primary.main,
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: colors.primary.main,
-                    },
-                  }}
-                />
-              </Box>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: colors.primary.main,
+                  },
+                }}
+              />
 
               {/* Email */}
-              <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(50% - 12px)' } }}>
-                <TextField
-                  fullWidth
-                  label="Email Address"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange('email')}
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Email sx={{ color: colors.primary.main }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&.Mui-focused fieldset': {
-                        borderColor: colors.primary.main,
-                      },
+              <TextField
+                fullWidth
+                size="small"
+                label="Email Address"
+                type="email"
+                value={formData.email}
+                onChange={handleChange('email')}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Email sx={{ color: colors.primary.main, fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&.Mui-focused fieldset': {
+                      borderColor: colors.primary.main,
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: colors.primary.main,
-                    },
-                  }}
-                />
-              </Box>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: colors.primary.main,
+                  },
+                }}
+              />
 
               {/* Phone Number */}
-              <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(50% - 12px)' } }}>
-                <TextField
-                  fullWidth
-                  label="Phone Number (Optional)"
-                  value={formData.phone_number}
-                  onChange={handleChange('phone_number')}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Phone sx={{ color: colors.primary.main }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&.Mui-focused fieldset': {
-                        borderColor: colors.primary.main,
-                      },
+              <TextField
+                fullWidth
+                size="small"
+                label="Phone Number (Optional)"
+                value={formData.phone_number}
+                onChange={handleChange('phone_number')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Phone sx={{ color: colors.primary.main, fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&.Mui-focused fieldset': {
+                      borderColor: colors.primary.main,
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: colors.primary.main,
-                    },
-                  }}
-                />
-              </Box>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: colors.primary.main,
+                  },
+                }}
+              />
 
               {/* Password */}
-              <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(50% - 12px)' } }}>
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={handleChange('password')}
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Lock sx={{ color: colors.primary.main }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&.Mui-focused fieldset': {
-                        borderColor: colors.primary.main,
-                      },
+              <TextField
+                fullWidth
+                size="small"
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={handleChange('password')}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock sx={{ color: colors.primary.main, fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                        size="small"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&.Mui-focused fieldset': {
+                      borderColor: colors.primary.main,
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: colors.primary.main,
-                    },
-                  }}
-                />
-              </Box>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: colors.primary.main,
+                  },
+                }}
+              />
 
               {/* Confirm Password */}
-              <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 calc(50% - 12px)' } }}>
-                <TextField
-                  fullWidth
-                  label="Confirm Password"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirm_password}
-                  onChange={handleChange('confirm_password')}
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Lock sx={{ color: colors.primary.main }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          edge="end"
-                        >
-                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&.Mui-focused fieldset': {
-                        borderColor: colors.primary.main,
-                      },
+              <TextField
+                fullWidth
+                size="small"
+                label="Confirm Password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={formData.confirm_password}
+                onChange={handleChange('confirm_password')}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock sx={{ color: colors.primary.main, fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        edge="end"
+                        size="small"
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&.Mui-focused fieldset': {
+                      borderColor: colors.primary.main,
                     },
-                    '& .MuiInputLabel-root.Mui-focused': {
-                      color: colors.primary.main,
-                    },
-                  }}
-                />
-              </Box>
-            </Box>
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: colors.primary.main,
+                  },
+                }}
+              />
+            </Stack>
 
             {/* Error Message */}
             {error && (
               <Alert 
                 severity="error" 
                 sx={{ 
-                  mt: 3, 
+                  mt: 2, 
                   borderRadius: 2 
                 }}
               >
@@ -436,19 +431,19 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
             )}
 
             {/* Submit Button */}
-            <Box sx={{ mt: 4, textAlign: 'center' }}>
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
               <Button
                 type="submit"
                 variant="contained"
-                size="large"
+                size="medium"
                 disabled={loading}
                 startIcon={<PersonAdd />}
                 sx={{
-                  px: 6,
-                  py: 2,
+                  px: 4,
+                  py: 1.5,
                   borderRadius: 3,
                   backgroundColor: colors.primary.main,
-                  fontSize: '1.1rem',
+                  fontSize: '1rem',
                   fontWeight: 'bold',
                   '&:hover': {
                     backgroundColor: colors.primary.hover,
