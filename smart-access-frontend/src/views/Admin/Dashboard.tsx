@@ -45,7 +45,7 @@ interface AdminDashboardProps {
 
 const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [currentView, setCurrentView] = useState<"dashboard" | "create-user">("dashboard")
+  const [currentView, setCurrentView] = useState<"dashboard" | "create-user" | "users" | "reports" | "settings">("dashboard")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -149,17 +149,22 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     { action: "Permission updated", user: "Mike Johnson", time: "2 hours ago", type: "permission" },
   ]
 
+  const handleSidebarNavigation = (view: string) => {
+    if (view === "dashboard") {
+      setCurrentView("dashboard");
+    } else if (view === "create-user") {
+      setCurrentView("create-user");
+    } else {
+      // Handle other views or show coming soon message
+      console.log(`Navigating to ${view}`);
+      // You can add more view states here as needed
+    }
+  }
+
   if (currentView === "create-user") {
     return (
-      <Box sx={{ display: "flex" }}>
-        <AdminSidebar collapsed={sidebarCollapsed} />
-        <Box sx={{ 
-          flex: 1, 
-          ml: sidebarCollapsed ? "64px" : "280px",
-          transition: "margin-left 0.3s ease"
-        }}>
-          <CreateUser onBack={() => setCurrentView("dashboard")} />
-        </Box>
+      <Box sx={{ width: "100vw", height: "100vh" }}>
+        <CreateUser onBack={() => setCurrentView("dashboard")} />
       </Box>
     );
   }
@@ -167,7 +172,11 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   return (
     <Box sx={{ display: "flex" }}>
       {/* Sidebar */}
-      <AdminSidebar collapsed={sidebarCollapsed} />
+      <AdminSidebar 
+        collapsed={sidebarCollapsed} 
+        currentView={currentView}
+        onNavigate={handleSidebarNavigation}
+      />
 
       {/* Main Content */}
       <Box sx={{ 
