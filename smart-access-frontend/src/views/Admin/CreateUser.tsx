@@ -11,12 +11,7 @@ import {
   IconButton,
   Alert,
   Snackbar,
-  Stack,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent
+  Stack
 } from '@mui/material';
 import {
   PersonAdd,
@@ -24,11 +19,9 @@ import {
   AccountBox,
   Person,
   Email,
-  Phone,
   Lock,
   Visibility,
-  VisibilityOff,
-  AdminPanelSettings
+  VisibilityOff
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
 import CreateRegistrationOfficerService, { CreateOfficerRequest } from '../../service/CreateRegistrationOfficerService';
@@ -38,12 +31,11 @@ interface CreateUserProps {
 }
 
 const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
-  const [formData, setFormData] = useState<CreateOfficerRequest>({
+  const [formData, setFormData] = useState<Omit<CreateOfficerRequest, 'user_type'>>({
     username: '',
     full_name: '',
     email: '',
     phone_number: '',
-    user_type: 'registration_officer',
     password: '',
     confirm_password: ''
   });
@@ -55,15 +47,7 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
-  const handleChange = (field: keyof CreateOfficerRequest) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: event.target.value
-    }));
-    setError('');
-  };
-
-  const handleSelectChange = (field: keyof CreateOfficerRequest) => (event: SelectChangeEvent) => {
+  const handleChange = (field: keyof Omit<CreateOfficerRequest, 'user_type'>) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
       [field]: event.target.value
@@ -92,20 +76,12 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
       setError('Please enter a valid email address.');
       return false;
     }
-    if (formData.phone_number && formData.phone_number.length > 20) {
-      setError('Phone number must be at most 20 characters long.');
-      return false;
-    }
     if (!formData.password || formData.password.length < 8) {
       setError('Password must be at least 8 characters long.');
       return false;
     }
     if (formData.password !== formData.confirm_password) {
       setError('Passwords do not match.');
-      return false;
-    }
-    if (!formData.user_type) {
-      setError('Please select a user type.');
       return false;
     }
     return true;
@@ -119,9 +95,14 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
     setError('');
 
     try {
-      const response = await CreateRegistrationOfficerService.createUser(formData);
-      const userTypeLabel = formData.user_type === 'administrator' ? 'Administrator' : 'Registration Officer';
-      setSuccessMessage(`${userTypeLabel} "${response.username}" created successfully!`);
+      // Always create as registration officer
+      const requestData: CreateOfficerRequest = {
+        ...formData,
+        user_type: 'registration_officer'
+      };
+      
+      const response = await CreateRegistrationOfficerService.createUser(requestData);
+      setSuccessMessage(`Registration Officer "${response.username}" created successfully!`);
       setSnackbarOpen(true);
       
       // Clear form after successful creation
@@ -130,7 +111,6 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
         full_name: '',
         email: '',
         phone_number: '',
-        user_type: 'registration_officer',
         password: '',
         confirm_password: ''
       });
@@ -232,14 +212,14 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
                 mb: 1
               }}
             >
-              Create New User
+              Create Registration Officer
             </Typography>
             <Typography 
               variant="body2" 
               color="text.secondary" 
               sx={{ fontSize: '1rem' }}
             >
-              Add a new user to the Smart Access Control System
+              Add a new registration officer to the Smart Access Control System
             </Typography>
           </Box>
 
@@ -248,36 +228,6 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <Stack spacing={2.5}>
-              {/* User Type Selection */}
-              <FormControl fullWidth size="small" required>
-                <InputLabel sx={{ '&.Mui-focused': { color: colors.primary.main } }}>
-                  User Type
-                </InputLabel>
-                <Select
-                  value={formData.user_type}
-                  onChange={handleSelectChange('user_type')}
-                  label="User Type"
-                  startAdornment={
-                    <InputAdornment position="start">
-                      {formData.user_type === 'administrator' ? (
-                        <AdminPanelSettings sx={{ color: colors.primary.main, fontSize: 20 }} />
-                      ) : (
-                        <PersonAdd sx={{ color: colors.primary.main, fontSize: 20 }} />
-                      )}
-                    </InputAdornment>
-                  }
-                  sx={{
-                    borderRadius: 2,
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: colors.primary.main,
-                    },
-                  }}
-                >
-                  <MenuItem value="registration_officer">Registration Officer</MenuItem>
-                  <MenuItem value="administrator">Administrator</MenuItem>
-                </Select>
-              </FormControl>
-
               {/* Username */}
               <TextField
                 fullWidth
@@ -354,36 +304,6 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
                   startAdornment: (
                     <InputAdornment position="start">
                       <Email sx={{ color: colors.primary.main, fontSize: 20 }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    '&.Mui-focused fieldset': {
-                      borderColor: colors.primary.main,
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: colors.primary.main,
-                  },
-                }}
-              />
-
-              {/* Phone Number */}
-              <TextField
-                fullWidth
-                size="small"
-                label="Phone Number (Optional)"
-                value={formData.phone_number}
-                onChange={handleChange('phone_number')}
-                inputProps={{
-                  maxLength: 20
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Phone sx={{ color: colors.primary.main, fontSize: 20 }} />
                     </InputAdornment>
                   ),
                 }}
@@ -529,7 +449,7 @@ const CreateUser: React.FC<CreateUserProps> = ({ onBack }) => {
                   transition: 'all 0.3s ease'
                 }}
               >
-                {loading ? 'Creating...' : `Create ${formData.user_type === 'administrator' ? 'Administrator' : 'Registration Officer'}`}
+                {loading ? 'Creating...' : 'Create Registration Officer'}
               </Button>
             </Box>
           </form>
