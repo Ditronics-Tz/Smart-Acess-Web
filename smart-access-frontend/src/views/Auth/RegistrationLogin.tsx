@@ -23,7 +23,7 @@ import {
   Home
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
-import RegistrationAuthService from '../../service/RegistrationAuthService';
+import AuthService from '../../service/AuthService';
 
 interface RegistrationLoginProps {
   onBackToHome?: () => void;
@@ -70,7 +70,7 @@ const RegistrationLogin: React.FC<RegistrationLoginProps> = ({
     }
 
     try {
-      const response = await RegistrationAuthService.login({
+      const response = await AuthService.login({
         username: formData.username,
         password: formData.password,
         user_type: 'registration_officer'

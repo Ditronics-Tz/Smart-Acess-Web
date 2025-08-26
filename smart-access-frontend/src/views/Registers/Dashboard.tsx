@@ -10,7 +10,7 @@ import {
     MenuItem
 } from '@mui/material';
 import { AccountCircle, ExitToApp } from '@mui/icons-material';
-import RegistrationAuthService from '../../service/RegistrationAuthService';
+import AuthService from '../../service/AuthService';
 
 interface RegistersDashboardProps {
     onLogout?: () => void;
@@ -29,7 +29,7 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
 
     const handleLogout = async () => {
         try {
-            await RegistrationAuthService.logout();
+            await AuthService.logout();
             if (onLogout) {
                 onLogout();
             }
@@ -42,7 +42,7 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
         }
     };
 
-    const username = RegistrationAuthService.getUsername();
+    const username = AuthService.getUsername();
 
     return (
         <Box sx={{ flexGrow: 1 }}>

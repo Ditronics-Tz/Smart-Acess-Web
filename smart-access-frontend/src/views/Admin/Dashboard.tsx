@@ -35,7 +35,7 @@ import {
   Menu as MenuIcon,
 } from "@mui/icons-material"
 import { colors } from '../../styles/themes/colors';
-import AdminAuthService from '../../service/AdminAuthService';
+import AuthService from '../../service/AuthService';
 import CreateUser from './CreateUser';
 import AdminSidebar from './shared/AdminSidebar';
 
@@ -58,7 +58,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      await AdminAuthService.logout();
+      await AuthService.logout();
       if (onLogout) {
         onLogout();
       }
@@ -74,7 +74,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     setSidebarCollapsed(!sidebarCollapsed)
   }
 
-  const username = AdminAuthService.getUsername();
+  const username = AuthService.getUsername();
 
   const dashboardCards = [
     {

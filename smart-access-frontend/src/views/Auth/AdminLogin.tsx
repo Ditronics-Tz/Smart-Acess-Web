@@ -23,7 +23,7 @@ import {
   Home
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
-import AdminAuthService from '../../service/AdminAuthService';
+import AuthService from '../../service/AuthService';
 
 interface AdminLoginProps {
   onBackToHome?: () => void;
@@ -70,7 +70,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({
     }
 
     try {
-      const response = await AdminAuthService.login({
+      const response = await AuthService.login({
         username: formData.username,
         password: formData.password,
         user_type: 'administrator'

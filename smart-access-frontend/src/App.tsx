@@ -10,8 +10,7 @@ import OTPVerifyView from './views/Auth/OTPVerifyView';
 import AdminDashboard from './views/Admin/Dashboard';
 import RegistersDashboard from './views/Registers/Dashboard';
 import LoginTypeModal from './components/common/LoginTypeModal';
-import AdminAuthService from './service/AdminAuthService';
-import RegistrationAuthService from './service/RegistrationAuthService';
+import AuthService from './service/AuthService';
 import './styles/global.css';
 
 type CurrentPage = 'home' | 'admin-login' | 'registration-login' | 'otp-verify' | 'admin-dashboard' | 'registers-dashboard';
@@ -130,10 +129,10 @@ function App() {
       
       if (userType === 'administrator') {
         console.log('Logging out admin user');
-        await AdminAuthService.logout();
+        await AuthService.logout();
       } else if (userType === 'registration_officer') {
         console.log('Logging out registration officer');
-        await RegistrationAuthService.logout();
+        await AuthService.logout();
       } else {
         // Fallback: clear localStorage directly
         console.log('Clearing localStorage as fallback');

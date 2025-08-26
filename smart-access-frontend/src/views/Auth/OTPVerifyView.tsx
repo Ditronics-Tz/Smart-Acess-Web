@@ -21,10 +21,10 @@ import {
   VerifiedUser
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
-import AdminAuthService from '../../service/AdminAuthService';
-import RegistrationAuthService from '../../service/RegistrationAuthService';
-import type { OTPVerifyResponse as AdminOTPResponse } from '../../service/AdminAuthService';
-import type { OTPVerifyResponse as RegistrationOTPResponse } from '../../service/RegistrationAuthService';
+import AuthService from '../../service/AuthService';
+import AuthService from '../../service/AuthService';
+import type { OTPVerifyResponse as AdminOTPResponse } from '../../service/AuthService';
+import type { OTPVerifyResponse as RegistrationOTPResponse } from '../../service/AuthService';
 
 interface OTPVerifyViewProps {
   sessionId: string;
@@ -72,13 +72,13 @@ const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
       let response: AdminOTPResponse | RegistrationOTPResponse;
       
       if (userType === 'administrator') {
-        response = await AdminAuthService.verifyOTP({
+        response = await AuthService.verifyOTP({
           session_id: sessionId,
           otp_code: otp,
           user_type: 'administrator'
         });
       } else {
-        response = await RegistrationAuthService.verifyOTP({
+        response = await AuthService.verifyOTP({
           session_id: sessionId,
           otp_code: otp,
           user_type: 'registration_officer'
@@ -107,12 +107,12 @@ const OTPVerifyView: React.FC<OTPVerifyViewProps> = ({
 
     try {
       if (userType === 'administrator') {
-        await AdminAuthService.resendOTP({
+        await AuthService.resendOTP({
           session_id: sessionId,
           user_type: 'administrator'
         });
       } else {
-        await RegistrationAuthService.resendOTP({
+        await AuthService.resendOTP({
           session_id: sessionId,
           user_type: 'registration_officer'
         });

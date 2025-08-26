@@ -46,7 +46,7 @@ export interface CreateOfficerResponse {
   email: string;
 }
 
-class AdminAuthService {
+class AuthService {
   private readonly baseURL = '/auth';
 
   async login(credentials: LoginRequest): Promise<LoginResponse> {
@@ -158,4 +158,4 @@ class AdminAuthService {
   }
 }
 
-export default new AdminAuthService();
+export default new AuthService();
