@@ -14,17 +14,45 @@ export const apiClient = axios.create({
   },
 });
 
+// Helper function to decode JWT token and check expiration
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Math.floor(Date.now() / 1000);
+    return payload.exp < currentTime;
+  } catch (error) {
+    return true;
+  }
+}
+
+// Track if refresh is in progress to prevent multiple refresh attempts
+let isRefreshing = false;
+let failedQueue: Array<{ resolve: (value?: any) => void; reject: (reason?: any) => void }> = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
+
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
-    if (token) {
+    if (token && !isTokenExpired(token)) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Debug logging
-    console.log('Making request to:', (config.baseURL || '') + (config.url || ''));
-    console.log('Request config:', config);
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Making request to:', (config.baseURL || '') + (config.url || ''));
+    }
     
     return config;
   },
@@ -37,15 +65,29 @@ apiClient.interceptors.request.use(
 // Response interceptor to handle token refresh
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('Response received:', response);
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Response received:', response.status, response.config.url);
+    }
     return response;
   },
   async (error) => {
-    console.error('Response error:', error);
     const originalRequest = error.config;
     
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If refresh is already in progress, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(() => {
+          return apiClient(originalRequest);
+        }).catch(err => {
+          return Promise.reject(err);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
       
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
@@ -59,15 +101,36 @@ apiClient.interceptors.response.use(
           localStorage.setItem('refresh_token', refresh);
           
           originalRequest.headers.Authorization = `Bearer ${access}`;
+          processQueue(null, access);
+          
           return apiClient(originalRequest);
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
-          // Refresh failed, redirect to login
+          processQueue(refreshError, null);
+          
+          // Refresh failed, clear tokens
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user_type');
           localStorage.removeItem('user_id');
           localStorage.removeItem('username');
+          
+          // Only redirect if not already on auth page
+          if (!window.location.pathname.includes('login')) {
+            window.location.href = '/';
+          }
+        } finally {
+          isRefreshing = false;
+        }
+      } else {
+        // No refresh token, clear everything
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_type');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('username');
+        
+        if (!window.location.pathname.includes('login')) {
           window.location.href = '/';
         }
       }
