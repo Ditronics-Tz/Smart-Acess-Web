@@ -15,6 +15,7 @@ import './styles/global.css';
 
 type CurrentPage = 'home' | 'admin-login' | 'registration-login' | 'otp-verify' | 'admin-dashboard' | 'registers-dashboard';
 
+// Keep OTP interface for future use but not currently needed
 interface OTPData {
   sessionId: string;
   userType: 'administrator' | 'registration_officer';
@@ -90,6 +91,18 @@ function App() {
     setOtpData(null);
   };
 
+  // Updated: Direct login success handler (no OTP step)
+  const handleLoginSuccess = (userType: string) => {
+    // Redirect directly to appropriate dashboard since OTP is disabled
+    if (userType === 'administrator') {
+      setCurrentPage('admin-dashboard');
+    } else if (userType === 'registration_officer') {
+      setCurrentPage('registers-dashboard');
+    }
+    setOtpData(null);
+  };
+
+  // Keep for backward compatibility but not currently used
   const handleBackToLogin = () => {
     // Go back to the appropriate login page based on current user type
     if (otpData?.userType === 'administrator') {
@@ -100,18 +113,7 @@ function App() {
     setOtpData(null);
   };
 
-  const handleLoginSuccess = (sessionId: string, userEmail: string) => {
-    // Determine user type based on current page
-    const userType = currentPage === 'admin-login' ? 'administrator' : 'registration_officer';
-    
-    setOtpData({
-      sessionId,
-      userType,
-      userEmail
-    });
-    setCurrentPage('otp-verify');
-  };
-
+  // Keep for future OTP implementation
   const handleOTPVerified = (userType: string) => {
     // Redirect to appropriate dashboard based on user type
     if (userType === 'administrator') {
@@ -124,20 +126,8 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      // Determine which auth service to use based on stored user type
-      const userType = localStorage.getItem('user_type');
-      
-      if (userType === 'administrator') {
-        console.log('Logging out admin user');
-        await AuthService.logout();
-      } else if (userType === 'registration_officer') {
-        console.log('Logging out registration officer');
-        await AuthService.logout();
-      } else {
-        // Fallback: clear localStorage directly
-        console.log('Clearing localStorage as fallback');
-        localStorage.clear();
-      }
+      console.log('Logging out user');
+      await AuthService.logout();
     } catch (error) {
       console.error('Logout error:', error);
       // If logout fails, clear localStorage anyway
@@ -202,6 +192,7 @@ function App() {
           />
         );
       case 'otp-verify':
+        // Keep for future use but not currently accessed
         return otpData ? (
           <OTPVerifyView
             sessionId={otpData.sessionId}

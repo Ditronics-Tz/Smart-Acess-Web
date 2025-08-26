@@ -22,7 +22,6 @@ import {
 } from '@mui/icons-material';
 import { colors } from '../../styles/themes/colors';
 import AuthService from '../../service/AuthService';
-import AuthService from '../../service/AuthService';
 import type { OTPVerifyResponse as AdminOTPResponse } from '../../service/AuthService';
 import type { OTPVerifyResponse as RegistrationOTPResponse } from '../../service/AuthService';
 

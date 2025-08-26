@@ -3,18 +3,24 @@ import { apiClient } from '../api/config';
 export interface LoginRequest {
   username: string;
   password: string;
-  user_type: 'administrator';
+  user_type: 'administrator' | 'registration_officer';
 }
 
+// Updated LoginResponse to match the new API response
 export interface LoginResponse {
-  session_id: string;
+  access: string;
+  refresh: string;
+  user_type: string;
+  user_id: string;
+  username: string;
   message: string;
 }
 
+// Keep OTP interfaces for future use but mark as unused
 export interface OTPVerifyRequest {
   session_id: string;
   otp_code: string;
-  user_type: 'administrator';
+  user_type: 'administrator' | 'registration_officer';
 }
 
 export interface OTPVerifyResponse {
@@ -27,7 +33,7 @@ export interface OTPVerifyResponse {
 
 export interface ResendOTPRequest {
   session_id: string;
-  user_type: 'administrator';
+  user_type: 'administrator' | 'registration_officer';
 }
 
 export interface CreateOfficerRequest {
@@ -35,13 +41,14 @@ export interface CreateOfficerRequest {
   full_name: string;
   email: string;
   phone_number?: string;
+  user_type: 'administrator' | 'registration_officer';
   password: string;
   confirm_password: string;
 }
 
 export interface CreateOfficerResponse {
   message: string;
-  officer_id: string;
+  user_id: string;
   username: string;
   email: string;
 }
@@ -49,15 +56,26 @@ export interface CreateOfficerResponse {
 class AuthService {
   private readonly baseURL = '/auth';
 
+  // Updated login method to handle direct JWT token response
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
       const response = await apiClient.post(`${this.baseURL}/login`, credentials);
+      
+      // Store tokens immediately since OTP is disabled
+      const { access, refresh, user_type, user_id, username } = response.data;
+      localStorage.setItem('access_token', access);
+      localStorage.setItem('refresh_token', refresh);
+      localStorage.setItem('user_type', user_type);
+      localStorage.setItem('user_id', user_id);
+      localStorage.setItem('username', username);
+      
       return response.data;
     } catch (error: any) {
       throw this.handleError(error);
     }
   }
 
+  // Keep OTP methods for future use but mark as unused
   async verifyOTP(otpData: OTPVerifyRequest): Promise<OTPVerifyResponse> {
     try {
       const response = await apiClient.post(`${this.baseURL}/verify-otp`, otpData);
@@ -85,9 +103,10 @@ class AuthService {
     }
   }
 
-  async createRegistrationOfficer(officerData: CreateOfficerRequest): Promise<CreateOfficerResponse> {
+  // Updated to use the new create-user endpoint
+  async createUser(userData: CreateOfficerRequest): Promise<CreateOfficerResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/create-registration-officer`, officerData);
+      const response = await apiClient.post(`${this.baseURL}/create-user`, userData);
       return response.data;
     } catch (error: any) {
       throw this.handleError(error);
@@ -112,6 +131,27 @@ class AuthService {
     }
   }
 
+  async refreshToken(): Promise<{ access: string; refresh: string }> {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+      
+      const response = await apiClient.post(`${this.baseURL}/refresh`, { refresh: refreshToken });
+      
+      // Update stored tokens
+      localStorage.setItem('access_token', response.data.access);
+      localStorage.setItem('refresh_token', response.data.refresh);
+      
+      return response.data;
+    } catch (error: any) {
+      // If refresh fails, clear all tokens
+      this.logout();
+      throw this.handleError(error);
+    }
+  }
+
   isAuthenticated(): boolean {
     return !!localStorage.getItem('access_token');
   }
@@ -122,6 +162,14 @@ class AuthService {
 
   getUsername(): string | null {
     return localStorage.getItem('username');
+  }
+
+  getUserId(): string | null {
+    return localStorage.getItem('user_id');
+  }
+
+  getAccessToken(): string | null {
+    return localStorage.getItem('access_token');
   }
 
   private handleError(error: any): Error {
