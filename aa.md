@@ -272,11 +272,12 @@ curl -X POST http://localhost:8000/auth/create-user \
 ### 6. Logout
 **Endpoint:** `POST /logout`
 
-**Description:** Logs out user and blacklists refresh token
+**Description:** Logs out user and blacklists refresh token to prevent further use
 
 **Headers:**
 ```
 Authorization: Bearer <access_token>
+Content-Type: application/json
 ```
 
 **Request Body:**
@@ -286,6 +287,9 @@ Authorization: Bearer <access_token>
 }
 ```
 
+**Field Validation:**
+- `refresh`: Valid JWT refresh token string, required
+
 **Success Response (200):**
 ```json
 {
@@ -293,257 +297,270 @@ Authorization: Bearer <access_token>
 }
 ```
 
-**Error Response (400):**
+**Error Responses:**
 ```json
+// Invalid refresh token (400)
 {
     "detail": "Invalid refresh token."
 }
-```
 
----
-
-## Rate Limiting
-
-### Login Endpoint
-- **IP-based**: 5 attempts per 15 minutes
-- **Username-based**: 3 attempts per 10 minutes
-
-### OTP Verification (When Enabled)
-- **IP-based**: 10 attempts per 10 minutes
-- **Session-based**: 5 attempts per session
-
-### Resend OTP (When Enabled)
-- **IP-based**: 3 attempts per 5 minutes
-
-**Rate Limit Response (429):**
-```json
+// Authentication required (401)
 {
-    "detail": "Too many attempts. Try again in 15 minutes."
+    "detail": "Authentication credentials were not provided."
+}
+
+// Missing refresh token (400)
+{
+    "refresh": ["This field is required."]
 }
 ```
 
----
+### **Complete Logout Example**
 
-## User Types
-
-### Administrator
-- Can create registration officers and other administrators
-- Has account locking mechanism
-- Tracks failed login attempts
-- Access to all administrative functions
-- Can manage security personnel (via administrator module)
-
-### Registration Officer
-- Can login and access assigned features
-- Uses active/inactive status instead of account locking
-- Limited permissions compared to administrators
-- Cannot create other users
-
----
-
-## **Updated Authentication Flow (OTP Disabled)**
-
-1. **Login** → Get JWT tokens directly
-2. **Use Access Token** → For authenticated requests
-3. **Refresh Token** → When access token expires
-4. **Logout** → Blacklist refresh token
-
-### **Previous Flow (When OTP Was Enabled)**
-~~1. Login → Get session_id~~
-~~2. Check Email → Receive 6-digit OTP~~
-~~3. Verify OTP → Get JWT tokens~~
-~~4. Use Access Token → For authenticated requests~~
-~~5. Refresh Token → When access token expires~~
-~~6. Logout → Blacklist refresh token~~
-
----
-
-## Error Handling
-
-All endpoints return appropriate HTTP status codes:
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request (validation errors)
-- `401` - Unauthorized
-- `403` - Forbidden
-- `404` - Not Found
-- `429` - Too Many Requests
-
----
-
-## **Updated Notes for Frontend Team**
-
-1. **Simplified Login Flow**: No need to handle OTP verification step
-2. **Direct Token Receipt**: JWT tokens are received immediately after successful login
-3. **Store tokens securely** (localStorage/sessionStorage)
-4. **Handle token expiration** gracefully
-5. **Implement rate limiting feedback** to users
-6. **Validate form inputs** before sending requests
-7. **Handle network errors** appropriately
-8. **Clear tokens on logout**
-
-### **Frontend Implementation Example**
-
+**JavaScript Implementation:**
 ```javascript
-// Login function (updated)
-async function login(username, password, userType) {
-    try {
-        const response = await fetch('http://localhost:8000/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password,
-                user_type: userType
-            })
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            
-            // Store tokens securely
-            localStorage.setItem('access_token', data.access);
-            localStorage.setItem('refresh_token', data.refresh);
-            localStorage.setItem('user_info', JSON.stringify({
-                user_id: data.user_id,
-                username: data.username,
-                user_type: data.user_type
-            }));
-
-            // Redirect to dashboard
-            window.location.href = '/dashboard';
-        } else {
-            const error = await response.json();
-            alert(error.detail);
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        alert('An error occurred during login');
-    }
-}
-
-// Create Registration Officer function
-async function createRegistrationOfficer(officerData) {
+// Logout function
+async function logout() {
     try {
         const accessToken = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
         
-        const response = await fetch('http://localhost:8000/auth/create-user', {
+        if (!accessToken || !refreshToken) {
+            console.error('No tokens found');
+            // Clear any remaining tokens and redirect
+            localStorage.clear();
+            window.location.href = '/login';
+            return;
+        }
+
+        const response = await fetch('http://localhost:8000/auth/logout', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: officerData.username,
-                full_name: officerData.fullName,
-                email: officerData.email,
-                phone_number: officerData.phoneNumber,
-                user_type: "registration_officer",
-                password: officerData.password,
-                confirm_password: officerData.confirmPassword
+                refresh: refreshToken
             })
         });
 
         if (response.ok) {
             const data = await response.json();
-            alert('Registration officer created successfully!');
-            return data;
+            console.log(data.message); // "Successfully logged out."
+            
+            // Clear all stored tokens and user data
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_info');
+            
+            // Redirect to login page
+            window.location.href = '/login';
         } else {
             const error = await response.json();
-            console.error('Creation error:', error);
-            throw error;
+            console.error('Logout error:', error);
+            
+            // Even if logout fails, clear local tokens
+            localStorage.clear();
+            window.location.href = '/login';
         }
     } catch (error) {
-        console.error('Create user error:', error);
-        throw error;
+        console.error('Logout error:', error);
+        
+        // Clear tokens on any error
+        localStorage.clear();
+        window.location.href = '/login';
     }
 }
 
-// Example usage
-const newOfficer = {
-    username: "officer001",
-    fullName: "Jane Smith",
-    email: "jane.smith@example.com",
-    phoneNumber: "+1234567890",
-    password: "securePassword123",
-    confirmPassword: "securePassword123"
-};
-
-createRegistrationOfficer(newOfficer)
-    .then(result => console.log('Officer created:', result))
-    .catch(error => console.error('Error:', error));
+// Example usage with logout button
+document.getElementById('logout-btn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to logout?')) {
+        logout();
+    }
+});
 ```
 
----
+**Using cURL:**
+```bash
+# Logout (replace YOUR_ACCESS_TOKEN and YOUR_REFRESH_TOKEN)
+curl -X POST http://localhost:8000/auth/logout \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refresh": "YOUR_REFRESH_TOKEN"
+  }'
+```
 
-## **Validation Rules Summary**
+### **Logout Implementation Details**
 
-### **CreateUserSerializer Validations:**
+**Backend Process (LogoutAPIView):**
+1. **Authentication Check**: Verifies user is authenticated via JWT access token
+2. **Serializer Validation**: Uses `LogoutSerializer` to validate refresh token format
+3. **Token Blacklisting**: Adds refresh token to blacklist to prevent reuse
+4. **Response**: Returns success message or error details
 
-1. **Password Confirmation**: `password` must match `confirm_password`
-2. **Username Uniqueness**: Username must be unique across all users
-3. **Email Uniqueness**: Email must be unique across all users
-4. **Password Length**: Minimum 8 characters
-5. **Username Length**: 3-50 characters
-6. **Required Fields**: username, full_name, email, user_type, password, confirm_password
-7. **Optional Fields**: phone_number (max 20 characters)
+**Frontend Best Practices:**
+1. **Always clear local storage** even if logout request fails
+2. **Redirect to login page** after logout
+3. **Handle network errors** gracefully
+4. **Confirm logout action** with user before proceeding
+5. **Clear all user-related data** including tokens and user info
 
-### **User Types Available:**
-- `"administrator"` - Full access to all features
-- `"registration_officer"` - Limited access to assigned features
+### **Security Features**
 
----
+1. **Token Blacklisting**: Refresh tokens are permanently blacklisted after logout
+2. **Authentication Required**: Must provide valid access token to logout
+3. **Prevents Token Reuse**: Blacklisted tokens cannot be used for new access tokens
+4. **Immediate Invalidation**: Tokens become invalid immediately after logout
 
-## **Deployment Changes**
+### **Error Handling Examples**
 
-### **Development Environment**
-- **URL**: `http://localhost:8000`
-- **Database**: PostgreSQL or SQLite
-- **Debug Mode**: Enabled
+```javascript
+// Enhanced logout with proper error handling
+async function logoutWithErrorHandling() {
+    try {
+        const accessToken = localStorage.getItem('access_token');
+        const refreshToken = localStorage.getItem('refresh_token');
+        
+        // Check if tokens exist
+        if (!accessToken || !refreshToken) {
+            throw new Error('No authentication tokens found');
+        }
 
-### **Production Environment** 
-- **URL**: TBD
-- **Database**: PostgreSQL recommended
-- **Debug Mode**: Disabled
-- **HTTPS**: Required for JWT token security
+        const response = await fetch('http://localhost:8000/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                refresh: refreshToken
+            })
+        });
 
----
+        const data = await response.json();
 
-## **Security Considerations**
+        if (response.ok) {
+            // Successful logout
+            console.log('✅ Logout successful:', data.message);
+            clearUserSession();
+            redirectToLogin();
+        } else {
+            // Handle specific error cases
+            if (response.status === 401) {
+                console.warn('⚠️ Authentication expired, clearing session');
+            } else if (response.status === 400) {
+                console.warn('⚠️ Invalid refresh token, clearing session');
+            } else {
+                console.error('❌ Logout failed:', data.detail);
+            }
+            
+            // Clear session even on error
+            clearUserSession();
+            redirectToLogin();
+        }
+    } catch (error) {
+        console.error('❌ Network error during logout:', error.message);
+        
+        // Clear tokens on any error
+        clearUserSession();
+        redirectToLogin();
+    }
+}
 
-1. **JWT Token Security**: Tokens contain user information and should be stored securely
-2. **Rate Limiting**: Prevents brute force attacks
-3. **Account Locking**: Administrators can be locked after failed attempts
-4. **Password Requirements**: Minimum 8 characters
-5. **Unique Constraints**: Username and email must be unique
-6. **Permission Checks**: Only administrators can create new users
-7. **Input Validation**: All inputs are validated on both frontend and backend
+function clearUserSession() {
+    // Clear all authentication data
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_info');
+    
+    // Clear any cached user data
+    sessionStorage.clear();
+}
 
----
+function redirectToLogin() {
+    // Add a slight delay to ensure storage is cleared
+    setTimeout(() => {
+        window.location.href = '/login';
+    }, 100);
+}
+```
 
-## **Related Modules**
+### **Integration with Authentication Flow**
 
-### **Administrator Module**
-- **Security Personnel Management**: Create, read, update, delete security personnel
-- **Base URL**: `http://localhost:8000/api/administrator/`
-- **Documentation**: See Administrator Module README
+```javascript
+// Complete authentication flow with logout
+class AuthService {
+    constructor() {
+        this.baseURL = 'http://localhost:8000/auth';
+    }
+    
+    async login(username, password, userType) {
+        // Login implementation...
+    }
+    
+    async logout() {
+        const tokens = this.getTokens();
+        
+        if (!tokens.access || !tokens.refresh) {
+            this.clearSession();
+            return;
+        }
+        
+        try {
+            await fetch(`${this.baseURL}/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${tokens.access}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    refresh: tokens.refresh
+                })
+            });
+        } catch (error) {
+            console.error('Logout request failed:', error);
+        } finally {
+            // Always clear session regardless of request result
+            this.clearSession();
+        }
+    }
+    
+    getTokens() {
+        return {
+            access: localStorage.getItem('access_token'),
+            refresh: localStorage.getItem('refresh_token')
+        };
+    }
+    
+    clearSession() {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_info');
+        window.location.href = '/login';
+    }
+    
+    isAuthenticated() {
+        const tokens = this.getTokens();
+        return !!(tokens.access && tokens.refresh);
+    }
+}
 
-### **Future Modules**
-- **Registration Module**: Handle visitor/student registrations
-- **Access Control Module**: Manage physical access permissions
+// Usage
+const auth = new AuthService();
 
----
+// Logout button handler
+document.getElementById('logout-btn').addEventListener('click', () => {
+    auth.logout();
+});
+```
 
-## **Re-enabling OTP (Future)**
+### **Related Token Management**
 
-When OTP needs to be re-enabled, the following changes should be made:
+The logout endpoint works in conjunction with other token-related endpoints:
 
-1. **Update LoginAPIView**: Remove direct JWT token generation, restore OTP generation and email sending
-2. **Frontend**: Add OTP verification step back to the authentication flow
-3. **Testing**: Ensure email configuration is working properly
+- **Refresh Token** (`POST /refresh`): Used to get new access tokens
+- **Login** (`POST /login`): Issues new token pairs
+- **Logout** (`POST /logout`): Invalidates refresh tokens
 
----
-
-This documentation reflects the current state of the authentication system with OTP disabled for faster development and testing.
+After logout, users must login again to get new tokens.
