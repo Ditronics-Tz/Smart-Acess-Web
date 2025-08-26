@@ -53,6 +53,23 @@ export interface CreateOfficerResponse {
   email: string;
 }
 
+export interface CreateUserRequest {
+  username: string;
+  full_name: string;
+  email: string;
+  phone_number?: string;
+  user_type: 'administrator' | 'registration_officer';
+  password: string;
+  confirm_password: string;
+}
+
+export interface CreateUserResponse {
+  message: string;
+  user_id: string;
+  username: string;
+  email: string;
+}
+
 class AuthService {
   private readonly baseURL = '/auth';
 
@@ -104,9 +121,20 @@ class AuthService {
   }
 
   // Updated to use the new create-user endpoint
-  async createUser(userData: CreateOfficerRequest): Promise<CreateOfficerResponse> {
+  async createUser(userData: CreateUserRequest): Promise<CreateUserResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/create-user`, userData);
+      const accessToken = this.getAccessToken();
+      if (!accessToken) {
+        throw new Error('No access token found. Please log in again.');
+      }
+
+      const response = await apiClient.post(`${this.baseURL}/create-user`, userData, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
       return response.data;
     } catch (error: any) {
       throw this.handleError(error);
