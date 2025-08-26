@@ -144,23 +144,12 @@ class AuthService {
   async logout(): Promise<void> {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
-      const accessToken = localStorage.getItem('access_token');
       
-      if (refreshToken && accessToken) {
-        // Use axios directly to avoid interceptor issues during logout
-        const response = await fetch(`${window.location.origin}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ refresh: refreshToken })
+      if (refreshToken) {
+        // Use apiClient to call logout endpoint with refresh token
+        await apiClient.post(`${this.baseURL}/logout`, {
+          refresh: refreshToken
         });
-        
-        // Don't throw error if logout fails on server side
-        if (!response.ok) {
-          console.warn('Server logout failed, but clearing local tokens anyway');
-        }
       }
     } catch (error) {
       console.error('Logout error:', error);
