@@ -223,7 +223,7 @@ const ManageUser: React.FC = () => {
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: '100vh',
-          background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
+          backgroundColor: "#f5f5f5",  // Dashboard background color
         }}
       >
         <CircularProgress sx={{ color: colors.primary.main }} />
@@ -236,16 +236,16 @@ const ManageUser: React.FC = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
+          backgroundColor: "#f5f5f5",  // Dashboard background color
           py: 4,
         }}
       >
         <Container maxWidth="md">
           <Paper
-            elevation={24}
+            elevation={3}
             sx={{
               p: 4,
-              borderRadius: 4,
+              borderRadius: 2,
               backgroundColor: colors.neutral.white,
               textAlign: 'center',
             }}
@@ -257,7 +257,10 @@ const ManageUser: React.FC = () => {
               variant="contained"
               startIcon={<ArrowBack />}
               onClick={() => navigate('/admin-dashboard/users')}
-              sx={{ backgroundColor: colors.primary.main }}
+              sx={{ 
+                backgroundColor: colors.primary.main,
+                "&:hover": { backgroundColor: colors.primary.hover },
+              }}
             >
               Back to Users
             </Button>
@@ -271,20 +274,18 @@ const ManageUser: React.FC = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
+        backgroundColor: "#f5f5f5",  // Dashboard background color
         py: 4,
       }}
     >
       <Container maxWidth="lg">
         {/* Header */}
         <Paper
-          elevation={24}
+          elevation={3}
           sx={{
             p: 4,
-            borderRadius: 4,
+            borderRadius: 2,
             backgroundColor: colors.neutral.white,
-            border: `1px solid ${colors.primary.light}`,
-            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
             mb: 4,
           }}
         >
@@ -292,19 +293,22 @@ const ManageUser: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <IconButton
                 onClick={() => navigate('/admin-dashboard/users')}
-                sx={{ color: colors.secondary.main }}
+                sx={{ 
+                  color: colors.secondary.main,
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                }}
               >
                 <ArrowBack />
               </IconButton>
               <Box
                 sx={{
                   p: 2,
-                  background: `linear-gradient(135deg, ${colors.primary.main} 0%, rgba(248, 112, 96, 0.1) 100%)`,
-                  borderRadius: 3,
-                  boxShadow: 2,
+                  background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
+                  borderRadius: 2,
+                  color: colors.neutral.white,
                 }}
               >
-                <Person sx={{ color: colors.primary.main, fontSize: 32 }} />
+                <Person sx={{ fontSize: 32 }} />
               </Box>
               <Box>
                 <Typography
@@ -314,7 +318,7 @@ const ManageUser: React.FC = () => {
                 >
                   Manage Registration Officer
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body2" color="text.secondary">
                   @{user.username || 'Unknown'}
                 </Typography>
               </Box>
@@ -326,7 +330,14 @@ const ManageUser: React.FC = () => {
                   variant="outlined"
                   startIcon={<Edit />}
                   onClick={() => setEditMode(true)}
-                  sx={{ borderColor: colors.primary.main, color: colors.primary.main }}
+                  sx={{ 
+                    borderColor: colors.primary.main, 
+                    color: colors.primary.main,
+                    "&:hover": { 
+                      borderColor: colors.primary.hover,
+                      backgroundColor: "rgba(0,0,0,0.04)"
+                    }
+                  }}
                 >
                   Edit Details
                 </Button>
@@ -337,7 +348,10 @@ const ManageUser: React.FC = () => {
                     startIcon={<Save />}
                     onClick={handleSave}
                     disabled={saving}
-                    sx={{ backgroundColor: colors.primary.main }}
+                    sx={{ 
+                      backgroundColor: colors.primary.main,
+                      "&:hover": { backgroundColor: colors.primary.hover },
+                    }}
                   >
                     {saving ? 'Saving...' : 'Save'}
                   </Button>
@@ -346,7 +360,11 @@ const ManageUser: React.FC = () => {
                     startIcon={<Cancel />}
                     onClick={handleCancel}
                     disabled={saving}
-                    sx={{ borderColor: 'text.secondary', color: 'text.secondary' }}
+                    sx={{ 
+                      borderColor: 'text.secondary', 
+                      color: 'text.secondary',
+                      "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" }
+                    }}
                   >
                     Cancel
                   </Button>
@@ -379,12 +397,11 @@ const ManageUser: React.FC = () => {
           {/* Main Content Section */}
           <Box sx={{ flex: 2, minWidth: 0 }}>
             <Paper
-              elevation={24}
+              elevation={3}
               sx={{
                 p: 4,
-                borderRadius: 4,
+                borderRadius: 2,
                 backgroundColor: colors.neutral.white,
-                border: `1px solid ${colors.primary.light}`,
                 height: 'fit-content',
               }}
             >
@@ -400,6 +417,16 @@ const ManageUser: React.FC = () => {
                   onChange={handleInputChange('full_name')}
                   disabled={!editMode}
                   variant={editMode ? 'outlined' : 'filled'}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "&:hover fieldset": {
+                        borderColor: colors.primary.main,
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: colors.primary.main,
+                      }
+                    }
+                  }}
                 />
 
                 <TextField
@@ -410,6 +437,16 @@ const ManageUser: React.FC = () => {
                   onChange={handleInputChange('email')}
                   disabled={!editMode}
                   variant={editMode ? 'outlined' : 'filled'}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "&:hover fieldset": {
+                        borderColor: colors.primary.main,
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: colors.primary.main,
+                      }
+                    }
+                  }}
                 />
 
                 <TextField
@@ -419,6 +456,16 @@ const ManageUser: React.FC = () => {
                   onChange={handleInputChange('phone_number')}
                   disabled={!editMode}
                   variant={editMode ? 'outlined' : 'filled'}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "&:hover fieldset": {
+                        borderColor: colors.primary.main,
+                      },
+                      "&.Mui-focused fieldset": {
+                        borderColor: colors.primary.main,
+                      }
+                    }
+                  }}
                 />
 
                 <TextField
@@ -438,12 +485,11 @@ const ManageUser: React.FC = () => {
             <Stack spacing={4}>
               {/* Account Actions */}
               <Paper
-                elevation={24}
+                elevation={3}
                 sx={{
                   p: 4,
-                  borderRadius: 4,
+                  borderRadius: 2,
                   backgroundColor: colors.neutral.white,
-                  border: `1px solid ${colors.primary.light}`,
                 }}
               >
                 <Typography variant="h6" fontWeight="bold" sx={{ color: colors.secondary.main, mb: 3 }}>
@@ -456,7 +502,10 @@ const ManageUser: React.FC = () => {
                     variant="contained"
                     startIcon={<Lock />}
                     onClick={() => setPasswordDialog(true)}
-                    sx={{ backgroundColor: colors.primary.main }}
+                    sx={{ 
+                      backgroundColor: colors.primary.main,
+                      "&:hover": { backgroundColor: colors.primary.hover },
+                    }}
                   >
                     Change Password
                   </Button>
@@ -471,6 +520,9 @@ const ManageUser: React.FC = () => {
                       borderColor: user.is_active ? 'error.main' : 'success.main',
                       color: user.is_active ? 'error.main' : 'white',
                       backgroundColor: user.is_active ? 'transparent' : 'success.main',
+                      "&:hover": {
+                        backgroundColor: user.is_active ? 'rgba(211, 47, 47, 0.04)' : 'rgba(46, 125, 50, 0.8)',
+                      }
                     }}
                   >
                     {user.is_active ? 'Deactivate Account' : 'Reactivate Account'}
@@ -480,12 +532,11 @@ const ManageUser: React.FC = () => {
 
               {/* Account Details */}
               <Paper
-                elevation={24}
+                elevation={3}
                 sx={{
                   p: 4,
-                  borderRadius: 4,
+                  borderRadius: 2,
                   backgroundColor: colors.neutral.white,
-                  border: `1px solid ${colors.primary.light}`,
                 }}
               >
                 <Typography variant="h6" fontWeight="bold" sx={{ color: colors.secondary.main, mb: 3 }}>
@@ -531,6 +582,10 @@ const ManageUser: React.FC = () => {
         onClose={() => setPasswordDialog(false)}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          elevation: 3,
+          sx: { borderRadius: 2 }
+        }}
       >
         <DialogTitle sx={{ color: colors.secondary.main }}>
           Change Password
@@ -544,6 +599,16 @@ const ManageUser: React.FC = () => {
               value={passwordData.new_password}
               onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
               helperText="Password must be at least 8 characters long"
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "&:hover fieldset": {
+                    borderColor: colors.primary.main,
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.primary.main,
+                  }
+                }
+              }}
             />
 
             <TextField
@@ -552,16 +617,37 @@ const ManageUser: React.FC = () => {
               type="password"
               value={passwordData.confirm_password}
               onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "&:hover fieldset": {
+                    borderColor: colors.primary.main,
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.primary.main,
+                  }
+                }
+              }}
             />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPasswordDialog(false)}>Cancel</Button>
+          <Button 
+            onClick={() => setPasswordDialog(false)}
+            sx={{ 
+              color: 'text.secondary',
+              "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" }
+            }}
+          >
+            Cancel
+          </Button>
           <Button
             variant="contained"
             onClick={handlePasswordChange}
             disabled={saving}
-            sx={{ backgroundColor: colors.primary.main }}
+            sx={{ 
+              backgroundColor: colors.primary.main,
+              "&:hover": { backgroundColor: colors.primary.hover },
+            }}
           >
             {saving ? 'Changing...' : 'Change Password'}
           </Button>

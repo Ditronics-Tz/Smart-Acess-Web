@@ -79,7 +79,7 @@ const ViewUserDetails: React.FC = () => {
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: '100vh',
-          background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
+          backgroundColor: "#f5f5f5",  // Dashboard background color
         }}
       >
         <CircularProgress sx={{ color: colors.primary.main }} />
@@ -92,16 +92,16 @@ const ViewUserDetails: React.FC = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
+          backgroundColor: "#f5f5f5",  // Dashboard background color
           py: 4,
         }}
       >
         <Container maxWidth="md">
           <Paper
-            elevation={24}
+            elevation={3}
             sx={{
               p: 4,
-              borderRadius: 4,
+              borderRadius: 2,
               backgroundColor: colors.neutral.white,
               textAlign: 'center',
             }}
@@ -114,7 +114,7 @@ const ViewUserDetails: React.FC = () => {
               sx={{
                 backgroundColor: colors.primary.main,
                 color: colors.neutral.white,
-                '&:hover': { backgroundColor: colors.primary.hover },
+                "&:hover": { backgroundColor: colors.primary.hover },
                 px: 3,
                 py: 1,
               }}
@@ -132,20 +132,18 @@ const ViewUserDetails: React.FC = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
+        backgroundColor: "#f5f5f5",  // Dashboard background color
         py: 4,
       }}
     >
       <Container maxWidth="lg">
         {/* Header */}
         <Paper
-          elevation={24}
+          elevation={3}
           sx={{
             p: 4,
-            borderRadius: 4,
+            borderRadius: 2,
             backgroundColor: colors.neutral.white,
-            border: `1px solid ${colors.primary.light}`,
-            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
             mb: 4,
           }}
         >
@@ -153,19 +151,22 @@ const ViewUserDetails: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <IconButton
                 onClick={() => navigate('/admin-dashboard/users')}
-                sx={{ color: colors.secondary.main }}
+                sx={{ 
+                  color: colors.secondary.main,
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                }}
               >
                 <ArrowBack />
               </IconButton>
               <Box
                 sx={{
                   p: 2,
-                  background: `linear-gradient(135deg, ${colors.primary.main} 0%, rgba(248, 112, 96, 0.1) 100%)`,
-                  borderRadius: 3,
-                  boxShadow: 2,
+                  background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
+                  borderRadius: 2,
+                  color: colors.neutral.white,
                 }}
               >
-                <Person sx={{ color: colors.primary.main, fontSize: 32 }} />
+                <Person sx={{ fontSize: 32 }} />
               </Box>
               <Box>
                 <Typography
@@ -175,7 +176,7 @@ const ViewUserDetails: React.FC = () => {
                 >
                   User Details
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="body2" color="text.secondary">
                   @{user.username}
                 </Typography>
               </Box>
@@ -201,12 +202,11 @@ const ViewUserDetails: React.FC = () => {
           {/* Main User Info */}
           <Box sx={{ flex: 2 }}>
             <Paper
-              elevation={24}
+              elevation={3}
               sx={{
                 p: 4,
-                borderRadius: 4,
+                borderRadius: 2,
                 backgroundColor: colors.neutral.white,
-                border: `1px solid ${colors.primary.light}`,
                 mb: 4,
               }}
             >
@@ -217,7 +217,7 @@ const ViewUserDetails: React.FC = () => {
               <Stack spacing={3}>
                 {/* Full Name */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: colors.primary.main }}>
+                  <Avatar sx={{ bgcolor: colors.secondary.main }}>
                     <AccountCircle />
                   </Avatar>
                   <Box>
@@ -234,7 +234,7 @@ const ViewUserDetails: React.FC = () => {
 
                 {/* Username */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: 'info.main' }}>
+                  <Avatar sx={{ bgcolor: colors.primary.main }}>
                     <Person />
                   </Avatar>
                   <Box>
@@ -251,7 +251,7 @@ const ViewUserDetails: React.FC = () => {
 
                 {/* Email */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: 'success.main' }}>
+                  <Avatar sx={{ bgcolor: colors.primary.main }}>
                     <Email />
                   </Avatar>
                   <Box>
@@ -268,7 +268,7 @@ const ViewUserDetails: React.FC = () => {
 
                 {/* Phone Number */}
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: 'warning.main' }}>
+                  <Avatar sx={{ bgcolor: colors.secondary.main }}>
                     <Phone />
                   </Avatar>
                   <Box>
@@ -289,12 +289,11 @@ const ViewUserDetails: React.FC = () => {
             <Stack spacing={4}>
               {/* Account Status */}
               <Paper
-                elevation={24}
+                elevation={3}
                 sx={{
                   p: 4,
-                  borderRadius: 4,
+                  borderRadius: 2,
                   backgroundColor: colors.neutral.white,
-                  border: `1px solid ${colors.primary.light}`,
                 }}
               >
                 <Typography variant="h6" fontWeight="bold" sx={{ color: colors.secondary.main, mb: 3 }}>
@@ -304,7 +303,7 @@ const ViewUserDetails: React.FC = () => {
                 <Stack spacing={3}>
                   {/* User Type */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <AdminPanelSettings sx={{ color: colors.primary.main }} />
+                    <AdminPanelSettings sx={{ color: colors.secondary.main }} />
                     <Box>
                       <Typography variant="body2" color="text.secondary">
                         User Type
@@ -319,7 +318,7 @@ const ViewUserDetails: React.FC = () => {
 
                   {/* Account Status */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Security sx={{ color: user.is_active ? 'success.main' : 'warning.main' }} />
+                    <Security sx={{ color: user.is_active ? colors.primary.main : colors.secondary.main }} />
                     <Box>
                       <Typography variant="body2" color="text.secondary">
                         Account Status
@@ -358,12 +357,11 @@ const ViewUserDetails: React.FC = () => {
 
               {/* Quick Actions */}
               <Paper
-                elevation={24}
+                elevation={3}
                 sx={{
                   p: 4,
-                  borderRadius: 4,
+                  borderRadius: 2,
                   backgroundColor: colors.neutral.white,
-                  border: `1px solid ${colors.primary.light}`,
                 }}
               >
                 <Typography variant="h6" fontWeight="bold" sx={{ color: colors.secondary.main, mb: 3 }}>
@@ -375,12 +373,12 @@ const ViewUserDetails: React.FC = () => {
                     onClick={() => navigate(`/admin-dashboard/users/manage/${user.user_id}`)}
                     sx={{
                       p: 2,
-                      backgroundColor: colors.primary.light,
-                      borderRadius: 2,
+                      backgroundColor: colors.primary.main,
+                      borderRadius: 1,
                       cursor: 'pointer',
+                      color: colors.neutral.white,
                       '&:hover': {
-                        backgroundColor: colors.primary.main,
-                        color: colors.neutral.white,
+                        backgroundColor: colors.primary.hover,
                       },
                       transition: 'all 0.3s ease',
                       textAlign: 'center'
@@ -396,7 +394,7 @@ const ViewUserDetails: React.FC = () => {
                     sx={{
                       p: 2,
                       backgroundColor: 'grey.100',
-                      borderRadius: 2,
+                      borderRadius: 1,
                       cursor: 'pointer',
                       '&:hover': {
                         backgroundColor: 'grey.200',
