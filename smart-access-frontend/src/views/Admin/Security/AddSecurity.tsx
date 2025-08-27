@@ -82,7 +82,7 @@ export default function AddSecurity(): JSX.Element {
 
             setServerSuccess("Security profile created");
             // Navigate after a brief delay to let user see success
-            setTimeout(() => navigate("/admin/security"), 500);
+            setTimeout(() => navigate("/admin-dashboard/security"), 500);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "Unexpected error";
             setServerError(message);

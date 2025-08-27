@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import {
   AppBar,
   Toolbar,
@@ -45,8 +46,8 @@ interface AdminDashboardProps {
 
 const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [currentView, setCurrentView] = useState<"dashboard" | "create-user" | "users" | "reports" | "settings">("dashboard")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const navigate = useNavigate()
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -81,7 +82,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       title: "Create Registration Officer",
       description: "Add new registration officers to manage student access",
       icon: <PersonAdd sx={{ fontSize: 32, color: colors.primary.main }} />,
-      action: () => setCurrentView("create-user"),
+      action: () => navigate('/admin-dashboard/create-user'),
       stats: "12 Active",
       bgColor: colors.neutral.white,
     },
@@ -89,7 +90,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       title: "Manage Users",
       description: "View and manage all system users",
       icon: <People sx={{ fontSize: 32, color: colors.secondary.main }} />,
-      action: () => console.log("Manage Users"),
+      action: () => navigate('/admin-dashboard/users'),
       stats: "248 Users",
       bgColor: colors.neutral.white,
     },
@@ -97,7 +98,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       title: "System Settings",
       description: "Configure system preferences and security",
       icon: <Settings sx={{ fontSize: 32, color: colors.primary.main }} />,
-      action: () => console.log("System Settings"),
+      action: () => navigate('/admin-dashboard/settings'),
       stats: "8 Modules",
       bgColor: colors.neutral.white,
     },
@@ -105,7 +106,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       title: "Access Control",
       description: "Monitor and control access permissions",
       icon: <Security sx={{ fontSize: 32, color: colors.secondary.main }} />,
-      action: () => console.log("Access Control"),
+      action: () => navigate('/admin-dashboard/security'),
       stats: "156 Permissions",
       bgColor: colors.neutral.white,
     },
@@ -143,23 +144,22 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   ]
 
   const handleSidebarNavigation = (view: string) => {
-    if (view === "dashboard") {
-      setCurrentView("dashboard");
-    } else if (view === "create-user") {
-      setCurrentView("create-user");
-    } else {
-      // Handle other views or show coming soon message
-      console.log(`Navigating to ${view}`);
-      // You can add more view states here as needed
+    switch (view) {
+      case "dashboard":
+        navigate('/admin-dashboard');
+        break;
+      case "users":
+        navigate('/admin-dashboard/users');
+        break;
+      case "reports":
+        navigate('/admin-dashboard/reports');
+        break;
+      case "settings":
+        navigate('/admin-dashboard/settings');
+        break;
+      default:
+        navigate('/admin-dashboard');
     }
-  }
-
-  if (currentView === "create-user") {
-    return (
-      <Box sx={{ width: "100vw", height: "100vh" }}>
-        <CreateUser onBack={() => setCurrentView("dashboard")} />
-      </Box>
-    );
   }
 
   return (
@@ -167,7 +167,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       {/* Sidebar */}
       <AdminSidebar 
         collapsed={sidebarCollapsed} 
-        currentView={currentView}
+        currentView="dashboard"
         onNavigate={handleSidebarNavigation}
       />
 
