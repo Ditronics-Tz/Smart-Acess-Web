@@ -23,8 +23,8 @@ import {
   Visibility,
   VisibilityOff
 } from '@mui/icons-material';
-import { colors } from '../../styles/themes/colors';
-import CreateRegistrationOfficerService, { CreateOfficerRequest } from '../../service/CreateRegistrationOfficerService';
+import { colors } from '../../../styles/themes/colors';
+import CreateRegistrationOfficerService, { CreateOfficerRequest } from '../../../service/CreateRegistrationOfficerService';
 
 interface CreateUserProps {
   onBack?: () => void;

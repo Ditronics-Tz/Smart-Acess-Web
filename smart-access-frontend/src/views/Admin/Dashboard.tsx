@@ -36,7 +36,7 @@ import {
 } from "@mui/icons-material"
 import { colors } from '../../styles/themes/colors';
 import AuthService from '../../service/AuthService';
-import CreateUser from './CreateUser';
+import CreateUser from './User/CreateUser';
 import AdminSidebar from './shared/AdminSidebar';
 
 interface AdminDashboardProps {
@@ -140,13 +140,6 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       icon: <PersonAdd sx={{ fontSize: 24, color: colors.secondary.main }} />,
       changeColor: "warning.main",
     },
-  ]
-
-  const recentActivities = [
-    { action: "New user registered", user: "John Doe", time: "2 minutes ago", type: "user" },
-    { action: "Access granted", user: "Jane Smith", time: "5 minutes ago", type: "access" },
-    { action: "System backup completed", user: "System", time: "1 hour ago", type: "system" },
-    { action: "Permission updated", user: "Mike Johnson", time: "2 hours ago", type: "permission" },
   ]
 
   const handleSidebarNavigation = (view: string) => {
@@ -485,68 +478,6 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 ))}
               </Box>
             </Box>
-
-            {/* Recent Activity */}
-            <Card sx={{ boxShadow: 2 }}>
-              <Box sx={{ p: 3, borderBottom: "1px solid #e0e0e0" }}>
-                <Typography variant="h5" fontWeight="bold" color={colors.secondary.main} gutterBottom>
-                  Recent Activity
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Latest system events and user actions
-                </Typography>
-              </Box>
-              <CardContent sx={{ p: 0 }}>
-                {recentActivities.map((activity, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      p: 3,
-                      borderBottom: index < recentActivities.length - 1 ? "1px solid #f0f0f0" : "none",
-                      "&:hover": {
-                        backgroundColor: "rgba(0,0,0,0.02)",
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <Box
-                        sx={{
-                          p: 1,
-                          borderRadius: "50%",
-                          backgroundColor:
-                            activity.type === "user"
-                              ? "rgba(16, 37, 66, 0.1)"
-                              : activity.type === "access"
-                                ? "rgba(76, 175, 80, 0.1)"
-                                : activity.type === "system"
-                                  ? "rgba(248, 112, 96, 0.1)"
-                                  : "rgba(156, 39, 176, 0.1)",
-                        }}
-                      >
-                        {activity.type === "user" && <PersonAdd sx={{ fontSize: 16, color: colors.secondary.main }} />}
-                        {activity.type === "access" && <Security sx={{ fontSize: 16, color: "success.main" }} />}
-                        {activity.type === "system" && <Settings sx={{ fontSize: 16, color: colors.primary.main }} />}
-                        {activity.type === "permission" && <People sx={{ fontSize: 16, color: "secondary.main" }} />}
-                      </Box>
-                      <Box>
-                        <Typography variant="body1" fontWeight="600" color={colors.secondary.main}>
-                          {activity.action}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          by {activity.user}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Typography variant="caption" color="text.secondary" fontWeight="500">
-                      {activity.time}
-                    </Typography>
-                  </Box>
-                ))}
-              </CardContent>
-            </Card>
           </Box>
         </Container>
       </Box>
