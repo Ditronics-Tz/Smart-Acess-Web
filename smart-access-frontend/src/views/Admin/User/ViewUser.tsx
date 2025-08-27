@@ -30,6 +30,9 @@ import {
   Select,
   MenuItem,
   CircularProgress,
+  AppBar,
+  Toolbar,
+  Badge,
 } from '@mui/material';
 import {
   Search,
@@ -46,9 +49,15 @@ import {
   Phone,
   CalendarToday,
   AdminPanelSettings,
+  Menu as MenuIcon,
+  Notifications,
+  Settings,
+  ExitToApp,
 } from '@mui/icons-material';
 import { colors } from '../../../styles/themes/colors';
 import UserManagementService, { RegistrationOfficer, UserManagementFilters } from '../../../service/UserManagementService';
+import AdminSidebar from '../shared/AdminSidebar';
+import AuthService from '../../../service/AuthService';
 
 const ViewUser: React.FC = () => {
   const navigate = useNavigate();
@@ -63,6 +72,9 @@ const ViewUser: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
+  // Sidebar state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   // Statistics state
   const [stats, setStats] = useState({
     total_users: 0,
@@ -70,6 +82,8 @@ const ViewUser: React.FC = () => {
     inactive_users: 0,
     locked_accounts: 0
   });
+
+  const username = AuthService.getUsername();
 
   const fetchUsers = async () => {
     try {
@@ -168,348 +182,474 @@ const ViewUser: React.FC = () => {
     return isActive ? 'Active' : 'Inactive';
   };
 
+  // Sidebar navigation handler
+  const handleSidebarNavigation = (view: string) => {
+    switch (view) {
+      case "dashboard":
+        navigate('/admin-dashboard');
+        break;
+      case "users":
+        navigate('/admin-dashboard/users');
+        break;
+      case "reports":
+        navigate('/admin-dashboard/reports');
+        break;
+      case "settings":
+        navigate('/admin-dashboard/settings');
+        break;
+      default:
+        navigate('/admin-dashboard');
+    }
+  };
+
+  // Stats cards with Dashboard color scheme
+  const statsCards = [
+    {
+      title: "Total Officers",
+      value: stats.total_users.toString(),
+      change: `${stats.total_users} registered`,
+      icon: <People sx={{ fontSize: 24, color: colors.secondary.main }} />,
+      changeColor: "success.main",
+    },
+    {
+      title: "Active Officers",
+      value: stats.active_users.toString(),
+      change: `${Math.round((stats.active_users / stats.total_users) * 100) || 0}% of total`,
+      icon: <Person sx={{ fontSize: 24, color: colors.primary.main }} />,
+      changeColor: "success.main",
+    },
+    {
+      title: "Inactive Officers",
+      value: stats.inactive_users.toString(),
+      change: stats.inactive_users > 0 ? "Requires attention" : "All active",
+      icon: <Lock sx={{ fontSize: 24, color: colors.primary.main }} />,
+      changeColor: stats.inactive_users > 0 ? "warning.main" : "success.main",
+    },
+    {
+      title: "Locked Accounts",
+      value: stats.locked_accounts.toString(),
+      change: stats.locked_accounts > 0 ? "Security alerts" : "No issues",
+      icon: <LockOpen sx={{ fontSize: 24, color: colors.secondary.main }} />,
+      changeColor: stats.locked_accounts > 0 ? "error.main" : "success.main",
+    },
+  ];
+
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: `linear-gradient(135deg, ${colors.secondary.main} 0%, ${colors.secondary.light} 100%)`,
-        py: 4,
-      }}
-    >
-      {/* Header */}
-      <Container maxWidth="xl" sx={{ mb: 4 }}>
-        <Paper
-          elevation={24}
+    <Box sx={{ display: "flex" }}>
+      {/* Sidebar */}
+      <AdminSidebar
+        collapsed={sidebarCollapsed}
+        currentView="users"
+        onNavigate={handleSidebarNavigation}
+      />
+
+      {/* Main Content */}
+      <Box sx={{ 
+        flex: 1, 
+        ml: sidebarCollapsed ? "64px" : "280px",
+        transition: "margin-left 0.3s ease",
+        minHeight: "100vh", 
+        backgroundColor: "#f5f5f5"  // Dashboard background color
+      }}>
+        {/* Header - Dashboard Style */}
+        <AppBar
+          position="sticky"
           sx={{
-            p: 4,
-            borderRadius: 4,
             backgroundColor: colors.neutral.white,
-            border: `1px solid ${colors.primary.light}`,
-            boxShadow: '0 24px 48px rgba(0, 0, 0, 0.2)',
+            color: colors.secondary.main,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            borderBottom: `1px solid #e0e0e0`,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Toolbar sx={{ py: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}>
+              {/* Sidebar Toggle */}
+              <IconButton
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                sx={{
+                  color: colors.secondary.main,
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                }}
+              >
+                <MenuIcon />
+              </IconButton>
+
               <Box
                 sx={{
-                  p: 2,
-                  background: `linear-gradient(135deg, ${colors.primary.main} 0%, rgba(248, 112, 96, 0.1) 100%)`,
-                  borderRadius: 3,
+                  p: 1.5,
+                  background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
+                  borderRadius: 2,
                   boxShadow: 2,
                 }}
               >
-                <People sx={{ color: colors.primary.main, fontSize: 32 }} />
+                <People sx={{ color: colors.neutral.white, fontSize: 28 }} />
               </Box>
               <Box>
                 <Typography
-                  variant="h4"
-                  fontWeight="bold"
-                  sx={{ color: colors.secondary.main, mb: 1 }}
+                  variant="h5"
+                  component="div"
+                  sx={{
+                    fontWeight: "bold",
+                    color: colors.secondary.main,
+                    lineHeight: 1.2,
+                  }}
                 >
-                  Registration Officers Management
+                  User Management
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  View and manage all registration officers in the system
+                <Typography variant="body2" color="text.secondary">
+                  Registration Officers Control
                 </Typography>
               </Box>
             </Box>
-            <Button
-              variant="contained"
-              startIcon={<PersonAdd />}
-              onClick={() => navigate('/admin-dashboard/create-user')}
-              sx={{
-                backgroundColor: colors.primary.main,
-                '&:hover': { backgroundColor: colors.primary.hover },
-                px: 3,
-                py: 1.5,
-                borderRadius: 2,
-              }}
-            >
-              Add Officer
-            </Button>
-          </Box>
 
-          {/* Statistics Cards */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
-            <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: colors.primary.main }}>
-                    <People />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold" color={colors.secondary.main}>
-                      {stats.total_users}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Total Officers
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-
-            <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: 'success.main' }}>
-                    <Person />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold" color="success.main">
-                      {stats.active_users}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Active Officers
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-
-            <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: 'warning.main' }}>
-                    <Lock />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold" color="warning.main">
-                      {stats.inactive_users}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Inactive Officers
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-
-            <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
-              <CardContent sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: 'error.main' }}>
-                    <LockOpen />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold" color="error.main">
-                      {stats.locked_accounts}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Locked Accounts
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Box>
-
-          <Divider sx={{ mb: 3 }} />
-
-          {/* Filters and Search */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3, alignItems: 'center' }}>
-            <TextField
-              size="small"
-              placeholder="Search by name, username, or email..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              sx={{ minWidth: 300, flex: 1 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search sx={{ color: 'text.secondary' }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFilter}
-                label="Status"
-                onChange={handleStatusFilterChange}
-              >
-                <MenuItem value="all">All Status</MenuItem>
-                <MenuItem value="active">Active Only</MenuItem>
-                <MenuItem value="inactive">Inactive Only</MenuItem>
-              </Select>
-            </FormControl>
-
-            <Button
-              variant="outlined"
-              startIcon={<Refresh />}
-              onClick={handleRefresh}
-              sx={{ borderColor: colors.primary.main, color: colors.primary.main }}
-            >
-              Refresh
-            </Button>
-          </Box>
-        </Paper>
-      </Container>
-
-      {/* Users Table */}
-      <Container maxWidth="xl">
-        <Paper
-          elevation={24}
-          sx={{
-            borderRadius: 4,
-            backgroundColor: colors.neutral.white,
-            border: `1px solid ${colors.primary.light}`,
-            overflow: 'hidden',
-          }}
-        >
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress sx={{ color: colors.primary.main }} />
-            </Box>
-          ) : error ? (
-            <Box sx={{ p: 4 }}>
-              <Alert severity="error">{error}</Alert>
-            </Box>
-          ) : (
-            <>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow sx={{ backgroundColor: colors.secondary.main }}>
-                      <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold' }}>
-                        Officer Details
-                      </TableCell>
-                      <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold' }}>
-                        Contact Info
-                      </TableCell>
-                      <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold' }}>
-                        Status
-                      </TableCell>
-                      <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold' }}>
-                        Activity
-                      </TableCell>
-                      <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold' }}>
-                        Actions
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow
-                        key={user.user_id}
-                        sx={{
-                          '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
-                          '&:nth-of-type(even)': { backgroundColor: 'rgba(0, 0, 0, 0.02)' }
-                        }}
-                      >
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Avatar sx={{ bgcolor: colors.primary.main }}>
-                              {user.full_name?.charAt(0).toUpperCase() || '?'}
-                            </Avatar>
-                            <Box>
-                              <Typography fontWeight="bold" color={colors.secondary.main}>
-                                {user.full_name || 'Unknown'}
-                              </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                @{user.username || 'unknown'}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </TableCell>
-
-                        <TableCell>
-                          <Stack spacing={1}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Email sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="body2">{user.email}</Typography>
-                            </Box>
-                            {user.phone_number && (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Phone sx={{ fontSize: 16, color: 'text.secondary' }} />
-                                <Typography variant="body2">{user.phone_number}</Typography>
-                              </Box>
-                            )}
-                          </Stack>
-                        </TableCell>
-
-                        <TableCell>
-                          <Chip
-                            label={getStatusLabel(user.is_active, user.account_locked)}
-                            color={getStatusColor(user.is_active, user.account_locked)}
-                            size="small"
-                            variant={user.is_active && !user.account_locked ? 'filled' : 'outlined'}
-                          />
-                        </TableCell>
-
-                        <TableCell>
-                          <Stack spacing={1}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <CalendarToday sx={{ fontSize: 16, color: 'text.secondary' }} />
-                              <Typography variant="body2">
-                                Created: {user.created_at ? formatDate(user.created_at) : 'N/A'}
-                              </Typography>
-                            </Box>
-                            {user.last_login && (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <AdminPanelSettings sx={{ fontSize: 16, color: 'text.secondary' }} />
-                                <Typography variant="body2">
-                                  Last Login: {formatDate(user.last_login)}
-                                </Typography>
-                              </Box>
-                            )}
-                            {(user.failed_login_attempts ?? 0) > 0 && (
-                              <Typography variant="body2" color="error.main">
-                                Failed Attempts: {user.failed_login_attempts ?? 0}
-                              </Typography>
-                            )}
-                          </Stack>
-                        </TableCell>
-
-                        <TableCell>
-                          <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Tooltip title="View Details">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleViewUser(user.user_id)}
-                                sx={{ color: colors.primary.main }}
-                              >
-                                <Visibility />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Manage User">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleManageUser(user.user_id)}
-                                sx={{ color: colors.secondary.main }}
-                              >
-                                <Edit />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              <TablePagination
-                component="div"
-                count={totalCount}
-                page={page}
-                onPageChange={handlePageChange}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={handleRowsPerPageChange}
-                rowsPerPageOptions={[5, 10, 25, 50]}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              {/* Search */}
+              <TextField
+                size="small"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={handleSearchChange}
                 sx={{
-                  borderTop: `1px solid ${colors.primary.light}`,
-                  '.MuiTablePagination-toolbar': {
-                    py: 2,
-                  }
+                  display: { xs: "none", sm: "block" },
+                  width: 250,
+                  "& .MuiOutlinedInput-root": {
+                    "&:hover fieldset": {
+                      borderColor: colors.primary.main,
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: colors.primary.main,
+                    },
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search sx={{ color: "text.secondary", fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
                 }}
               />
-            </>
-          )}
-        </Paper>
-      </Container>
+
+              {/* Add Officer Button */}
+              <Button
+                variant="contained"
+                startIcon={<PersonAdd />}
+                onClick={() => navigate('/admin-dashboard/create-user')}
+                sx={{
+                  backgroundColor: colors.primary.main,
+                  "&:hover": { backgroundColor: colors.primary.hover },
+                  px: 3,
+                  py: 1,
+                }}
+              >
+                Add Officer
+              </Button>
+            </Box>
+          </Toolbar>
+        </AppBar>
+
+        {/* Dashboard Content */}
+        <Container maxWidth="xl" sx={{ py: 4 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {/* Welcome Section - Dashboard Style */}
+            <Paper
+              sx={{
+                background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
+                color: colors.neutral.white,
+                p: 4,
+                borderRadius: 3,
+                boxShadow: 3,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <Box>
+                  <Typography variant="h3" fontWeight="bold" gutterBottom>
+                    Registration Officers
+                  </Typography>
+                  <Typography variant="h6" sx={{ opacity: 0.9, maxWidth: 600 }}>
+                    Manage and monitor all registration officers in the Smart Access Control System
+                  </Typography>
+                </Box>
+                <Avatar
+                  sx={{
+                    width: 96,
+                    height: 96,
+                    border: `4px solid rgba(255,255,255,0.3)`,
+                    fontSize: "2.5rem",
+                    fontWeight: "bold",
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                  }}
+                >
+                  <People sx={{ fontSize: "3rem" }} />
+                </Avatar>
+              </Box>
+            </Paper>
+
+            {/* Stats Overview - Dashboard Style */}
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+              {statsCards.map((stat, index) => (
+                <Box key={index} sx={{ flex: { xs: "1 1 100%", sm: "1 1 calc(50% - 12px)", md: "1 1 calc(25% - 18px)" } }}>
+                  <Card
+                    sx={{
+                      height: "100%",
+                      boxShadow: 2,
+                      "&:hover": {
+                        boxShadow: 4,
+                        transform: "translateY(-2px)",
+                        transition: "all 0.3s ease",
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                        <Box>
+                          <Typography variant="body2" color="text.secondary" fontWeight="500">
+                            {stat.title}
+                          </Typography>
+                          <Typography variant="h3" fontWeight="bold" color={colors.secondary.main}>
+                            {stat.value}
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            p: 1.5,
+                            backgroundColor: index % 2 === 0 ? "rgba(16, 37, 66, 0.1)" : "rgba(248, 112, 96, 0.1)",
+                            borderRadius: 2,
+                          }}
+                        >
+                          {stat.icon}
+                        </Box>
+                      </Box>
+                      <Typography variant="caption" sx={{ color: stat.changeColor, fontWeight: 500 }}>
+                        {stat.change}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Box>
+              ))}
+            </Box>
+
+            {/* Filters Section */}
+            <Paper sx={{ p: 3, borderRadius: 3, boxShadow: 2 }}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <InputLabel>Status Filter</InputLabel>
+                  <Select
+                    value={statusFilter}
+                    label="Status Filter"
+                    onChange={handleStatusFilterChange}
+                    sx={{
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        borderColor: colors.primary.main,
+                      },
+                    }}
+                  >
+                    <MenuItem value="all">All Status</MenuItem>
+                    <MenuItem value="active">Active Only</MenuItem>
+                    <MenuItem value="inactive">Inactive Only</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <Button
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={handleRefresh}
+                  sx={{ 
+                    borderColor: colors.primary.main, 
+                    color: colors.primary.main,
+                    "&:hover": {
+                      borderColor: colors.primary.hover,
+                      backgroundColor: "rgba(248, 112, 96, 0.04)",
+                    },
+                  }}
+                >
+                  Refresh
+                </Button>
+              </Box>
+            </Paper>
+
+            {/* Users Table */}
+            <Paper
+              sx={{
+                borderRadius: 3,
+                boxShadow: 3,
+                overflow: 'hidden',
+              }}
+            >
+              {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                  <CircularProgress sx={{ color: colors.primary.main }} />
+                </Box>
+              ) : error ? (
+                <Box sx={{ p: 4 }}>
+                  <Alert severity="error">{error}</Alert>
+                </Box>
+              ) : (
+                <>
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow sx={{ backgroundColor: colors.secondary.main }}>
+                          <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            Officer Details
+                          </TableCell>
+                          <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            Contact Info
+                          </TableCell>
+                          <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            Status
+                          </TableCell>
+                          <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            Activity
+                          </TableCell>
+                          <TableCell sx={{ color: colors.neutral.white, fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            Actions
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {users.map((user, index) => (
+                          <TableRow
+                            key={user.user_id}
+                            sx={{
+                              '&:hover': { 
+                                backgroundColor: 'rgba(248, 112, 96, 0.04)',
+                                transition: "all 0.3s ease",
+                              },
+                              '&:nth-of-type(even)': { 
+                                backgroundColor: index % 2 === 0 ? "rgba(16, 37, 66, 0.02)" : "rgba(248, 112, 96, 0.02)"
+                              }
+                            }}
+                          >
+                            <TableCell>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar 
+                                  sx={{ 
+                                    bgcolor: index % 2 === 0 ? colors.primary.main : colors.secondary.main,
+                                    fontWeight: 'bold'
+                                  }}
+                                >
+                                  {user.full_name?.charAt(0) || user.username?.charAt(0) || 'U'}
+                                </Avatar>
+                                <Box>
+                                  <Typography variant="subtitle2" fontWeight="600" color={colors.secondary.main}>
+                                    {user.full_name}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    @{user.username}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </TableCell>
+
+                            <TableCell>
+                              <Stack spacing={1}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Email sx={{ fontSize: 16, color: colors.primary.main }} />
+                                  <Typography variant="body2">{user.email}</Typography>
+                                </Box>
+                                {user.phone_number && (
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Phone sx={{ fontSize: 16, color: colors.secondary.main }} />
+                                    <Typography variant="body2">{user.phone_number}</Typography>
+                                  </Box>
+                                )}
+                              </Stack>
+                            </TableCell>
+
+                            <TableCell>
+                              <Chip
+                                label={getStatusLabel(user.is_active, user.account_locked)}
+                                color={getStatusColor(user.is_active, user.account_locked)}
+                                size="small"
+                                variant={user.is_active && !user.account_locked ? 'filled' : 'outlined'}
+                                sx={{ fontWeight: 500 }}
+                              />
+                            </TableCell>
+
+                            <TableCell>
+                              <Stack spacing={1}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <CalendarToday sx={{ fontSize: 16, color: 'text.secondary' }} />
+                                  <Typography variant="body2">
+                                    {formatDate(user.created_at)}
+                                  </Typography>
+                                </Box>
+                                {user.last_login && (
+                                  <Typography variant="caption" color="success.main" fontWeight="500">
+                                    Last: {formatDate(user.last_login)}
+                                  </Typography>
+                                )}
+                                {user.failed_login_attempts > 0 && (
+                                  <Typography variant="caption" color="error.main" fontWeight="500">
+                                    Failed attempts: {user.failed_login_attempts}
+                                  </Typography>
+                                )}
+                              </Stack>
+                            </TableCell>
+
+                            <TableCell>
+                              <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Tooltip title="View Details">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleViewUser(user.user_id)}
+                                    sx={{ 
+                                      color: 'info.main',
+                                      "&:hover": { 
+                                        backgroundColor: "rgba(33, 150, 243, 0.1)",
+                                        transform: "scale(1.1)",
+                                      },
+                                    }}
+                                  >
+                                    <Visibility />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Manage User">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleManageUser(user.user_id)}
+                                    sx={{ 
+                                      color: colors.primary.main,
+                                      "&:hover": { 
+                                        backgroundColor: "rgba(248, 112, 96, 0.1)",
+                                        transform: "scale(1.1)",
+                                      },
+                                    }}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  <TablePagination
+                    component="div"
+                    count={totalCount}
+                    page={page}
+                    onPageChange={handlePageChange}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleRowsPerPageChange}
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                    sx={{
+                      borderTop: `1px solid #e0e0e0`,
+                      backgroundColor: "#f8f9fa",
+                      '.MuiTablePagination-toolbar': {
+                        py: 2,
+                      }
+                    }}
+                  />
+                </>
+              )}
+            </Paper>
+          </Box>
+        </Container>
+      </Box>
 
       {/* Snackbar for notifications */}
       <Snackbar
