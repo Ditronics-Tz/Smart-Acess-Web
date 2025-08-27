@@ -12,209 +12,168 @@ import OTPVerifyView from './views/Auth/OTPVerifyView';
 import AdminDashboard from './views/Admin/Dashboard';
 import RegistersDashboard from './views/Registers/Dashboard';
 import CreateUser from './views/Admin/User/CreateUser';
+import ViewUser from './views/Admin/User/ViewUser';
+import ManageUser from './views/Admin/User/ManageUser';
+import ViewUserDetails from './views/Admin/User/ViewUserDetails';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import './styles/global.css';
 
 type CurrentPage = 'home' | 'admin-login' | 'registration-login' | 'otp-verify' | 'admin-dashboard' | 'registers-dashboard';
 
-// Keep OTP interface for future use but not currently needed
 interface OTPData {
   sessionId: string;
   userType: 'administrator' | 'registration_officer';
   userEmail: string;
 }
 
-function App() {
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [otpData, setOtpData] = useState<OTPData | null>(null);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userType, setUserType] = useState<'administrator' | 'registration_officer' | null>(null);
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredUserType?: 'administrator' | 'registration_officer';
+}
 
-  // Check authentication status on app load
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredUserType }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
+
   useEffect(() => {
-    const checkAuthStatus = () => {
-      try {
-        console.log('Checking authentication status...');
-
-        // Check for access tokens directly from localStorage
-        const accessToken = localStorage.getItem('access_token');
-        const storedUserType = localStorage.getItem('user_type') as 'administrator' | 'registration_officer' | null;
-
-        console.log('Access token exists:', !!accessToken);
-        console.log('User type:', storedUserType);
-
-        if (accessToken && storedUserType) {
-          setIsAuthenticated(true);
-          setUserType(storedUserType);
-        } else {
-          setIsAuthenticated(false);
-          setUserType(null);
-        }
-      } catch (error) {
-        console.error('Error checking auth status:', error);
-        // Clear any corrupted tokens
-        localStorage.clear();
+    const checkAuth = async () => {
+      const token = localStorage.getItem('access_token');
+      const storedUserType = localStorage.getItem('user_type');
+      
+      if (!token || !storedUserType) {
         setIsAuthenticated(false);
-        setUserType(null);
-      } finally {
-        setIsCheckingAuth(false);
+        return;
+      }
+
+      setUserType(storedUserType);
+      setIsAuthenticated(true);
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Typography>Loading...</Typography>
+      </Box>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requiredUserType && userType !== requiredUserType) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+function App() {
+  const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [otpData, setOTPData] = useState<OTPData | null>(null);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkExistingLogin = async () => {
+      const token = localStorage.getItem('access_token');
+      const userType = localStorage.getItem('user_type');
+      
+      if (token && userType) {
+        if (userType === 'administrator') {
+          setCurrentPage('admin-dashboard');
+        } else if (userType === 'registration_officer') {
+          setCurrentPage('registers-dashboard');
+        }
       }
     };
 
-    checkAuthStatus();
+    checkExistingLogin();
   }, []);
 
   const handleLoginClick = () => {
-    setLoginModalOpen(true);
+    setShowLoginModal(true);
   };
 
-  const handleSelectLoginType = (type: 'admin' | 'registration') => {
+  const handleCloseModal = () => {
+    setShowLoginModal(false);
+  };
+
+  const handleLoginTypeSelect = (type: 'admin' | 'registration') => {
+    setShowLoginModal(false);
     if (type === 'admin') {
-      window.location.href = '/admin-login';
+      setCurrentPage('admin-login');
     } else {
-      window.location.href = '/registration-login';
+      setCurrentPage('registration-login');
     }
-    setLoginModalOpen(false);
   };
 
   const handleBackToHome = () => {
-    window.location.href = '/';
-    setOtpData(null);
+    setCurrentPage('home');
+    setOTPData(null);
   };
 
   const handleBackToSelection = () => {
-    setLoginModalOpen(true);
-    setOtpData(null);
+    setShowLoginModal(true);
+    setCurrentPage('home');
   };
 
-  // Updated: Direct login success handler (no OTP step)
-  const handleLoginSuccess = (userType: string) => {
-    // Update authentication state
-    setIsAuthenticated(true);
-    setUserType(userType as 'administrator' | 'registration_officer');
-
-    // Redirect directly to appropriate dashboard since OTP is disabled
-    if (userType === 'administrator') {
-      window.location.href = '/admin-dashboard';
-    } else if (userType === 'registration_officer') {
-      window.location.href = '/registration-dashboard';
-    }
-    setOtpData(null);
-  };
-
-  // Keep for backward compatibility but not currently used
   const handleBackToLogin = () => {
-    // Go back to the appropriate login page based on current user type
     if (otpData?.userType === 'administrator') {
-      window.location.href = '/admin-login';
+      setCurrentPage('admin-login');
     } else {
-      window.location.href = '/registration-login';
+      setCurrentPage('registration-login');
     }
-    setOtpData(null);
+    setOTPData(null);
   };
 
-    // Keep for future OTP implementation
-  const handleOTPVerified = (userType: string) => {
-    // Update authentication state
-    setIsAuthenticated(true);
-    setUserType(userType as 'administrator' | 'registration_officer');
+  const handleLoginSuccess = (response: any, userType: 'administrator' | 'registration_officer') => {
+    if (response.requires_otp) {
+      setOTPData({
+        sessionId: response.session_id,
+        userType: userType,
+        userEmail: response.email
+      });
+      setCurrentPage('otp-verify');
+    } else {
+      localStorage.setItem('access_token', response.access);
+      localStorage.setItem('refresh_token', response.refresh);
+      localStorage.setItem('user_type', userType);
+      localStorage.setItem('user_id', response.user_id);
+      localStorage.setItem('username', response.username);
 
-    // Redirect to appropriate dashboard based on user type
-    if (userType === 'administrator') {
-      window.location.href = '/admin-dashboard';
-    } else if (userType === 'registration_officer') {
-      window.location.href = '/registration-dashboard';
+      if (userType === 'administrator') {
+        setCurrentPage('admin-dashboard');
+      } else {
+        setCurrentPage('registers-dashboard');
+      }
     }
-    setOtpData(null);
+  };
+
+  const handleOTPVerified = (userType: string) => {
+    if (userType === 'administrator') {
+      setCurrentPage('admin-dashboard');
+    } else {
+      setCurrentPage('registers-dashboard');
+    }
+    setOTPData(null);
   };
 
   const handleLogout = async () => {
     try {
-      console.log('Logging out user');
       await AuthService.logout();
     } catch (error) {
       console.error('Logout error:', error);
-      // If logout fails, clear localStorage anyway
-      localStorage.clear();
     } finally {
-      // Update state and redirect to home
-      setIsAuthenticated(false);
-      setUserType(null);
-      window.location.href = '/';
-      setOtpData(null);
+      localStorage.clear();
+      setCurrentPage('home');
+      setOTPData(null);
     }
   };
-
-  // Protected Route Component
-  const ProtectedRoute = ({ children, requiredUserType }: { children: React.ReactNode; requiredUserType?: 'administrator' | 'registration_officer' }) => {
-    if (isCheckingAuth) {
-      return (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          flexDirection: 'column'
-        }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '4px solid #f3f3f3',
-            borderTop: '4px solid #3498db',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }}></div>
-          <p style={{ marginTop: '20px', color: '#666' }}>Loading...</p>
-        </div>
-      );
-    }
-
-    if (!isAuthenticated) {
-      return <Navigate to="/" replace />;
-    }
-
-    if (requiredUserType && userType !== requiredUserType) {
-      return <Navigate to="/" replace />;
-    }
-
-    return <>{children}</>;
-  };
-
-  // Show loading spinner while checking authentication
-  if (isCheckingAuth) {
-    return (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          flexDirection: 'column'
-        }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '4px solid #f3f3f3',
-            borderTop: '4px solid #3498db',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }}></div>
-          <p style={{ marginTop: '20px', color: '#666' }}>Loading...</p>
-        </div>
-        <style>
-          {`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}
-        </style>
-      </ThemeProvider>
-    );
-  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -225,12 +184,18 @@ function App() {
           <Route
             path="/"
             element={
-              <Layout onLoginClick={handleLoginClick}>
+              <Layout>
                 <Home onLoginClick={handleLoginClick} />
+                <LoginTypeModal
+                  open={showLoginModal}
+                  onClose={handleCloseModal}
+                  onSelectType={handleLoginTypeSelect}
+                />
               </Layout>
             }
           />
-
+          
+          {/* Auth Routes */}
           <Route
             path="/admin-login"
             element={
@@ -241,7 +206,6 @@ function App() {
               />
             }
           />
-
           <Route
             path="/registration-login"
             element={
@@ -252,7 +216,6 @@ function App() {
               />
             }
           />
-
           <Route
             path="/otp-verify"
             element={
@@ -292,46 +255,46 @@ function App() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/admin-dashboard/users"
             element={
               <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Users Management - Coming Soon</Typography>
-                </Box>
+                <ViewUser />
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/admin-dashboard/users/manage/:userId"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <ManageUser />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/users/view/:userId"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <ViewUserDetails />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin-dashboard/reports"
             element={
               <ProtectedRoute requiredUserType="administrator">
                 <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Reports - Coming Soon</Typography>
+                  <Typography variant="h4">Reports View - Coming Soon</Typography>
                 </Box>
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/admin-dashboard/settings"
             element={
               <ProtectedRoute requiredUserType="administrator">
                 <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Settings - Coming Soon</Typography>
-                </Box>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin-dashboard/security"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Security Management - Coming Soon</Typography>
+                  <Typography variant="h4">Settings View - Coming Soon</Typography>
                 </Box>
               </ProtectedRoute>
             }
@@ -339,7 +302,7 @@ function App() {
 
           {/* Protected Registration Officer Routes */}
           <Route
-            path="/registration-dashboard"
+            path="/registers-dashboard"
             element={
               <ProtectedRoute requiredUserType="registration_officer">
                 <RegistersDashboard onLogout={handleLogout} />
@@ -347,15 +310,9 @@ function App() {
             }
           />
 
-          {/* Catch all route - redirect to home */}
+          {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-
-        <LoginTypeModal
-          open={loginModalOpen}
-          onClose={() => setLoginModalOpen(false)}
-          onSelectLoginType={handleSelectLoginType}
-        />
       </Router>
     </ThemeProvider>
   );

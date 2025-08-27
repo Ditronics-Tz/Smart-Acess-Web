@@ -88,9 +88,10 @@ class UserManagementService {
         });
       }
 
+      // Fixed: Remove trailing slash from the endpoint
       const url = queryParams.toString()
-        ? `${this.baseURL}/registration-officers/?${queryParams.toString()}`
-        : `${this.baseURL}/registration-officers/`;
+        ? `${this.baseURL}/registration-officers?${queryParams.toString()}`
+        : `${this.baseURL}/registration-officers`;
 
       const response = await apiClient.get(url, {
         headers: this.getAuthHeaders()
@@ -107,7 +108,8 @@ class UserManagementService {
    */
   async getRegistrationOfficer(userId: string): Promise<UserDetailsResponse> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/users/${userId}/`, {
+      // Fixed: Remove trailing slash from the endpoint
+      const response = await apiClient.get(`${this.baseURL}/users/${userId}`, {
         headers: this.getAuthHeaders()
       });
 
