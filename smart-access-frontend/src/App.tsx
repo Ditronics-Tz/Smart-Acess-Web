@@ -131,26 +131,17 @@ function App() {
     setOTPData(null);
   };
 
-  const handleLoginSuccess = (response: any, userType: 'administrator' | 'registration_officer') => {
-    if (response.requires_otp) {
-      setOTPData({
-        sessionId: response.session_id,
-        userType: userType,
-        userEmail: response.email
-      });
-      setCurrentPage('otp-verify');
-    } else {
-      localStorage.setItem('access_token', response.access);
-      localStorage.setItem('refresh_token', response.refresh);
-      localStorage.setItem('user_type', userType);
-      localStorage.setItem('user_id', response.user_id);
-      localStorage.setItem('username', response.username);
+  // Fixed: Match the expected signature (userType: string) => void
+  const handleAdminLoginSuccess = (userType: string) => {
+    if (userType === 'administrator') {
+      setCurrentPage('admin-dashboard');
+    }
+  };
 
-      if (userType === 'administrator') {
-        setCurrentPage('admin-dashboard');
-      } else {
-        setCurrentPage('registers-dashboard');
-      }
+  // Fixed: Match the expected signature (userType: string) => void
+  const handleRegistrationLoginSuccess = (userType: string) => {
+    if (userType === 'registration_officer') {
+      setCurrentPage('registers-dashboard');
     }
   };
 
@@ -189,7 +180,7 @@ function App() {
                 <LoginTypeModal
                   open={showLoginModal}
                   onClose={handleCloseModal}
-                  onSelectType={handleLoginTypeSelect}
+                  onSelectLoginType={handleLoginTypeSelect}
                 />
               </Layout>
             }
@@ -202,7 +193,7 @@ function App() {
               <AdminLogin
                 onBackToHome={handleBackToHome}
                 onBackToSelection={handleBackToSelection}
-                onLoginSuccess={handleLoginSuccess}
+                onLoginSuccess={handleAdminLoginSuccess}
               />
             }
           />
@@ -212,7 +203,7 @@ function App() {
               <RegistrationLogin
                 onBackToHome={handleBackToHome}
                 onBackToSelection={handleBackToSelection}
-                onLoginSuccess={handleLoginSuccess}
+                onLoginSuccess={handleRegistrationLoginSuccess}
               />
             }
           />
