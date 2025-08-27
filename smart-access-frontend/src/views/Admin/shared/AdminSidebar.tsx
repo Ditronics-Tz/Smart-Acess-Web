@@ -15,6 +15,8 @@ import {
   People,
   Assessment,
   Settings,
+  Security,
+  LocationOn,
 } from "@mui/icons-material";
 import { colors } from '../../../styles/themes/colors';
 
@@ -28,7 +30,9 @@ const links = [
   { id: "dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { id: "users", label: "Users", icon: <People /> },
   { id: "reports", label: "Reports", icon: <Assessment /> },
+  { id: "security", label: "Security-Personel", icon: <Security /> },
   { id: "settings", label: "Settings", icon: <Settings /> },
+  { id: "locations", label: "Physical locations", icon: <LocationOn /> },
 ];
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
