@@ -80,6 +80,9 @@ const AccessControl: React.FC = () => {
       case "security":
         navigate('/admin-dashboard/security');
         break;
+      case "access-control":
+        navigate('/admin-dashboard/access-control');
+        break;
       case "reports":
         navigate('/admin-dashboard/reports');
         break;
@@ -303,61 +306,50 @@ const AccessControl: React.FC = () => {
 
         {/* Content */}
         <Container maxWidth="lg" sx={{ py: 4 }}>
-          {/* Back Button */}
-          <Box sx={{ mb: 4 }}>
-            <Button
-              onClick={() => navigate('/admin-dashboard')}
-              startIcon={<ArrowBack />}
-              sx={{ 
-                mb: 3,
-                color: colors.secondary.main,
-                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
-              }}
-            >
-              Back to Dashboard
-            </Button>
-            
-            <Paper
-              sx={{
-                background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
-                color: colors.neutral.white,
-                p: 4,
-                borderRadius: 3,
-                boxShadow: 3,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-                <Avatar
+          {/* Reduced Banner Section */}
+          <Paper
+            sx={{
+              background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
+              color: colors.neutral.white,
+              p: 2.5,
+              borderRadius: 2,
+              boxShadow: 2,
+              mb: 4,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Avatar
+                sx={{
+                  width: 50,
+                  height: 50,
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  border: `2px solid rgba(255,255,255,0.3)`,
+                }}
+              >
+                <Security sx={{ fontSize: 28, color: colors.neutral.white }} />
+              </Avatar>
+              <Box>
+                <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 0.5 }}>
+                  Access Control System
+                </Typography>
+                <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                  Advanced access permission management and security control center
+                </Typography>
+                <Chip
+                  icon={<Construction sx={{ fontSize: 16 }} />}
+                  label="Under Development"
+                  size="small"
                   sx={{
-                    width: 80,
-                    height: 80,
+                    mt: 1,
                     backgroundColor: "rgba(255,255,255,0.2)",
-                    border: `3px solid rgba(255,255,255,0.3)`,
+                    color: colors.neutral.white,
+                    fontWeight: "bold",
+                    height: 24,
                   }}
-                >
-                  <Security sx={{ fontSize: 40, color: colors.neutral.white }} />
-                </Avatar>
-                <Box>
-                  <Typography variant="h3" fontWeight="bold" gutterBottom>
-                    Access Control System
-                  </Typography>
-                  <Typography variant="h6" sx={{ opacity: 0.9, maxWidth: 600 }}>
-                    Advanced access permission management and security control center
-                  </Typography>
-                  <Chip
-                    icon={<Construction />}
-                    label="Under Development"
-                    sx={{
-                      mt: 2,
-                      backgroundColor: "rgba(255,255,255,0.2)",
-                      color: colors.neutral.white,
-                      fontWeight: "bold",
-                    }}
-                  />
-                </Box>
+                />
               </Box>
-            </Paper>
-          </Box>
+            </Box>
+          </Paper>
 
           {/* Coming Soon Message */}
           <Card sx={{ mb: 4, boxShadow: 2 }}>
