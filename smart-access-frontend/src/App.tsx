@@ -18,6 +18,7 @@ import ViewUserDetails from './views/Admin/User/ViewUserDetails';
 import ViewSecurity from './views/Admin/Security/ViewSecurity';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
+import AccessControl from './views/Admin/AccessControl/AccessControl';
 import './styles/global.css';
 
 type CurrentPage = 'home' | 'admin-login' | 'registration-login' | 'otp-verify' | 'admin-dashboard' | 'registers-dashboard';
@@ -340,6 +341,14 @@ function App() {
                 <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography variant="h4">Physical Locations - Coming Soon</Typography>
                 </Box>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/access-control"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <AccessControl />
               </ProtectedRoute>
             }
           />
