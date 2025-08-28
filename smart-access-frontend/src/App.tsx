@@ -16,6 +16,7 @@ import ViewUser from './views/Admin/User/ViewUser';
 import ManageUser from './views/Admin/User/ManageUser';
 import ViewUserDetails from './views/Admin/User/ViewUserDetails';
 import ViewSecurity from './views/Admin/Security/ViewSecurity';
+import AddSecurity from './views/Admin/Security/AddSecurity'; // Add this import
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
@@ -355,13 +356,12 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* ✅ FIXED: Replace placeholder with actual AddSecurity component */}
             <Route
               path="/admin-dashboard/security/add"
               element={
                 <ProtectedRoute requiredUserType="administrator">
-                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="h4">Add Security Personnel - Coming Soon</Typography>
-                  </Box>
+                  <AddSecurity />
                 </ProtectedRoute>
               }
             />
