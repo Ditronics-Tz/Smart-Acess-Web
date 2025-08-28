@@ -1,18 +1,18 @@
-import { apiClient } from '../api/config';
+import apiConfig from '../api/config';
 
-// Interfaces based on the API documentation
+// Types and Interfaces
 export interface SecurityPersonnel {
   security_id: string;
   employee_id: string;
   badge_number: string;
   full_name: string;
   phone_number?: string;
-  hire_date?: string;
+  hire_date: string;
   termination_date?: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  deleted_at?: string;
+  deleted_at?: string | null;
 }
 
 export interface CreateSecurityPersonnelRequest {
@@ -35,282 +35,314 @@ export interface UpdateSecurityPersonnelRequest {
 
 export interface SecurityPersonnelListResponse {
   count: number;
-  next: string | null;
-  previous: string | null;
+  next?: string | null;
+  previous?: string | null;
   results: SecurityPersonnel[];
 }
 
-export interface SecurityPersonnelFilters {
-  employee_id?: string;
-  badge_number?: string;
-  full_name?: string;
-  is_active?: boolean;
+export interface SecurityPersonnelListParams {
   page?: number;
   page_size?: number;
+  search?: string;
+  is_active?: boolean;
+  ordering?: string;
 }
 
-export interface ApiResponse {
+export interface DeleteResponse {
   message: string;
+  deleted_at: string;
+  is_active: boolean;
+}
+
+export interface RestoreResponse {
+  message: string;
+  data: SecurityPersonnel;
 }
 
 class SecurityPersonelService {
-  private readonly baseURL = '/api/administrator/security-personnel';
+  // Get the base URL from the Axios instance defaults
+  private baseURL = `${apiConfig.defaults.baseURL}/administrator/security-personnel`;
 
-  // Helper method to ensure we have a valid token
-  private getAuthHeaders() {
-    const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please log in again.');
-    }
-
+  // Helper method to get headers with authentication
+  private getHeaders(): HeadersInit {
+    const token = localStorage.getItem('accessToken');
     return {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
     };
   }
 
-  /**
-   * List all security personnel with optional filters and pagination
-   */
-  async listSecurityPersonnel(filters?: SecurityPersonnelFilters): Promise<SecurityPersonnelListResponse> {
+  // Helper method to handle API responses
+  private async handleResponse<T>(response: Response): Promise<T> {
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Network error' }));
+      
+      if (response.status === 401) {
+        // Token expired or invalid - redirect to login
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/admin-login';
+        throw new Error('Authentication required');
+      } else if (response.status === 403) {
+        throw new Error('Access denied. Administrator privileges required.');
+      } else if (response.status === 404) {
+        throw new Error('Security personnel not found');
+      } else if (response.status === 400) {
+        // Validation errors
+        const errorMessage = typeof errorData === 'object' && errorData.detail 
+          ? errorData.detail 
+          : 'Validation error';
+        throw new Error(errorMessage);
+      }
+      
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // 1. Create Security Personnel
+  async createSecurityPersonnel(data: CreateSecurityPersonnelRequest): Promise<SecurityPersonnel> {
+    try {
+      const response = await fetch(`${this.baseURL}/create/`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(data),
+      });
+
+      return await this.handleResponse<SecurityPersonnel>(response);
+    } catch (error) {
+      console.error('Error creating security personnel:', error);
+      throw error;
+    }
+  }
+
+  // 2. List All Security Personnel with Pagination and Filtering
+  async listSecurityPersonnel(params: SecurityPersonnelListParams = {}): Promise<SecurityPersonnelListResponse> {
     try {
       const queryParams = new URLSearchParams();
       
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            queryParams.append(key, String(value));
-          }
-        });
-      }
+      if (params.page) queryParams.append('page', params.page.toString());
+      if (params.page_size) queryParams.append('page_size', params.page_size.toString());
+      if (params.search) queryParams.append('search', params.search);
+      if (params.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
+      if (params.ordering) queryParams.append('ordering', params.ordering);
 
-      const url = queryParams.toString() 
-        ? `${this.baseURL}/?${queryParams.toString()}`
-        : `${this.baseURL}/`;
-
-      const response = await apiClient.get(url, {
-        headers: this.getAuthHeaders()
+      const url = `${this.baseURL}/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getHeaders(),
       });
 
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
+      return await this.handleResponse<SecurityPersonnelListResponse>(response);
+    } catch (error) {
+      console.error('Error fetching security personnel list:', error);
+      throw error;
     }
   }
 
-  /**
-   * Create new security personnel
-   */
-  async createSecurityPersonnel(data: CreateSecurityPersonnelRequest): Promise<SecurityPersonnel> {
-    try {
-      const response = await apiClient.post(`${this.baseURL}/create/`, data, {
-        headers: this.getAuthHeaders()
-      });
-
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Get specific security personnel by ID
-   */
+  // 3. Get Single Security Personnel
   async getSecurityPersonnel(securityId: string): Promise<SecurityPersonnel> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/${securityId}/`, {
-        headers: this.getAuthHeaders()
+      const response = await fetch(`${this.baseURL}/${securityId}/`, {
+        method: 'GET',
+        headers: this.getHeaders(),
       });
 
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
+      return await this.handleResponse<SecurityPersonnel>(response);
+    } catch (error) {
+      console.error('Error fetching security personnel:', error);
+      throw error;
     }
   }
 
-  /**
-   * Update security personnel (full update - PUT)
-   */
+  // 4. Update Security Personnel (Full Update)
   async updateSecurityPersonnel(securityId: string, data: UpdateSecurityPersonnelRequest): Promise<SecurityPersonnel> {
     try {
-      const response = await apiClient.put(`${this.baseURL}/${securityId}/update/`, data, {
-        headers: this.getAuthHeaders()
+      const response = await fetch(`${this.baseURL}/${securityId}/update/`, {
+        method: 'PUT',
+        headers: this.getHeaders(),
+        body: JSON.stringify(data),
       });
 
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
+      return await this.handleResponse<SecurityPersonnel>(response);
+    } catch (error) {
+      console.error('Error updating security personnel:', error);
+      throw error;
     }
   }
 
-  /**
-   * Partially update security personnel (partial update - PATCH)
-   */
+  // 5. Partial Update Security Personnel
   async partialUpdateSecurityPersonnel(securityId: string, data: Partial<UpdateSecurityPersonnelRequest>): Promise<SecurityPersonnel> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${securityId}/update/`, data, {
-        headers: this.getAuthHeaders()
+      const response = await fetch(`${this.baseURL}/${securityId}/update/`, {
+        method: 'PATCH',
+        headers: this.getHeaders(),
+        body: JSON.stringify(data),
       });
 
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
+      return await this.handleResponse<SecurityPersonnel>(response);
+    } catch (error) {
+      console.error('Error partially updating security personnel:', error);
+      throw error;
     }
   }
 
-  /**
-   * Soft delete security personnel
-   */
-  async deleteSecurityPersonnel(securityId: string): Promise<ApiResponse> {
+  // 6. Delete Security Personnel (Soft Delete)
+  async deleteSecurityPersonnel(securityId: string): Promise<DeleteResponse> {
     try {
-      const response = await apiClient.delete(`${this.baseURL}/${securityId}/delete/`, {
-        headers: this.getAuthHeaders()
+      const response = await fetch(`${this.baseURL}/${securityId}/delete/`, {
+        method: 'DELETE',
+        headers: this.getHeaders(),
       });
 
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
+      return await this.handleResponse<DeleteResponse>(response);
+    } catch (error) {
+      console.error('Error deleting security personnel:', error);
+      throw error;
     }
   }
 
-  /**
-   * Restore deleted security personnel
-   */
-  async restoreSecurityPersonnel(securityId: string): Promise<ApiResponse> {
+  // 7. Restore Security Personnel
+  async restoreSecurityPersonnel(securityId: string): Promise<RestoreResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/${securityId}/restore/`, {}, {
-        headers: this.getAuthHeaders()
+      const response = await fetch(`${this.baseURL}/${securityId}/restore/`, {
+        method: 'POST',
+        headers: this.getHeaders(),
       });
 
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
+      return await this.handleResponse<RestoreResponse>(response);
+    } catch (error) {
+      console.error('Error restoring security personnel:', error);
+      throw error;
     }
   }
 
-  /**
-   * Get active security personnel only
-   */
-  async getActiveSecurityPersonnel(page?: number, pageSize?: number): Promise<SecurityPersonnelListResponse> {
-    return this.listSecurityPersonnel({
-      is_active: true,
-      page,
-      page_size: pageSize
-    });
-  }
+  // 8. Get Security Personnel Statistics (Custom method for dashboard)
+  async getSecurityPersonnelStats(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    recentlyAdded: number;
+  }> {
+    try {
+      // Get total count
+      const allPersonnel = await this.listSecurityPersonnel({ page_size: 1 });
+      
+      // Get active count
+      const activePersonnel = await this.listSecurityPersonnel({ 
+        is_active: true, 
+        page_size: 1 
+      });
+      
+      // Get inactive count
+      const inactivePersonnel = await this.listSecurityPersonnel({ 
+        is_active: false, 
+        page_size: 1 
+      });
 
-  /**
-   * Get inactive security personnel only
-   */
-  async getInactiveSecurityPersonnel(page?: number, pageSize?: number): Promise<SecurityPersonnelListResponse> {
-    return this.listSecurityPersonnel({
-      is_active: false,
-      page,
-      page_size: pageSize
-    });
-  }
+      // Get recently added (last 30 days) - using ordering by created_at
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const recentPersonnel = await this.listSecurityPersonnel({ 
+        ordering: '-created_at',
+        page_size: 100 // Get more to filter by date
+      });
 
-  /**
-   * Search security personnel by name
-   */
-  async searchSecurityPersonnelByName(name: string, page?: number, pageSize?: number): Promise<SecurityPersonnelListResponse> {
-    return this.listSecurityPersonnel({
-      full_name: name,
-      page,
-      page_size: pageSize
-    });
-  }
+      // Filter by created date (client-side filtering since API doesn't support date filtering)
+      const recentCount = recentPersonnel.results.filter(person => 
+        new Date(person.created_at) >= thirtyDaysAgo
+      ).length;
 
-  /**
-   * Get security personnel by employee ID
-   */
-  async getSecurityPersonnelByEmployeeId(employeeId: string): Promise<SecurityPersonnelListResponse> {
-    return this.listSecurityPersonnel({
-      employee_id: employeeId
-    });
-  }
-
-  /**
-   * Get security personnel by badge number
-   */
-  async getSecurityPersonnelByBadgeNumber(badgeNumber: string): Promise<SecurityPersonnelListResponse> {
-    return this.listSecurityPersonnel({
-      badge_number: badgeNumber
-    });
-  }
-
-  /**
-   * Deactivate security personnel (set is_active to false)
-   */
-  async deactivateSecurityPersonnel(securityId: string, terminationDate?: string): Promise<SecurityPersonnel> {
-    const updateData: Partial<UpdateSecurityPersonnelRequest> = {
-      is_active: false
-    };
-
-    if (terminationDate) {
-      updateData.termination_date = terminationDate;
+      return {
+        total: allPersonnel.count,
+        active: activePersonnel.count,
+        inactive: inactivePersonnel.count,
+        recentlyAdded: recentCount,
+      };
+    } catch (error) {
+      console.error('Error fetching security personnel statistics:', error);
+      throw error;
     }
-
-    return this.partialUpdateSecurityPersonnel(securityId, updateData);
   }
 
-  /**
-   * Reactivate security personnel (set is_active to true and clear termination date)
-   */
+  // 9. Search Security Personnel (Convenience method)
+  async searchSecurityPersonnel(searchTerm: string, isActive?: boolean): Promise<SecurityPersonnel[]> {
+    try {
+      const response = await this.listSecurityPersonnel({
+        search: searchTerm,
+        is_active: isActive,
+        page_size: 100, // Get more results for search
+      });
+
+      return response.results;
+    } catch (error) {
+      console.error('Error searching security personnel:', error);
+      throw error;
+    }
+  }
+
+  // 10. Validate Employee ID (Check if unique)
+  async validateEmployeeId(employeeId: string, excludeSecurityId?: string): Promise<boolean> {
+    try {
+      const response = await this.searchSecurityPersonnel(employeeId);
+      
+      // If we're updating, exclude the current record
+      const conflicts = excludeSecurityId 
+        ? response.filter(person => person.security_id !== excludeSecurityId)
+        : response;
+        
+      return conflicts.length === 0;
+    } catch (error) {
+      console.error('Error validating employee ID:', error);
+      return false;
+    }
+  }
+
+  // 11. Validate Badge Number (Check if unique)
+  async validateBadgeNumber(badgeNumber: string, excludeSecurityId?: string): Promise<boolean> {
+    try {
+      const response = await this.searchSecurityPersonnel(badgeNumber);
+      
+      // If we're updating, exclude the current record
+      const conflicts = excludeSecurityId 
+        ? response.filter(person => person.security_id !== excludeSecurityId)
+        : response;
+        
+      return conflicts.length === 0;
+    } catch (error) {
+      console.error('Error validating badge number:', error);
+      return false;
+    }
+  }
+
+  // 12. Terminate Security Personnel (Set termination date and deactivate)
+  async terminateSecurityPersonnel(securityId: string, terminationDate?: string): Promise<SecurityPersonnel> {
+    try {
+      const termDate = terminationDate || new Date().toISOString().split('T')[0];
+      
+      return await this.partialUpdateSecurityPersonnel(securityId, {
+        termination_date: termDate,
+        is_active: false,
+      });
+    } catch (error) {
+      console.error('Error terminating security personnel:', error);
+      throw error;
+    }
+  }
+
+  // 13. Reactivate Security Personnel (Remove termination date and activate)
   async reactivateSecurityPersonnel(securityId: string): Promise<SecurityPersonnel> {
-    return this.partialUpdateSecurityPersonnel(securityId, {
-      is_active: true,
-      termination_date: null
-    });
-  }
-
-  /**
-   * Update contact information
-   */
-  async updateContactInfo(securityId: string, phoneNumber: string): Promise<SecurityPersonnel> {
-    return this.partialUpdateSecurityPersonnel(securityId, {
-      phone_number: phoneNumber
-    });
-  }
-
-  /**
-   * Error handler for API responses
-   */
-  private handleError(error: any): Error {
-    if (error.response) {
-      const { status, data } = error.response;
-      
-      if (status === 401) {
-        return new Error(data.detail || 'Authentication required. Please log in again.');
-      } else if (status === 403) {
-        return new Error(data.detail || 'You do not have permission to perform this action.');
-      } else if (status === 404) {
-        return new Error(data.detail || 'Security personnel not found.');
-      } else if (status === 400) {
-        // Handle validation errors
-        if (data.detail) {
-          return new Error(data.detail);
-        } else if (data.employee_id) {
-          return new Error(Array.isArray(data.employee_id) ? data.employee_id[0] : data.employee_id);
-        } else if (data.badge_number) {
-          return new Error(Array.isArray(data.badge_number) ? data.badge_number[0] : data.badge_number);
-        } else if (data.full_name) {
-          return new Error(Array.isArray(data.full_name) ? data.full_name[0] : data.full_name);
-        } else if (data.phone_number) {
-          return new Error(Array.isArray(data.phone_number) ? data.phone_number[0] : data.phone_number);
-        } else if (data.hire_date) {
-          return new Error(Array.isArray(data.hire_date) ? data.hire_date[0] : data.hire_date);
-        }
-        return new Error('Validation error occurred.');
-      } else if (status === 429) {
-        return new Error(data.detail || 'Too many requests. Please try again later.');
-      }
-      
-      return new Error(data.detail || 'An error occurred during the request.');
-    } else if (error.request) {
-      return new Error('Network error. Please check your connection.');
-    } else {
-      return new Error(error.message || 'An unexpected error occurred.');
+    try {
+      return await this.partialUpdateSecurityPersonnel(securityId, {
+        termination_date: null,
+        is_active: true,
+      });
+    } catch (error) {
+      console.error('Error reactivating security personnel:', error);
+      throw error;
     }
   }
 }
