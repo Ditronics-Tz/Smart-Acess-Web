@@ -21,6 +21,8 @@ import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
 import './styles/global.css';
 
+##  rpouting   not working  
+
 type CurrentPage = 'home' | 'admin-login' | 'registration-login' | 'otp-verify' | 'admin-dashboard' | 'registers-dashboard';
 
 interface OTPData {
