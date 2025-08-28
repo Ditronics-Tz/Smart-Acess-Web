@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -21,16 +21,207 @@ import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
 import './styles/global.css';
 
-##  rpouting   not working  
-
-type CurrentPage = 'home' | 'admin-login' | 'registration-login' | 'otp-verify' | 'admin-dashboard' | 'registers-dashboard';
-
+// OTP Context for passing data between components
 interface OTPData {
   sessionId: string;
   userType: 'administrator' | 'registration_officer';
   userEmail: string;
 }
 
+interface OTPContextType {
+  otpData: OTPData | null;
+  setOTPData: (data: OTPData | null) => void;
+}
+
+const OTPContext = createContext<OTPContextType | undefined>(undefined);
+
+export const useOTP = () => {
+  const context = useContext(OTPContext);
+  if (context === undefined) {
+    throw new Error('useOTP must be used within an OTPProvider');
+  }
+  return context;
+};
+
+// Home component wrapper to handle modal and navigation
+const HomeWrapper: React.FC = () => {
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    setShowLoginModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowLoginModal(false);
+  };
+
+  const handleLoginTypeSelect = (type: 'admin' | 'registration') => {
+    setShowLoginModal(false);
+    if (type === 'admin') {
+      navigate('/admin-login');
+    } else {
+      navigate('/registration-login');
+    }
+  };
+
+  return (
+    <Layout>
+      <Home onLoginClick={handleLoginClick} />
+      <LoginTypeModal
+        open={showLoginModal}
+        onClose={handleCloseModal}
+        onSelectLoginType={handleLoginTypeSelect}
+      />
+    </Layout>
+  );
+};
+
+// Auth wrapper components to handle navigation
+const AdminLoginWrapper: React.FC = () => {
+  const navigate = useNavigate();
+  const { setOTPData } = useOTP();
+
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
+  const handleBackToSelection = () => {
+    navigate('/');
+  };
+
+  const handleLoginSuccess = (userType: string, sessionId?: string, userEmail?: string) => {
+    if (userType === 'administrator') {
+      if (sessionId && userEmail) {
+        // If OTP is required
+        setOTPData({
+          sessionId,
+          userType: 'administrator',
+          userEmail
+        });
+        navigate('/otp-verify');
+      } else {
+        // Direct login
+        navigate('/admin-dashboard');
+      }
+    }
+  };
+
+  return (
+    <AdminLogin
+      onBackToHome={handleBackToHome}
+      onBackToSelection={handleBackToSelection}
+      onLoginSuccess={handleLoginSuccess}
+    />
+  );
+};
+
+const RegistrationLoginWrapper: React.FC = () => {
+  const navigate = useNavigate();
+  const { setOTPData } = useOTP();
+
+  const handleBackToHome = () => {
+    navigate('/');
+  };
+
+  const handleBackToSelection = () => {
+    navigate('/');
+  };
+
+  const handleLoginSuccess = (userType: string, sessionId?: string, userEmail?: string) => {
+    if (userType === 'registration_officer') {
+      if (sessionId && userEmail) {
+        // If OTP is required
+        setOTPData({
+          sessionId,
+          userType: 'registration_officer',
+          userEmail
+        });
+        navigate('/otp-verify');
+      } else {
+        // Direct login
+        navigate('/registers-dashboard');
+      }
+    }
+  };
+
+  return (
+    <RegistrationLogin
+      onBackToHome={handleBackToHome}
+      onBackToSelection={handleBackToSelection}
+      onLoginSuccess={handleLoginSuccess}
+    />
+  );
+};
+
+const OTPVerifyWrapper: React.FC = () => {
+  const navigate = useNavigate();
+  const { otpData, setOTPData } = useOTP();
+
+  const handleBackToLogin = () => {
+    if (otpData?.userType === 'administrator') {
+      navigate('/admin-login');
+    } else {
+      navigate('/registration-login');
+    }
+  };
+
+  const handleBackToHome = () => {
+    setOTPData(null);
+    navigate('/');
+  };
+
+  const handleOTPVerified = (userType: string) => {
+    setOTPData(null);
+    if (userType === 'administrator') {
+      navigate('/admin-dashboard');
+    } else {
+      navigate('/registers-dashboard');
+    }
+  };
+
+  if (!otpData) {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <OTPVerifyView
+      sessionId={otpData.sessionId}
+      userType={otpData.userType}
+      userEmail={otpData.userEmail}
+      onBackToLogin={handleBackToLogin}
+      onBackToHome={handleBackToHome}
+      onOTPVerified={handleOTPVerified}
+    />
+  );
+};
+
+// Logout wrapper to handle navigation
+const LogoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const navigate = useNavigate();
+  const { setOTPData } = useOTP();
+
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.clear();
+      setOTPData(null);
+      navigate('/');
+    }
+  };
+
+  // Pass onLogout prop to children if they expect it
+  if (React.isValidElement(children)) {
+    return React.cloneElement(children, { onLogout: handleLogout } as any);
+  }
+  
+  return <>{children}</>;
+};
+
+// Protected Route component
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredUserType?: 'administrator' | 'registration_officer';
@@ -39,6 +230,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredUserType }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -76,300 +268,182 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredUserT
   return <>{children}</>;
 };
 
-function App() {
-  const [currentPage, setCurrentPage] = useState<CurrentPage>('home');
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [otpData, setOTPData] = useState<OTPData | null>(null);
+// CreateUser wrapper to handle navigation
+const CreateUserWrapper: React.FC = () => {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const checkExistingLogin = async () => {
-      const token = localStorage.getItem('access_token');
-      const userType = localStorage.getItem('user_type');
-      
-      if (token && userType) {
-        if (userType === 'administrator') {
-          setCurrentPage('admin-dashboard');
-        } else if (userType === 'registration_officer') {
-          setCurrentPage('registers-dashboard');
-        }
-      }
-    };
-
-    checkExistingLogin();
-  }, []);
-
-  const handleLoginClick = () => {
-    setShowLoginModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowLoginModal(false);
-  };
-
-  const handleLoginTypeSelect = (type: 'admin' | 'registration') => {
-    setShowLoginModal(false);
-    if (type === 'admin') {
-      setCurrentPage('admin-login');
-    } else {
-      setCurrentPage('registration-login');
-    }
-  };
-
-  const handleBackToHome = () => {
-    setCurrentPage('home');
-    setOTPData(null);
-  };
-
-  const handleBackToSelection = () => {
-    setShowLoginModal(true);
-    setCurrentPage('home');
-  };
-
-  const handleBackToLogin = () => {
-    if (otpData?.userType === 'administrator') {
-      setCurrentPage('admin-login');
-    } else {
-      setCurrentPage('registration-login');
-    }
-    setOTPData(null);
-  };
-
-  // Fixed: Match the expected signature (userType: string) => void
-  const handleAdminLoginSuccess = (userType: string) => {
-    if (userType === 'administrator') {
-      setCurrentPage('admin-dashboard');
-    }
-  };
-
-  // Fixed: Match the expected signature (userType: string) => void
-  const handleRegistrationLoginSuccess = (userType: string) => {
-    if (userType === 'registration_officer') {
-      setCurrentPage('registers-dashboard');
-    }
-  };
-
-  const handleOTPVerified = (userType: string) => {
-    if (userType === 'administrator') {
-      setCurrentPage('admin-dashboard');
-    } else {
-      setCurrentPage('registers-dashboard');
-    }
-    setOTPData(null);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await AuthService.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      localStorage.clear();
-      setCurrentPage('home');
-      setOTPData(null);
-    }
+  const handleBack = () => {
+    navigate('/admin-dashboard');
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/"
-            element={
-              <Layout>
-                <Home onLoginClick={handleLoginClick} />
-                <LoginTypeModal
-                  open={showLoginModal}
-                  onClose={handleCloseModal}
-                  onSelectLoginType={handleLoginTypeSelect}
-                />
-              </Layout>
-            }
-          />
-          
-          {/* Auth Routes */}
-          <Route
-            path="/admin-login"
-            element={
-              <AdminLogin
-                onBackToHome={handleBackToHome}
-                onBackToSelection={handleBackToSelection}
-                onLoginSuccess={handleAdminLoginSuccess}
-              />
-            }
-          />
-          <Route
-            path="/registration-login"
-            element={
-              <RegistrationLogin
-                onBackToHome={handleBackToHome}
-                onBackToSelection={handleBackToSelection}
-                onLoginSuccess={handleRegistrationLoginSuccess}
-              />
-            }
-          />
-          <Route
-            path="/otp-verify"
-            element={
-              otpData ? (
-                <OTPVerifyView
-                  sessionId={otpData.sessionId}
-                  userType={otpData.userType}
-                  userEmail={otpData.userEmail}
-                  onBackToLogin={handleBackToLogin}
-                  onBackToHome={handleBackToHome}
-                  onOTPVerified={handleOTPVerified}
-                />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
+    <Box sx={{ width: "100vw", height: "100vh" }}>
+      <CreateUser onBack={handleBack} />
+    </Box>
+  );
+};
 
-          {/* Protected Admin Routes */}
-          <Route
-            path="/admin-dashboard"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <AdminDashboard onLogout={handleLogout} />
-              </ProtectedRoute>
-            }
-          />
+function App() {
+  const [otpData, setOTPData] = useState<OTPData | null>(null);
 
-          {/* Admin Dashboard Nested Routes - User Management */}
-          <Route
-            path="/admin-dashboard/create-user"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh" }}>
-                  <CreateUser onBack={() => window.location.href = '/admin-dashboard'} />
-                </Box>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/users"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <ViewUser />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/users/manage/:userId"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <ManageUser />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/users/view/:userId"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <ViewUserDetails />
-              </ProtectedRoute>
-            }
-          />
+  return (
+    <OTPContext.Provider value={{ otpData, setOTPData }}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomeWrapper />} />
+            
+            {/* Auth Routes */}
+            <Route path="/admin-login" element={<AdminLoginWrapper />} />
+            <Route path="/registration-login" element={<RegistrationLoginWrapper />} />
+            <Route path="/otp-verify" element={<OTPVerifyWrapper />} />
 
-          {/* Admin Dashboard Nested Routes - Security Personnel */}
-          <Route
-            path="/admin-dashboard/security"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <ViewSecurity />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/security/add"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Add Security Personnel - Coming Soon</Typography>
-                </Box>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/security/view/:securityId"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">View Security Personnel Details - Coming Soon</Typography>
-                </Box>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/security/manage/:securityId"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Manage Security Personnel - Coming Soon</Typography>
-                </Box>
-              </ProtectedRoute>
-            }
-          />
+            {/* Protected Admin Routes */}
+            <Route
+              path="/admin-dashboard"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <LogoutWrapper>
+                    <AdminDashboard />
+                  </LogoutWrapper>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Other Admin Routes */}
-          <Route
-            path="/admin-dashboard/reports"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Reports View - Coming Soon</Typography>
-                </Box>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/settings"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Settings View - Coming Soon</Typography>
-                </Box>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/locations"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography variant="h4">Physical Locations - Coming Soon</Typography>
-                </Box>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin-dashboard/access-control"
-            element={
-              <ProtectedRoute requiredUserType="administrator">
-                <AccessControl />
-              </ProtectedRoute>
-            }
-          />
+            {/* Admin Dashboard Nested Routes - User Management */}
+            <Route
+              path="/admin-dashboard/create-user"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <CreateUserWrapper />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/users"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ViewUser />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/users/manage/:userId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ManageUser />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/users/view/:userId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ViewUserDetails />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Protected Registration Officer Routes */}
-          <Route
-            path="/registers-dashboard"
-            element={
-              <ProtectedRoute requiredUserType="registration_officer">
-                <RegistersDashboard onLogout={handleLogout} />
-              </ProtectedRoute>
-            }
-          />
+            {/* Admin Dashboard Nested Routes - Security Personnel */}
+            <Route
+              path="/admin-dashboard/security"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ViewSecurity />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/security/add"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="h4">Add Security Personnel - Coming Soon</Typography>
+                  </Box>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/security/view/:securityId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="h4">View Security Personnel Details - Coming Soon</Typography>
+                  </Box>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/security/manage/:securityId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="h4">Manage Security Personnel - Coming Soon</Typography>
+                  </Box>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Catch all route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+            {/* Other Admin Routes */}
+            <Route
+              path="/admin-dashboard/reports"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="h4">Reports View - Coming Soon</Typography>
+                  </Box>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/settings"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="h4">Settings View - Coming Soon</Typography>
+                  </Box>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/locations"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Typography variant="h4">Physical Locations - Coming Soon</Typography>
+                  </Box>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/access-control"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <AccessControl />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Protected Registration Officer Routes */}
+            <Route
+              path="/registers-dashboard"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <LogoutWrapper>
+                    <RegistersDashboard />
+                  </LogoutWrapper>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    </OTPContext.Provider>
   );
 }
 

@@ -1,4 +1,4 @@
-import apiConfig from '../api/config';
+import { apiClient } from '../api/config'; // Use apiClient instead of apiConfig
 
 // Types and Interfaces
 export interface SecurityPersonnel {
@@ -60,60 +60,56 @@ export interface RestoreResponse {
 }
 
 class SecurityPersonelService {
-  // Get the base URL from the Axios instance defaults
-  private baseURL = `${apiConfig.defaults.baseURL}/api/administrator/security-personnel`;
+  private readonly baseURL = '/api/administrator/security-personnel';
 
-  // Helper method to get headers with authentication
-  private getHeaders(): HeadersInit {
-    const token = localStorage.getItem('accessToken');
+  // Fix: Use same authentication pattern as UserManagementService
+  private getAuthHeaders() {
+    const accessToken = localStorage.getItem('access_token'); // Fixed: Use correct key
+    if (!accessToken) {
+      throw new Error('No access token found. Please log in again.');
+    }
+
     return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
     };
   }
 
-  // Helper method to handle API responses
-  private async handleResponse<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Network error' }));
-      
-      if (response.status === 401) {
-        // Token expired or invalid - redirect to login
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/admin-login';
-        throw new Error('Authentication required');
-      } else if (response.status === 403) {
-        throw new Error('Access denied. Administrator privileges required.');
-      } else if (response.status === 404) {
-        throw new Error('Security personnel not found');
-      } else if (response.status === 400) {
-        // Validation errors
-        const errorMessage = typeof errorData === 'object' && errorData.detail 
-          ? errorData.detail 
-          : 'Validation error';
-        throw new Error(errorMessage);
-      }
-      
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-    }
+  // Fix: Use consistent error handling pattern
+  private handleError(error: any): Error {
+    if (error.response) {
+      const { status, data } = error.response;
 
-    return await response.json();
+      if (status === 401) {
+        return new Error(data.detail || 'Authentication required. Please log in again.');
+      } else if (status === 403) {
+        return new Error(data.detail || 'You do not have permission to perform this action.');
+      } else if (status === 404) {
+        return new Error(data.detail || 'Security personnel not found.');
+      } else if (status === 400) {
+        return new Error(data.detail || 'Validation error occurred.');
+      } else if (status === 429) {
+        return new Error(data.detail || 'Too many requests. Please try again later.');
+      }
+
+      return new Error(data.detail || 'An error occurred during the request.');
+    } else if (error.request) {
+      return new Error('Network error. Please check your connection.');
+    } else {
+      return new Error(error.message || 'An unexpected error occurred.');
+    }
   }
 
   // 1. Create Security Personnel
   async createSecurityPersonnel(data: CreateSecurityPersonnelRequest): Promise<SecurityPersonnel> {
     try {
-      const response = await fetch(`${this.baseURL}/create/`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify(data),
+      const response = await apiClient.post(`${this.baseURL}/create/`, data, {
+        headers: this.getAuthHeaders()
       });
 
-      return await this.handleResponse<SecurityPersonnel>(response);
-    } catch (error) {
-      console.error('Error creating security personnel:', error);
-      throw error;
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
@@ -128,32 +124,30 @@ class SecurityPersonelService {
       if (params.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
       if (params.ordering) queryParams.append('ordering', params.ordering);
 
-      const url = `${this.baseURL}/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = queryParams.toString() 
+        ? `${this.baseURL}/?${queryParams.toString()}`
+        : `${this.baseURL}/`;
       
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: this.getHeaders(),
+      const response = await apiClient.get(url, {
+        headers: this.getAuthHeaders()
       });
 
-      return await this.handleResponse<SecurityPersonnelListResponse>(response);
-    } catch (error) {
-      console.error('Error fetching security personnel list:', error);
-      throw error;
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
   // 3. Get Single Security Personnel by ID
   async getSecurityPersonnelById(securityId: string): Promise<SecurityPersonnel> {
     try {
-      const response = await fetch(`${this.baseURL}/${securityId}/`, {
-        method: 'GET',
-        headers: this.getHeaders(),
+      const response = await apiClient.get(`${this.baseURL}/${securityId}/`, {
+        headers: this.getAuthHeaders()
       });
 
-      return await this.handleResponse<SecurityPersonnel>(response);
-    } catch (error) {
-      console.error('Error fetching security personnel by ID:', error);
-      throw error;
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
@@ -165,62 +159,52 @@ class SecurityPersonelService {
   // 4. Update Security Personnel (Full Update)
   async updateSecurityPersonnel(securityId: string, data: UpdateSecurityPersonnelRequest): Promise<SecurityPersonnel> {
     try {
-      const response = await fetch(`${this.baseURL}/${securityId}/update/`, {
-        method: 'PUT',
-        headers: this.getHeaders(),
-        body: JSON.stringify(data),
+      const response = await apiClient.put(`${this.baseURL}/${securityId}/update/`, data, {
+        headers: this.getAuthHeaders()
       });
 
-      return await this.handleResponse<SecurityPersonnel>(response);
-    } catch (error) {
-      console.error('Error updating security personnel:', error);
-      throw error;
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
   // 5. Partial Update Security Personnel
   async partialUpdateSecurityPersonnel(securityId: string, data: Partial<UpdateSecurityPersonnelRequest>): Promise<SecurityPersonnel> {
     try {
-      const response = await fetch(`${this.baseURL}/${securityId}/update/`, {
-        method: 'PATCH',
-        headers: this.getHeaders(),
-        body: JSON.stringify(data),
+      const response = await apiClient.patch(`${this.baseURL}/${securityId}/update/`, data, {
+        headers: this.getAuthHeaders()
       });
 
-      return await this.handleResponse<SecurityPersonnel>(response);
-    } catch (error) {
-      console.error('Error partially updating security personnel:', error);
-      throw error;
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
   // 6. Delete Security Personnel (Soft Delete)
   async deleteSecurityPersonnel(securityId: string): Promise<DeleteResponse> {
     try {
-      const response = await fetch(`${this.baseURL}/${securityId}/delete/`, {
-        method: 'DELETE',
-        headers: this.getHeaders(),
+      const response = await apiClient.delete(`${this.baseURL}/${securityId}/delete/`, {
+        headers: this.getAuthHeaders()
       });
 
-      return await this.handleResponse<DeleteResponse>(response);
-    } catch (error) {
-      console.error('Error deleting security personnel:', error);
-      throw error;
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
   // 7. Restore Security Personnel
   async restoreSecurityPersonnel(securityId: string): Promise<RestoreResponse> {
     try {
-      const response = await fetch(`${this.baseURL}/${securityId}/restore/`, {
-        method: 'POST',
-        headers: this.getHeaders(),
+      const response = await apiClient.post(`${this.baseURL}/${securityId}/restore/`, {}, {
+        headers: this.getAuthHeaders()
       });
 
-      return await this.handleResponse<RestoreResponse>(response);
-    } catch (error) {
-      console.error('Error restoring security personnel:', error);
-      throw error;
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
@@ -267,9 +251,8 @@ class SecurityPersonelService {
         inactive: inactivePersonnel.count,
         recentlyAdded: recentCount,
       };
-    } catch (error) {
-      console.error('Error fetching security personnel statistics:', error);
-      throw error;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
@@ -283,9 +266,8 @@ class SecurityPersonelService {
       });
 
       return response.results;
-    } catch (error) {
-      console.error('Error searching security personnel:', error);
-      throw error;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
@@ -300,8 +282,7 @@ class SecurityPersonelService {
         : response;
         
       return conflicts.length === 0;
-    } catch (error) {
-      console.error('Error validating employee ID:', error);
+    } catch (error: any) {
       return false;
     }
   }
@@ -317,8 +298,7 @@ class SecurityPersonelService {
         : response;
         
       return conflicts.length === 0;
-    } catch (error) {
-      console.error('Error validating badge number:', error);
+    } catch (error: any) {
       return false;
     }
   }
@@ -332,9 +312,8 @@ class SecurityPersonelService {
         termination_date: termDate,
         is_active: false,
       });
-    } catch (error) {
-      console.error('Error terminating security personnel:', error);
-      throw error;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 
@@ -345,9 +324,8 @@ class SecurityPersonelService {
         termination_date: null,
         is_active: true,
       });
-    } catch (error) {
-      console.error('Error reactivating security personnel:', error);
-      throw error;
+    } catch (error: any) {
+      throw this.handleError(error);
     }
   }
 }
