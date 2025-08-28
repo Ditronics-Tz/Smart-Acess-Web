@@ -104,9 +104,9 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     },
     {
       title: "Access Control",
-      description: "Monitor and control access permissions",
+      description: "Monitor and control system access permissions",
       icon: <Security sx={{ fontSize: 32, color: colors.secondary.main }} />,
-      action: () => navigate('/admin-dashboard/security'),
+      action: () => navigate('/admin-dashboard/access-control'),
       stats: "156 Permissions",
       bgColor: colors.neutral.white,
     },
@@ -151,8 +151,14 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       case "users":
         navigate('/admin-dashboard/users');
         break;
+      case "security":
+        navigate('/admin-dashboard/security');
+        break;
       case "reports":
         navigate('/admin-dashboard/reports');
+        break;
+      case "locations":
+        navigate('/admin-dashboard/locations');
         break;
       case "settings":
         navigate('/admin-dashboard/settings');
@@ -222,7 +228,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                     lineHeight: 1.2,
                   }}
                 >
-                  Admin Control Center
+                  Admin Dashboard
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   Smart Access Control System
@@ -288,13 +294,12 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                     height: 40,
                     background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
                     border: `2px solid ${colors.primary.main}`,
-                    fontWeight: "bold",
                   }}
                 >
                   {username?.charAt(0).toUpperCase()}
                 </Avatar>
-                <Box sx={{ display: { xs: "none", sm: "block" }, textAlign: "left" }}>
-                  <Typography variant="body2" fontWeight="600">
+                <Box sx={{ textAlign: "left", display: { xs: "none", sm: "block" } }}>
+                  <Typography variant="body2" fontWeight="600" sx={{ lineHeight: 1.2 }}>
                     {username}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -308,18 +313,8 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
                 PaperProps={{
-                  sx: {
-                    mt: 1,
-                    minWidth: 200,
-                    boxShadow: 3,
-                    "& .MuiMenuItem-root": {
-                      py: 1.5,
-                      px: 2,
-                      "&:hover": {
-                        backgroundColor: "rgba(0,0,0,0.04)",
-                      },
-                    },
-                  },
+                  elevation: 3,
+                  sx: { mt: 1.5, minWidth: 180 },
                 }}
               >
                 <MenuItem onClick={handleClose}>
@@ -423,55 +418,41 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
             {/* Quick Actions */}
             <Box>
-              <Typography variant="h4" fontWeight="bold" color={colors.secondary.main} gutterBottom sx={{ mb: 3 }}>
+              <Typography variant="h4" fontWeight="bold" sx={{ color: colors.secondary.main, mb: 3 }}>
                 Quick Actions
               </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
                 {dashboardCards.map((card, index) => (
-                  <Box key={index} sx={{ flex: { xs: "1 1 100%", md: "1 1 calc(50% - 16px)" } }}>
+                  <Box key={index} sx={{ flex: { xs: "1 1 100%", sm: "1 1 calc(50% - 12px)", lg: "1 1 calc(25% - 18px)" } }}>
                     <Card
                       sx={{
-                        cursor: "pointer",
                         height: "100%",
-                        boxShadow: 2,
+                        cursor: "pointer",
                         transition: "all 0.3s ease",
                         "&:hover": {
-                          boxShadow: 6,
                           transform: "translateY(-4px)",
+                          boxShadow: 4,
                         },
                       }}
                       onClick={card.action}
                     >
-                      <CardContent sx={{ p: 4 }}>
-                        <Box sx={{ display: "flex", alignItems: "flex-start", gap: 3 }}>
-                          <Box
-                            sx={{
-                              p: 2,
-                              backgroundColor: index % 2 === 0 ? "rgba(248, 112, 96, 0.1)" : "rgba(16, 37, 66, 0.1)",
-                              borderRadius: 2,
-                              boxShadow: 1,
-                            }}
-                          >
-                            {card.icon}
-                          </Box>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="h5" fontWeight="bold" color={colors.secondary.main} gutterBottom>
-                              {card.title}
-                            </Typography>
-                            <Typography variant="body1" color="text.secondary" sx={{ mb: 2, lineHeight: 1.6 }}>
-                              {card.description}
-                            </Typography>
-                            <Chip
-                              label={card.stats}
-                              size="small"
-                              sx={{
-                                backgroundColor: "rgba(0,0,0,0.05)",
-                                color: colors.secondary.main,
-                                fontWeight: 500,
-                              }}
-                            />
-                          </Box>
-                        </Box>
+                      <CardContent sx={{ p: 3, textAlign: "center" }}>
+                        <Box sx={{ mb: 2 }}>{card.icon}</Box>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ color: colors.secondary.main }}>
+                          {card.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                          {card.description}
+                        </Typography>
+                        <Chip
+                          label={card.stats}
+                          size="small"
+                          sx={{
+                            backgroundColor: colors.primary.light,
+                            color: colors.primary.main,
+                            fontWeight: "bold",
+                          }}
+                        />
                       </CardContent>
                     </Card>
                   </Box>
