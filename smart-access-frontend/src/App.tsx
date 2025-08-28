@@ -16,7 +16,9 @@ import ViewUser from './views/Admin/User/ViewUser';
 import ManageUser from './views/Admin/User/ManageUser';
 import ViewUserDetails from './views/Admin/User/ViewUserDetails';
 import ViewSecurity from './views/Admin/Security/ViewSecurity';
-import AddSecurity from './views/Admin/Security/AddSecurity'; // Add this import
+import AddSecurity from './views/Admin/Security/AddSecurity';
+import ViewSecurityDetails from './views/Admin/Security/ViewSecurityDetails';
+import ManageSecurity from './views/Admin/Security/ManageSecurity';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
@@ -356,7 +358,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* ✅ FIXED: Replace placeholder with actual AddSecurity component */}
             <Route
               path="/admin-dashboard/security/add"
               element={
@@ -369,9 +370,7 @@ function App() {
               path="/admin-dashboard/security/view/:securityId"
               element={
                 <ProtectedRoute requiredUserType="administrator">
-                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="h4">View Security Personnel Details - Coming Soon</Typography>
-                  </Box>
+                  <ViewSecurityDetails />
                 </ProtectedRoute>
               }
             />
@@ -379,9 +378,7 @@ function App() {
               path="/admin-dashboard/security/manage/:securityId"
               element={
                 <ProtectedRoute requiredUserType="administrator">
-                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="h4">Manage Security Personnel - Coming Soon</Typography>
-                  </Box>
+                  <ManageSecurity />
                 </ProtectedRoute>
               }
             />
