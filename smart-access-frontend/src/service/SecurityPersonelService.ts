@@ -61,7 +61,7 @@ export interface RestoreResponse {
 
 class SecurityPersonelService {
   // Get the base URL from the Axios instance defaults
-  private baseURL = `${apiConfig.defaults.baseURL}/administrator/security-personnel`;
+  private baseURL = `${apiConfig.defaults.baseURL}/api/administrator/security-personnel`;
 
   // Helper method to get headers with authentication
   private getHeaders(): HeadersInit {
@@ -142,8 +142,8 @@ class SecurityPersonelService {
     }
   }
 
-  // 3. Get Single Security Personnel
-  async getSecurityPersonnel(securityId: string): Promise<SecurityPersonnel> {
+  // 3. Get Single Security Personnel by ID
+  async getSecurityPersonnelById(securityId: string): Promise<SecurityPersonnel> {
     try {
       const response = await fetch(`${this.baseURL}/${securityId}/`, {
         method: 'GET',
@@ -152,9 +152,14 @@ class SecurityPersonelService {
 
       return await this.handleResponse<SecurityPersonnel>(response);
     } catch (error) {
-      console.error('Error fetching security personnel:', error);
+      console.error('Error fetching security personnel by ID:', error);
       throw error;
     }
+  }
+
+  // 3. Get Single Security Personnel (Alias for backward compatibility)
+  async getSecurityPersonnel(securityId: string): Promise<SecurityPersonnel> {
+    return this.getSecurityPersonnelById(securityId);
   }
 
   // 4. Update Security Personnel (Full Update)

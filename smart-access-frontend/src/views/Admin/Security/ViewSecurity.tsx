@@ -33,28 +33,26 @@ import {
   AppBar,
   Toolbar,
   Badge,
+  Menu,
+  MenuItem as MenuItemMui,
 } from '@mui/material';
 import {
   Search,
   PersonAdd,
-  Edit,
-  Delete,
-  Lock,
-  LockOpen,
   Refresh,
   Visibility,
   Security,
   People,
   Person,
-  Email,
   Phone,
   CalendarToday,
   Badge as BadgeIcon,
-  Work,
   Menu as MenuIcon,
   Notifications,
   Settings,
   ExitToApp,
+  Lock,
+  LockOpen,
 } from '@mui/icons-material';
 import { colors } from '../../../styles/themes/colors';
 import SecurityPersonelService, { SecurityPersonnel, SecurityPersonnelListParams } from '../../../service/SecurityPersonelService';
@@ -75,6 +73,7 @@ const ViewSecurity: React.FC = () => {
 
   // Sidebar state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   // Statistics state
   const [stats, setStats] = useState({
@@ -85,6 +84,24 @@ const ViewSecurity: React.FC = () => {
   });
 
   const username = AuthService.getUsername();
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      navigate('/');
+    }
+  };
 
   const fetchSecurityPersonnel = async () => {
     try {
@@ -151,10 +168,6 @@ const ViewSecurity: React.FC = () => {
     navigate('/admin-dashboard/security/add');
   };
 
-  const handleManagePersonnel = (securityId: string) => {
-    navigate(`/admin-dashboard/security/manage/${securityId}`);
-  };
-
   const handleViewPersonnel = (securityId: string) => {
     navigate(`/admin-dashboard/security/view/${securityId}`);
   };
@@ -187,6 +200,15 @@ const ViewSecurity: React.FC = () => {
     return isActive ? 'Active' : 'Inactive';
   };
 
+  // Helper function to get initials from full name
+  const getInitials = (fullName: string) => {
+    const names = fullName.split(' ');
+    if (names.length >= 2) {
+      return names[0].charAt(0) + names[names.length - 1].charAt(0);
+    }
+    return fullName.charAt(0);
+  };
+
   // Sidebar navigation handler
   const handleSidebarNavigation = (view: string) => {
     switch (view) {
@@ -199,8 +221,14 @@ const ViewSecurity: React.FC = () => {
       case "security":
         navigate('/admin-dashboard/security');
         break;
+      case "access-control":
+        navigate('/admin-dashboard/access-control');
+        break;
       case "reports":
         navigate('/admin-dashboard/reports');
+        break;
+      case "locations":
+        navigate('/admin-dashboard/locations');
         break;
       case "settings":
         navigate('/admin-dashboard/settings');
@@ -257,9 +285,9 @@ const ViewSecurity: React.FC = () => {
         ml: sidebarCollapsed ? "64px" : "280px",
         transition: "margin-left 0.3s ease",
         minHeight: "100vh", 
-        backgroundColor: "#f5f5f5"  // Dashboard background color
+        backgroundColor: "#f5f5f5"
       }}>
-        {/* Header - Dashboard Style */}
+        {/* Header */}
         <AppBar
           position="sticky"
           sx={{
@@ -305,7 +333,7 @@ const ViewSecurity: React.FC = () => {
                   Security Personnel
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Security Staff Management
+                  View and Monitor Security Staff
                 </Typography>
               </Box>
             </Box>
@@ -352,6 +380,76 @@ const ViewSecurity: React.FC = () => {
               >
                 Add Personnel
               </Button>
+
+              {/* Notifications */}
+              <IconButton
+                sx={{
+                  color: colors.secondary.main,
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                }}
+              >
+                <Badge badgeContent={3} color="error">
+                  <Notifications />
+                </Badge>
+              </IconButton>
+
+              {/* User menu */}
+              <Button
+                onClick={handleMenu}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  px: 2,
+                  py: 1,
+                  textTransform: "none",
+                  color: colors.secondary.main,
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
+                    border: `2px solid ${colors.primary.main}`,
+                  }}
+                >
+                  {username?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box sx={{ textAlign: "left", display: { xs: "none", sm: "block" } }}>
+                  <Typography variant="body2" fontWeight="600" sx={{ lineHeight: 1.2 }}>
+                    {username}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Administrator
+                  </Typography>
+                </Box>
+              </Button>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                PaperProps={{
+                  elevation: 3,
+                  sx: { mt: 1.5, minWidth: 180 },
+                }}
+              >
+                <MenuItem onClick={handleClose}>
+                  <Person sx={{ mr: 2, color: colors.secondary.main }} />
+                  <Typography color={colors.secondary.main}>Profile</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleClose}>
+                  <Settings sx={{ mr: 2, color: colors.secondary.main }} />
+                  <Typography color={colors.secondary.main}>Settings</Typography>
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout}>
+                  <ExitToApp sx={{ mr: 2, color: "error.main" }} />
+                  <Typography color="error.main">Logout</Typography>
+                </MenuItem>
+              </Menu>
             </Box>
           </Toolbar>
         </AppBar>
@@ -359,7 +457,7 @@ const ViewSecurity: React.FC = () => {
         {/* Dashboard Content */}
         <Container maxWidth="xl" sx={{ py: 4 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {/* Welcome Section - Dashboard Style */}
+            {/* Welcome Section */}
             <Paper
               sx={{
                 background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
@@ -372,10 +470,10 @@ const ViewSecurity: React.FC = () => {
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <Box>
                   <Typography variant="h3" fontWeight="bold" gutterBottom>
-                    Security Personnel
+                    Security Personnel Directory
                   </Typography>
                   <Typography variant="h6" sx={{ opacity: 0.9, maxWidth: 600 }}>
-                    Manage and monitor all security personnel in the Smart Access Control System
+                    View and monitor all security personnel in the Smart Access Control System
                   </Typography>
                 </Box>
                 <Avatar
@@ -393,7 +491,7 @@ const ViewSecurity: React.FC = () => {
               </Box>
             </Paper>
 
-            {/* Stats Overview - Dashboard Style */}
+            {/* Stats Overview */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
               {statsCards.map((stat, index) => (
                 <Box key={index} sx={{ flex: { xs: "1 1 100%", sm: "1 1 calc(50% - 12px)", md: "1 1 calc(25% - 18px)" } }}>
@@ -534,20 +632,26 @@ const ViewSecurity: React.FC = () => {
                           >
                             <TableCell>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Avatar 
-                                  sx={{ 
-                                    bgcolor: index % 2 === 0 ? colors.primary.main : colors.secondary.main,
-                                    fontWeight: 'bold'
+                                <Avatar
+                                  sx={{
+                                    width: 50,
+                                    height: 50,
+                                    background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.secondary.main} 100%)`,
+                                    fontWeight: 'bold',
+                                    fontSize: '1.2rem'
                                   }}
                                 >
-                                  {personnel.full_name?.charAt(0) || 'S'}
+                                  {getInitials(personnel.full_name)}
                                 </Avatar>
                                 <Box>
-                                  <Typography variant="subtitle2" fontWeight="600" color={colors.secondary.main}>
+                                  <Typography variant="body1" fontWeight="600" sx={{ color: colors.secondary.main }}>
                                     {personnel.full_name}
                                   </Typography>
                                   <Typography variant="body2" color="text.secondary">
                                     ID: {personnel.employee_id}
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary">
+                                    Badge: {personnel.badge_number}
                                   </Typography>
                                 </Box>
                               </Box>
@@ -555,21 +659,15 @@ const ViewSecurity: React.FC = () => {
 
                             <TableCell>
                               <Stack spacing={1}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <BadgeIcon sx={{ fontSize: 16, color: colors.primary.main }} />
-                                  <Typography variant="body2" fontWeight="500">
-                                    Badge: {personnel.badge_number}
-                                  </Typography>
-                                </Box>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <Work sx={{ fontSize: 16, color: colors.secondary.main }} />
-                                  <Typography variant="body2">
-                                    Hired: {formatDate(personnel.hire_date)}
-                                  </Typography>
-                                </Box>
+                                <Typography variant="body2" fontWeight="500" sx={{ color: colors.primary.main }}>
+                                  Security Personnel
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  Hire: {new Date(personnel.hire_date).toLocaleDateString()}
+                                </Typography>
                                 {personnel.termination_date && (
-                                  <Typography variant="caption" color="error.main" fontWeight="500">
-                                    Terminated: {formatDate(personnel.termination_date)}
+                                  <Typography variant="caption" color="error.main">
+                                    Terminated: {new Date(personnel.termination_date).toLocaleDateString()}
                                   </Typography>
                                 )}
                               </Stack>
@@ -583,9 +681,11 @@ const ViewSecurity: React.FC = () => {
                                     <Typography variant="body2">{personnel.phone_number}</Typography>
                                   </Box>
                                 )}
-                                <Typography variant="body2" color="text.secondary">
-                                  Security ID: {personnel.security_id.slice(0, 8)}...
-                                </Typography>
+                                {!personnel.phone_number && (
+                                  <Typography variant="body2" color="text.secondary">
+                                    No contact info
+                                  </Typography>
+                                )}
                               </Stack>
                             </TableCell>
 
@@ -601,13 +701,12 @@ const ViewSecurity: React.FC = () => {
 
                             <TableCell>
                               <Stack spacing={1}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <CalendarToday sx={{ fontSize: 16, color: 'text.secondary' }} />
-                                  <Typography variant="body2">
-                                    {formatDate(personnel.created_at)}
-                                  </Typography>
-                                </Box>
-                                <Typography variant="caption" color="info.main" fontWeight="500">
+                                <Typography variant="caption" color="text.secondary">
+                                  <CalendarToday sx={{ fontSize: 12, mr: 0.5 }} />
+                                  Created: {formatDate(personnel.created_at)}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  <CalendarToday sx={{ fontSize: 12, mr: 0.5 }} />
                                   Updated: {formatDate(personnel.updated_at)}
                                 </Typography>
                               </Stack>
@@ -619,30 +718,15 @@ const ViewSecurity: React.FC = () => {
                                   <IconButton
                                     size="small"
                                     onClick={() => handleViewPersonnel(personnel.security_id)}
-                                    sx={{ 
-                                      color: 'info.main',
-                                      "&:hover": { 
-                                        backgroundColor: "rgba(33, 150, 243, 0.1)",
-                                        transform: "scale(1.1)",
-                                      },
+                                    sx={{
+                                      color: colors.primary.main,
+                                      '&:hover': { 
+                                        backgroundColor: 'rgba(248, 112, 96, 0.1)',
+                                        color: colors.primary.hover 
+                                      }
                                     }}
                                   >
                                     <Visibility />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Manage Personnel">
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => handleManagePersonnel(personnel.security_id)}
-                                    sx={{ 
-                                      color: colors.primary.main,
-                                      "&:hover": { 
-                                        backgroundColor: "rgba(248, 112, 96, 0.1)",
-                                        transform: "scale(1.1)",
-                                      },
-                                    }}
-                                  >
-                                    <Edit />
                                   </IconButton>
                                 </Tooltip>
                               </Box>
