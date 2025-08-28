@@ -15,6 +15,7 @@ import CreateUser from './views/Admin/User/CreateUser';
 import ViewUser from './views/Admin/User/ViewUser';
 import ManageUser from './views/Admin/User/ManageUser';
 import ViewUserDetails from './views/Admin/User/ViewUserDetails';
+import ViewSecurity from './views/Admin/Security/ViewSecurity';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import './styles/global.css';
@@ -235,7 +236,7 @@ function App() {
             }
           />
 
-          {/* Admin Dashboard Nested Routes */}
+          {/* Admin Dashboard Nested Routes - User Management */}
           <Route
             path="/admin-dashboard/create-user"
             element={
@@ -270,6 +271,48 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin Dashboard Nested Routes - Security Personnel */}
+          <Route
+            path="/admin-dashboard/security"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <ViewSecurity />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/security/add"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="h4">Add Security Personnel - Coming Soon</Typography>
+                </Box>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/security/view/:securityId"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="h4">View Security Personnel Details - Coming Soon</Typography>
+                </Box>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/security/manage/:securityId"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="h4">Manage Security Personnel - Coming Soon</Typography>
+                </Box>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Other Admin Routes */}
           <Route
             path="/admin-dashboard/reports"
             element={
@@ -286,6 +329,16 @@ function App() {
               <ProtectedRoute requiredUserType="administrator">
                 <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography variant="h4">Settings View - Coming Soon</Typography>
+                </Box>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard/locations"
+            element={
+              <ProtectedRoute requiredUserType="administrator">
+                <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography variant="h4">Physical Locations - Coming Soon</Typography>
                 </Box>
               </ProtectedRoute>
             }

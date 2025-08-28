@@ -29,10 +29,10 @@ type AdminSidebarProps = {
 const links = [
   { id: "dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { id: "users", label: "Users", icon: <People /> },
+  { id: "security", label: "Security Personnel", icon: <Security /> },
   { id: "reports", label: "Reports", icon: <Assessment /> },
-  { id: "security", label: "Security-Personel", icon: <Security /> },
+  { id: "locations", label: "Physical Locations", icon: <LocationOn /> },
   { id: "settings", label: "Settings", icon: <Settings /> },
-  { id: "locations", label: "Physical locations", icon: <LocationOn /> },
 ];
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ 
