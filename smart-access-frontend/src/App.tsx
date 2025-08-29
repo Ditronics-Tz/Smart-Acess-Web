@@ -19,6 +19,7 @@ import ViewSecurity from './views/Admin/Security/ViewSecurity';
 import AddSecurity from './views/Admin/Security/AddSecurity';
 import ViewSecurityDetails from './views/Admin/Security/ViewSecurityDetails';
 import ManageSecurity from './views/Admin/Security/ManageSecurity';
+import ViewLocations from './views/Admin/Physical-Locations/ViewLocations';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
@@ -383,6 +384,16 @@ function App() {
               }
             />
 
+            {/* Admin Dashboard Nested Routes - Physical Locations */}
+            <Route
+              path="/admin-dashboard/locations"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ViewLocations />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Other Admin Routes */}
             <Route
               path="/admin-dashboard/reports"
@@ -400,16 +411,6 @@ function App() {
                 <ProtectedRoute requiredUserType="administrator">
                   <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Typography variant="h4">Settings View - Coming Soon</Typography>
-                  </Box>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin-dashboard/locations"
-              element={
-                <ProtectedRoute requiredUserType="administrator">
-                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="h4">Physical Locations - Coming Soon</Typography>
                   </Box>
                 </ProtectedRoute>
               }
