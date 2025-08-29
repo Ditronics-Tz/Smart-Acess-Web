@@ -154,6 +154,10 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       case "security":
         navigate('/admin-dashboard/security');
         break;
+      case "access-gates":  // Add this missing case
+      navigate('/admin-dashboard/gates');
+      break;
+
       case "reports":
         navigate('/admin-dashboard/reports');
         break;

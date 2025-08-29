@@ -23,6 +23,10 @@ import ViewLocations from './views/Admin/Physical-Locations/ViewLocations';
 import AddLocations from './views/Admin/Physical-Locations/AddLocations';
 import ViewLocationDetails from './views/Admin/Physical-Locations/ViewLocationdetails';
 import ManageLocations from './views/Admin/Physical-Locations/ManageLocations';
+import ViewGates from './views/Admin/Gates/ViewGates';
+import ViewGatesDetails from './views/Admin/Gates/ViewGatesDetails';
+import ManageGates from './views/Admin/Gates/ManageGates';
+import AddGates from './views/Admin/Gates/AddGates';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
@@ -425,6 +429,40 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="administrator">
                   <ManageLocations />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Dashboard Nested Routes - Access Gates */}
+            <Route
+              path="/admin-dashboard/gates"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ViewGates />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/gates/create"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <AddGates />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/gates/view/:gateId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ViewGatesDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/gates/edit/:gateId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ManageGates />
                 </ProtectedRoute>
               }
             />
