@@ -17,6 +17,7 @@ import {
   Settings,
   Security,
   LocationOn,
+  DoorFront,
 } from "@mui/icons-material";
 import { colors } from '../../../styles/themes/colors';
 
@@ -30,8 +31,9 @@ const links = [
   { id: "dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { id: "users", label: "Users", icon: <People /> },
   { id: "security", label: "Security Personnel", icon: <Security /> },
-  { id: "reports", label: "Reports", icon: <Assessment /> },
   { id: "locations", label: "Physical Locations", icon: <LocationOn /> },
+  { id: "access-gates", label: "Access Gates", icon: <DoorFront /> },
+  { id: "reports", label: "Reports", icon: <Assessment /> },
   { id: "settings", label: "Settings", icon: <Settings /> },
 ];
 
