@@ -20,6 +20,9 @@ import AddSecurity from './views/Admin/Security/AddSecurity';
 import ViewSecurityDetails from './views/Admin/Security/ViewSecurityDetails';
 import ManageSecurity from './views/Admin/Security/ManageSecurity';
 import ViewLocations from './views/Admin/Physical-Locations/ViewLocations';
+import AddLocations from './views/Admin/Physical-Locations/AddLocations';
+import ViewLocationDetails from './views/Admin/Physical-Locations/ViewLocationdetails';
+import ManageLocations from './views/Admin/Physical-Locations/ManageLocations';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
@@ -390,6 +393,38 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="administrator">
                   <ViewLocations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/locations/create"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <AddLocations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/locations/view/:locationId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ViewLocationDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/locations/manage/:locationId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ManageLocations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin-dashboard/locations/edit/:locationId"
+              element={
+                <ProtectedRoute requiredUserType="administrator">
+                  <ManageLocations />
                 </ProtectedRoute>
               }
             />
