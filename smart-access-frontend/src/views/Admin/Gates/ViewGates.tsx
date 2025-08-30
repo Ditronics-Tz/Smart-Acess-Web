@@ -53,6 +53,7 @@ import { colors } from '../../../styles/themes/colors';
 import AdminService, { AccessGate, AccessGateFilters } from '../../../service/AdminService';
 import AdminSidebar from '../shared/AdminSidebar';
 import AuthService from '../../../service/AuthService';
+import { useAdminNavigation } from '../../../hooks/useAdminNavigation';
 
 const ViewGates: React.FC = () => {
   const navigate = useNavigate();
@@ -230,33 +231,7 @@ const ViewGates: React.FC = () => {
   };
 
   // Sidebar navigation handler
-  const handleSidebarNavigation = (view: string) => {
-    switch (view) {
-      case "dashboard":
-        navigate('/admin-dashboard');
-        break;
-      case "users":
-        navigate('/admin-dashboard/users');
-        break;
-      case "security":
-        navigate('/admin-dashboard/security');
-        break;
-      case "locations":
-        navigate('/admin-dashboard/locations');
-        break;
-      case "access-gates":
-        navigate('/admin-dashboard/gates');
-        break;
-      case "reports":
-        navigate('/admin-dashboard/reports');
-        break;
-      case "settings":
-        navigate('/admin-dashboard/settings');
-        break;
-      default:
-        navigate('/admin-dashboard');
-    }
-  };
+  const handleSidebarNavigation = useAdminNavigation();
 
   // Stats cards with Dashboard color scheme
   const statsCards = [

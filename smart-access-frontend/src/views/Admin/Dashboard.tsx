@@ -39,6 +39,7 @@ import { colors } from '../../styles/themes/colors';
 import AuthService from '../../service/AuthService';
 import CreateUser from './User/CreateUser';
 import AdminSidebar from './shared/AdminSidebar';
+import { useAdminNavigation } from '../../hooks/useAdminNavigation';
 
 interface AdminDashboardProps {
   onLogout?: () => void
@@ -143,34 +144,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     },
   ]
 
-  const handleSidebarNavigation = (view: string) => {
-    switch (view) {
-      case "dashboard":
-        navigate('/admin-dashboard');
-        break;
-      case "users":
-        navigate('/admin-dashboard/users');
-        break;
-      case "security":
-        navigate('/admin-dashboard/security');
-        break;
-      case "access-gates":  // Add this missing case
-      navigate('/admin-dashboard/gates');
-      break;
-
-      case "reports":
-        navigate('/admin-dashboard/reports');
-        break;
-      case "locations":
-        navigate('/admin-dashboard/locations');
-        break;
-      case "settings":
-        navigate('/admin-dashboard/settings');
-        break;
-      default:
-        navigate('/admin-dashboard');
-    }
-  }
+  const handleSidebarNavigation = useAdminNavigation();
 
   return (
     <Box sx={{ display: "flex" }}>
