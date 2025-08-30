@@ -402,7 +402,7 @@ const Setting: React.FC = () => {
                           borderColor: colors.secondary.main,
                           color: colors.secondary.main,
                           "&:hover": {
-                            borderColor: colors.secondary.hover,
+                            borderColor: colors.secondary.main,
                             backgroundColor: "rgba(16, 37, 66, 0.04)",
                           },
                           width: '100%'
@@ -454,7 +454,7 @@ const Setting: React.FC = () => {
                             onClick={() => setRestoreDialog({ open: true, selectedBackup: backup })}
                             sx={{
                               backgroundColor: colors.secondary.main,
-                              "&:hover": { backgroundColor: colors.secondary.hover },
+                              "&:hover": { backgroundColor: colors.secondary.dark },
                             }}
                           >
                             Restore
@@ -600,7 +600,7 @@ const Setting: React.FC = () => {
             startIcon={loading ? <CircularProgress size={20} /> : <Restore />}
             sx={{
               backgroundColor: colors.secondary.main,
-              "&:hover": { backgroundColor: colors.secondary.hover },
+              "&:hover": { backgroundColor: colors.secondary.dark },
             }}
           >
             {loading ? 'Restoring...' : 'Restore Database'}
