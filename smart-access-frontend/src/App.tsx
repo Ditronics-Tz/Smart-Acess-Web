@@ -30,6 +30,7 @@ import AddGates from './views/Admin/Gates/AddGates';
 import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
+import Setting from './views/Admin/Setting';
 import './styles/global.css';
 
 // OTP Context for passing data between components
@@ -482,9 +483,7 @@ function App() {
               path="/admin-dashboard/settings"
               element={
                 <ProtectedRoute requiredUserType="administrator">
-                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="h4">Settings View - Coming Soon</Typography>
-                  </Box>
+                  <Setting />
                 </ProtectedRoute>
               }
             />
