@@ -591,7 +591,7 @@ const Setting: React.FC = () => {
             onClick={() => setRestoreDialog({ open: false, selectedBackup: '' })}
             sx={{ color: colors.secondary.main }}
           >
-            Cancel
+       hover     Cancel
           </Button>
           <Button
             onClick={() => handleRestoreBackup(restoreDialog.selectedBackup)}
