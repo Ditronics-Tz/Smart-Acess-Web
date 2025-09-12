@@ -2,8 +2,8 @@ import axios from 'axios';
 
 // In development, use proxy. In production, use full URL
 const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:8000' // Direct URL for development - proxy sometimes has issues
-  : process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  ? 'http://31.220.82.177:8010/' // Direct URL for development - proxy sometimes has issues
+  : process.env.REACT_APP_API_URL || 'http://31.220.82.177:8010/';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
