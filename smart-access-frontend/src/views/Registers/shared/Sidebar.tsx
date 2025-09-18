@@ -53,7 +53,7 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
         width: collapsed ? 64 : 280,
         minWidth: collapsed ? 64 : 280,
         height: "100vh",
-        background: `linear-gradient(180deg, ${colors.primary.main} 0%, ${colors.primary.hover} 100%)`,
+        background: "linear-gradient(180deg, #1a2332 0%, #0d1117 100%)",
         color: colors.neutral.white,
         boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
         transition: "width 0.3s ease",
@@ -61,14 +61,14 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
         left: 0,
         top: 0,
         zIndex: 1200,
-        borderRight: `1px solid rgba(255, 255, 255, 0.1)`,
+        borderRight: "none",
       }}
     >
       {/* Brand Section */}
       <Box
         sx={{
           p: collapsed ? 2 : 3,
-          borderBottom: `1px solid rgba(255, 255, 255, 0.1)`,
+          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
           display: "flex",
           alignItems: "center",
           gap: 2,
@@ -78,11 +78,11 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
           sx={{
             width: collapsed ? 32 : 40,
             height: collapsed ? 32 : 40,
-            background: `linear-gradient(135deg, ${colors.secondary.main} 0%, rgba(255, 255, 255, 0.2) 100%)`,
-            border: `2px solid rgba(255, 255, 255, 0.2)`,
+            background: `linear-gradient(135deg, ${colors.primary.main} 0%, ${colors.primary.hover} 100%)`,
+            border: "none",
           }}
         >
-          <School sx={{ fontSize: collapsed ? 16 : 20 }} />
+          <DashboardIcon sx={{ fontSize: collapsed ? 16 : 20, color: colors.neutral.white }} />
         </Avatar>
         {!collapsed && (
           <Box>
@@ -92,6 +92,7 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
                 fontWeight: "bold",
                 color: colors.neutral.white,
                 lineHeight: 1.2,
+                fontSize: "1.1rem",
               }}
             >
               Smart Access
@@ -99,7 +100,7 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
             <Typography
               variant="caption"
               sx={{
-                color: "rgba(255, 255, 255, 0.8)",
+                color: "rgba(248, 112, 96, 0.8)",
                 fontSize: "0.75rem",
               }}
             >
@@ -113,19 +114,22 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
       <Box sx={{ flex: 1, py: 2 }}>
         <List sx={{ px: collapsed ? 1 : 2 }}>
           {links.map((link) => (
-            <ListItem key={link.id} disablePadding sx={{ mb: 1 }}>
+            <ListItem key={link.id} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 onClick={() => handleItemClick(link.id)}
                 sx={{
-                  borderRadius: collapsed ? "50%" : "12px",
-                  minHeight: collapsed ? 48 : 56,
+                  borderRadius: collapsed ? "8px" : "8px",
+                  minHeight: 48,
                   justifyContent: collapsed ? "center" : "flex-start",
-                  px: collapsed ? 0 : 3,
+                  px: collapsed ? 1 : 2,
+                  mx: collapsed ? 0 : 0.5,
                   backgroundColor: currentView === link.id 
-                    ? "rgba(255, 255, 255, 0.15)" 
+                    ? `${colors.primary.main}` 
                     : "transparent",
                   "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.08)",
+                    backgroundColor: currentView === link.id 
+                      ? `${colors.primary.main}`
+                      : "rgba(255, 255, 255, 0.05)",
                   },
                   transition: "all 0.2s ease",
                 }}
@@ -134,8 +138,8 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
                   sx={{
                     color: currentView === link.id 
                       ? colors.neutral.white 
-                      : "rgba(255, 255, 255, 0.8)",
-                    minWidth: collapsed ? 0 : 40,
+                      : "rgba(255, 255, 255, 0.7)",
+                    minWidth: collapsed ? 0 : 36,
                     justifyContent: "center",
                   }}
                 >
@@ -145,11 +149,12 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
                   <ListItemText
                     primary={link.label}
                     sx={{
+                      ml: 1,
                       color: currentView === link.id 
                         ? colors.neutral.white 
-                        : "rgba(255, 255, 255, 0.9)",
+                        : "rgba(255, 255, 255, 0.8)",
                       "& .MuiListItemText-primary": {
-                        fontSize: "0.95rem",
+                        fontSize: "0.9rem",
                         fontWeight: currentView === link.id ? 600 : 400,
                       },
                     }}

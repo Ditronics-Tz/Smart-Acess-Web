@@ -55,6 +55,65 @@ export const useOTP = () => {
   return context;
 };
 
+// Coming Soon Component for Registration Officer routes
+const ComingSoonPage: React.FC<{ title: string; description: string; icon?: React.ReactNode }> = ({ 
+  title, 
+  description, 
+  icon 
+}) => {
+  const navigate = useNavigate();
+
+  const handleBackToDashboard = () => {
+    navigate('/registers-dashboard');
+  };
+
+  return (
+    <Box sx={{ 
+      width: "100vw", 
+      height: "100vh", 
+      display: 'flex', 
+      flexDirection: 'column',
+      alignItems: 'center', 
+      justifyContent: 'center',
+      backgroundColor: '#f8f9fa',
+      gap: 3
+    }}>
+      {icon && (
+        <Box sx={{ fontSize: '4rem', color: '#F87060' }}>
+          {icon}
+        </Box>
+      )}
+      <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#102542', textAlign: 'center' }}>
+        {title}
+      </Typography>
+      <Typography variant="h6" sx={{ color: '#666666', textAlign: 'center', maxWidth: '600px' }}>
+        {description}
+      </Typography>
+      <Typography variant="body1" sx={{ color: '#999999', textAlign: 'center' }}>
+        This feature is currently under development and will be available soon.
+      </Typography>
+      <Box 
+        onClick={handleBackToDashboard}
+        sx={{ 
+          mt: 2,
+          px: 4,
+          py: 2,
+          backgroundColor: '#F87060',
+          color: 'white',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          '&:hover': {
+            backgroundColor: '#e55a4a'
+          }
+        }}
+      >
+        Back to Dashboard
+      </Box>
+    </Box>
+  );
+};
+
 // Home component wrapper to handle modal and navigation
 const HomeWrapper: React.FC = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -504,6 +563,98 @@ function App() {
                   <LogoutWrapper>
                     <RegistersDashboard />
                   </LogoutWrapper>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Registration Officer Dashboard Nested Routes */}
+            <Route
+              path="/register-dashboard/add-student"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ComingSoonPage 
+                    title="Add Student" 
+                    description="Register new students into the system with comprehensive student information and academic details."
+                    icon={<span>👤➕</span>}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/manage-students"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ComingSoonPage 
+                    title="Manage Students" 
+                    description="View, edit, and update existing student records, manage student status, and maintain academic information."
+                    icon={<span>👥</span>}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/search"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ComingSoonPage 
+                    title="Student Search" 
+                    description="Advanced search functionality to quickly find students by name, registration number, department, or program."
+                    icon={<span>🔍</span>}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/bulk-upload"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ComingSoonPage 
+                    title="Bulk Upload" 
+                    description="Upload multiple student records simultaneously using CSV files with data validation and error reporting."
+                    icon={<span>📤</span>}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/programs"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ComingSoonPage 
+                    title="Academic Programs" 
+                    description="Manage academic programs, departments, and course offerings for student registration."
+                    icon={<span>🎓</span>}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/reports"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ComingSoonPage 
+                    title="Student Reports" 
+                    description="Generate comprehensive reports on student enrollment, demographics, academic status, and registration analytics."
+                    icon={<span>📊</span>}
+                  />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/settings"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ComingSoonPage 
+                    title="Registration Settings" 
+                    description="Configure registration preferences, notification settings, and personal account management."
+                    icon={<span>⚙️</span>}
+                  />
                 </ProtectedRoute>
               }
             />
