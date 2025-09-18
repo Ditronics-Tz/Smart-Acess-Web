@@ -2,7 +2,22 @@
 
 ## Overview
 
-The Student CSV Upload API allows administrators to bulk upload student data through CSV files. This feature includes validation, error reporting, and template generation to ensure data integrity and ease of use.
+The Student CSV Upload API allows administrators and registration officers to bulk upload student data through CSV files. This feature includes validation, error reporting, and template generation to ensure data integrity and ease of use.
+
+## User Types & Permissions
+
+The system supports two user types with different permissions:
+
+1. **Administrators**
+   - Full CRUD access to student records
+   - Can upload CSV files
+   - Can modify and delete existing records
+
+2. **Registration Officers**
+   - Can view student records
+   - Can create new students
+   - Can upload CSV files
+   - **Cannot** modify or delete existing records
 
 ## Base URL
 ```
@@ -10,7 +25,7 @@ The Student CSV Upload API allows administrators to bulk upload student data thr
 ```
 
 ## Authentication
-All endpoints require JWT authentication with administrator privileges.
+All endpoints require JWT authentication with appropriate privileges.
 
 **Required Headers:**
 ```
@@ -32,6 +47,8 @@ Content-Type: multipart/form-data
 
 **Description:** Upload a CSV file containing student data for bulk creation.
 
+**Permissions:** Both Administrators and Registration Officers
+
 **Headers:**
 ```
 Authorization: Bearer <your_jwt_token>
@@ -52,17 +69,17 @@ Accept: application/json
 
 **Required CSV Headers:**
 ```csv
-surname,first_name,registration_number,department,program
+surname,first_name,registration_number,department
 ```
 
 **Optional CSV Headers:**
 ```csv
-middle_name,email,soma_class_code,academic_year_status,student_status
+middle_name,mobile_phone,soma_class_code,academic_year_status,student_status
 ```
 
 **Complete CSV Header Format:**
 ```csv
-surname,first_name,middle_name,email,registration_number,department,program,soma_class_code,academic_year_status,student_status
+surname,first_name,middle_name,mobile_phone,registration_number,department,soma_class_code,academic_year_status,student_status
 ```
 
 **Field Descriptions:**
@@ -71,10 +88,9 @@ surname,first_name,middle_name,email,registration_number,department,program,soma
 | surname | String | Yes | 100 chars | Student's last name | Cannot be empty |
 | first_name | String | Yes | 100 chars | Student's first name | Cannot be empty |
 | middle_name | String | No | 100 chars | Student's middle name | Can be empty |
-| email | Email | No | 255 chars | Student's email address | Must be valid email format if provided |
+| mobile_phone | String | No | 15 chars | Student's mobile phone number | Optional but must be valid format if provided |
 | registration_number | String | Yes | 20 chars | Unique student ID | Must be unique across all students |
 | department | String | Yes | 255 chars | Academic department | Cannot be empty |
-| program | String | Yes | 255 chars | Academic program/course | Cannot be empty |
 | soma_class_code | String | No | 20 chars | Class code | Can be empty |
 | academic_year_status | Choice | No | - | Academic status | Must be valid choice if provided |
 | student_status | Choice | No | - | Enrollment status | Must be valid choice if provided |
@@ -93,10 +109,10 @@ surname,first_name,middle_name,email,registration_number,department,program,soma
 
 **Example CSV Content:**
 ```csv
-surname,first_name,middle_name,email,registration_number,department,program,soma_class_code,academic_year_status,student_status
-Doe,John,Michael,john.doe@example.com,REG2024001,Computer Science,Bachelor of Computer Science,CS2024A,Continuing,Enrolled
-Smith,Jane,,jane.smith@example.com,REG2024002,Engineering,Bachelor of Engineering,ENG2024B,Continuing,Enrolled
-Johnson,Mike,David,mike.johnson@example.com,REG2024003,Mathematics,Bachelor of Mathematics,,Retake,Enrolled
+surname,first_name,middle_name,mobile_phone,registration_number,department,soma_class_code,academic_year_status,student_status
+Doe,John,Michael,+255712345678,REG2024001,Computer Science,CS2024A,Continuing,Enrolled
+Smith,Jane,,+255723456789,REG2024002,Engineering,ENG2024B,Continuing,Enrolled
+Johnson,Mike,David,+255734567890,REG2024003,Mathematics,,Retake,Enrolled
 ```
 
 **Request Example (JavaScript):**
@@ -128,29 +144,47 @@ curl -X POST \
 ```json
 {
   "success": true,
-  "message": "Successfully created 25 students",
+  "message": "Successfully created 2 students",
   "data": {
-    "total_created": 25,
+    "total_created": 2,
     "students": [
       {
-        "id": 1,
         "student_uuid": "123e4567-e89b-12d3-a456-426614174000",
         "surname": "Doe",
         "first_name": "John",
         "middle_name": "Michael",
-        "email": "john.doe@example.com",
+        "mobile_phone": "+255712345678",
         "registration_number": "REG2024001",
         "department": "Computer Science",
-        "program": "Bachelor of Computer Science",
         "soma_class_code": "CS2024A",
         "academic_year_status": "Continuing",
         "student_status": "Enrolled",
         "is_active": true,
-        "created_at": "2025-09-12T10:30:00Z",
-        "updated_at": "2025-09-12T10:30:00Z"
+        "created_at": "2025-09-18T10:30:00Z",
+        "updated_at": "2025-09-18T10:30:00Z"
+      },
+      {
+        "student_uuid": "223e4567-e89b-12d3-a456-426614174001",
+        "surname": "Smith",
+        "first_name": "Jane",
+        "middle_name": null,
+        "mobile_phone": "+255723456789",
+        "registration_number": "REG2024002",
+        "department": "Engineering",
+        "soma_class_code": "ENG2024B",
+        "academic_year_status": "Continuing",
+        "student_status": "Enrolled",
+        "is_active": true,
+        "created_at": "2025-09-18T10:30:00Z",
+        "updated_at": "2025-09-18T10:30:00Z"
       }
-      // ... more students
-    ]
+    ],
+    "uploaded_by": {
+      "username": "user123",
+      "user_type": "registration_officer",
+      "full_name": "John Smith",
+      "upload_timestamp": "2025-09-18T10:30:00Z"
+    }
   }
 }
 ```
@@ -174,13 +208,11 @@ curl -X POST \
   "errors": {
     "csv_errors": [
       "Row 2: Column 'surname' is required",
-      "Row 3: Registration number 'REG2024001' already exists in database",
-      "Row 5: Invalid email format: 'invalid-email'",
-      "Row 7: Invalid academic_year_status: 'InvalidStatus'. Valid choices: ['Continuing', 'Retake', 'Deferred', 'Probation', 'Completed']"
+      "Row 3: Registration number 'REG2024001' already exists in database"
     ],
-    "total_rows": 10,
-    "valid_rows": 6,
-    "error_rows": 4
+    "total_rows": 3,
+    "valid_rows": 1,
+    "error_rows": 2
   }
 }
 ```
@@ -205,7 +237,9 @@ curl -X POST \
 
 **Endpoint:** `GET /api/students/students/csv-template/`
 
-**Description:** Download a CSV template file with proper headers and an example row.
+**Description:** Download a CSV template file with headers and an example row.
+
+**Permissions:** Both Administrators and Registration Officers
 
 **Headers:**
 ```
@@ -256,7 +290,7 @@ Content-Type: text/csv
 Content-Disposition: attachment; filename="student_upload_template.csv"
 ```
 
-**Template Content:**
+**Template Content (matching your actual model fields):**
 ```csv
 surname,first_name,middle_name,email,registration_number,department,program,soma_class_code,academic_year_status,student_status
 Doe,John,Michael,john.doe@example.com,REG2024001,Computer Science,Bachelor of Computer Science,CS2024A,Continuing,Enrolled
@@ -269,6 +303,8 @@ Doe,John,Michael,john.doe@example.com,REG2024001,Computer Science,Bachelor of Co
 **Endpoint:** `GET /api/students/students/validation-info/`
 
 **Description:** Get detailed information about CSV upload validation rules and acceptable values.
+
+**Permissions:** Both Administrators and Registration Officers
 
 **Headers:**
 ```
@@ -298,7 +334,7 @@ curl -X GET \
   -H 'Accept: application/json'
 ```
 
-**Success Response (200 OK):**
+**Success Response (200 OK) - Based on your actual model:**
 ```json
 {
   "required_fields": [
@@ -330,33 +366,86 @@ curl -X GET \
   "file_requirements": {
     "format": "CSV",
     "max_size": "5MB",
-    "encoding": "UTF-8",
-    "extensions": [".csv"]
+    "encoding": "UTF-8"
   },
   "validation_rules": {
     "registration_number": "Must be unique across all students",
     "email": "Must be valid email format if provided",
     "academic_year_status": "Must be one of the valid choices if provided",
-    "student_status": "Must be one of the valid choices if provided",
-    "surname": "Maximum 100 characters, cannot be empty",
-    "first_name": "Maximum 100 characters, cannot be empty",
-    "middle_name": "Maximum 100 characters, optional",
-    "department": "Maximum 255 characters, cannot be empty",
-    "program": "Maximum 255 characters, cannot be empty",
-    "soma_class_code": "Maximum 20 characters, optional"
+    "student_status": "Must be one of the valid choices if provided"
   },
-  "field_lengths": {
-    "surname": 100,
-    "first_name": 100,
-    "middle_name": 100,
-    "email": 255,
-    "registration_number": 20,
-    "department": 255,
-    "program": 255,
-    "soma_class_code": 20
+  "user_permissions": {
+    "current_user": "user123",
+    "user_type": "registration_officer",
+    "full_name": "John Smith",
+    "can_upload": true,
+    "can_download_template": true,
+    "can_create_students": true,
+    "can_view_students": true,
+    "can_modify_students": false,
+    "can_delete_students": false
   }
 }
 ```
+
+---
+
+### 4. Standard Student Management Endpoints
+
+The following standard endpoints are available with different permissions:
+
+| Endpoint | Method | Description | Administrator | Registration Officer |
+|----------|--------|-------------|---------------|----------------------|
+| `/api/students/students/` | GET | List all students | ✅ | ✅ |
+| `/api/students/students/` | POST | Create a new student | ✅ | ✅ |
+| `/api/students/students/{student_uuid}/` | GET | Retrieve a specific student | ✅ | ✅ |
+| `/api/students/students/{student_uuid}/` | PUT | Update a student | ✅ | ❌ |
+| `/api/students/students/{student_uuid}/` | PATCH | Partially update a student | ✅ | ❌ |
+| `/api/students/students/{student_uuid}/` | DELETE | Delete a student | ✅ | ❌ |
+
+---
+
+## CSV Validation Rules
+
+The system performs the following validation on CSV files based on the Student model:
+
+1. **Required fields must be present:**
+   - `surname` - Student's last name (max 100 characters)
+   - `first_name` - Student's first name (max 100 characters)  
+   - `registration_number` - Unique student ID (max 20 characters)
+   - `department` - Academic department (max 255 characters)
+
+2. **Optional fields:**
+   - `middle_name` - Student's middle name (max 100 characters)
+   - `mobile_phone` - Mobile phone number (max 15 characters)
+   - `soma_class_code` - Class code (max 20 characters)
+   - `academic_year_status` - Must be one of: `Continuing`, `Retake`, `Deferred`, `Probation`, `Completed`
+   - `student_status` - Must be one of: `Enrolled`, `Withdrawn`, `Suspended`
+
+3. **Validation rules:**
+   - Registration numbers must be unique across all existing students
+   - Registration numbers must be unique within the CSV file
+   - Email addresses must be in valid email format if provided
+   - Choice fields must match the predefined options
+   - File must be CSV format with UTF-8 encoding
+   - Maximum file size: 5MB
+
+4. **Auto-generated fields:**
+   - `student_uuid` - Automatically generated UUID
+   - `is_active` - Defaults to `true`
+   - `created_at` - Timestamp when record is created
+   - `updated_at` - Timestamp when record is last modified
+
+---
+
+## Technical Implementation Notes
+
+- The CSV upload is implemented in the `upload_csv` method of `StudentViewSet`
+- Permissions are controlled by the `CanManageStudents` permission class
+- Administrators have full access, Registration Officers have limited access  
+- All operations are logged for auditing purposes
+- Database transactions ensure data consistency during bulk operations
+- Uses Django's `bulk_create()` for efficient database insertion
 
 ---
 

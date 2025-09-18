@@ -31,6 +31,12 @@ import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
 import Setting from './views/Admin/Setting';
+
+// Import Student Management Components
+import AddStudent from './views/Registers/Student/AddStudent';
+import ViewStudent from './views/Registers/Student/ViewStudent';
+import CsvUpload from './views/Registers/Student/CsvUpload';
+
 import './styles/global.css';
 
 // OTP Context for passing data between components
@@ -567,16 +573,12 @@ function App() {
               }
             />
 
-            {/* Registration Officer Dashboard Nested Routes */}
+            {/* Registration Officer Dashboard - Student Management Routes */}
             <Route
               path="/register-dashboard/add-student"
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
-                  <ComingSoonPage 
-                    title="Add Student" 
-                    description="Register new students into the system with comprehensive student information and academic details."
-                    icon={<span>👤➕</span>}
-                  />
+                  <AddStudent />
                 </ProtectedRoute>
               }
             />
@@ -585,24 +587,7 @@ function App() {
               path="/register-dashboard/manage-students"
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
-                  <ComingSoonPage 
-                    title="Manage Students" 
-                    description="View, edit, and update existing student records, manage student status, and maintain academic information."
-                    icon={<span>👥</span>}
-                  />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/register-dashboard/search"
-              element={
-                <ProtectedRoute requiredUserType="registration_officer">
-                  <ComingSoonPage 
-                    title="Student Search" 
-                    description="Advanced search functionality to quickly find students by name, registration number, department, or program."
-                    icon={<span>🔍</span>}
-                  />
+                  <ViewStudent />
                 </ProtectedRoute>
               }
             />
@@ -611,10 +596,20 @@ function App() {
               path="/register-dashboard/bulk-upload"
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
+                  <CsvUpload />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Registration Officer Dashboard - Coming Soon Routes */}
+            <Route
+              path="/register-dashboard/search"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
                   <ComingSoonPage 
-                    title="Bulk Upload" 
-                    description="Upload multiple student records simultaneously using CSV files with data validation and error reporting."
-                    icon={<span>📤</span>}
+                    title="Student Search" 
+                    description="Advanced search functionality to quickly find students by name, registration number, department, or program."
+                    icon={<span>🔍</span>}
                   />
                 </ProtectedRoute>
               }

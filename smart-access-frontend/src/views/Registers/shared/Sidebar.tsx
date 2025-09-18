@@ -31,7 +31,6 @@ const links = [
   { id: "dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { id: "add-student", label: "Add Student", icon: <PersonAdd /> },
   { id: "manage-students", label: "Manage Students", icon: <People /> },
-  { id: "student-search", label: "Student Search", icon: <Search /> },
   { id: "bulk-upload", label: "Bulk Upload", icon: <FileUpload /> },
   { id: "programs", label: "Programs", icon: <School /> },
   { id: "reports", label: "Reports", icon: <Assessment /> },

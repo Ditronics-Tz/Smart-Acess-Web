@@ -7,10 +7,9 @@ export interface Student {
   surname: string;
   first_name: string;
   middle_name?: string;
-  email?: string;
+  mobile_phone?: string;
   registration_number: string;
   department: string;
-  program: string;
   soma_class_code?: string;
   academic_year_status: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed';
   student_status: 'Enrolled' | 'Withdrawn' | 'Suspended';
@@ -24,10 +23,9 @@ export interface CreateStudentRequest {
   surname: string;
   first_name: string;
   middle_name?: string;
-  email?: string;
+  mobile_phone?: string;
   registration_number: string;
   department: string;
-  program: string;
   soma_class_code?: string;
   academic_year_status?: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed';
   student_status?: 'Enrolled' | 'Withdrawn' | 'Suspended';
@@ -45,11 +43,11 @@ export interface StudentFilters {
   page_size?: number;
   search?: string;
   department?: string;
-  program?: string;
   academic_year_status?: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed';
   student_status?: 'Enrolled' | 'Withdrawn' | 'Suspended';
   is_active?: boolean;
   ordering?: string;
+  // Removed: program field (not in API documentation)
 }
 
 // CSV Upload Interfaces
@@ -59,6 +57,12 @@ export interface CSVUploadResponse {
   data: {
     total_created: number;
     students: Student[];
+    uploaded_by: {
+      username: string;
+      user_type: string;
+      full_name: string;
+      upload_timestamp: string;
+    };
   };
 }
 
@@ -83,13 +87,24 @@ export interface ValidationInfo {
     format: string;
     max_size: string;
     encoding: string;
-    extensions: string[];
+    extensions?: string[];
   };
   validation_rules: {
     [key: string]: string;
   };
-  field_lengths: {
+  field_lengths?: {
     [key: string]: number;
+  };
+  user_permissions: {
+    current_user: string;
+    user_type: string;
+    full_name: string;
+    can_upload: boolean;
+    can_download_template: boolean;
+    can_create_students: boolean;
+    can_view_students: boolean;
+    can_modify_students: boolean;
+    can_delete_students: boolean;
   };
 }
 
@@ -105,7 +120,7 @@ export interface RestoreResponse {
 }
 
 class StudentService {
-  private readonly baseURL = '/api/students/students';
+  private readonly baseURL = '/api/students';
 
   // Helper method to ensure we have a valid token
   private getAuthHeaders() {
@@ -140,10 +155,11 @@ class StudentService {
 
   /**
    * Create a new student
+   * POST /api/students/students/
    */
   async createStudent(studentData: CreateStudentRequest): Promise<Student> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/create/`, studentData, {
+      const response = await apiClient.post(`${this.baseURL}/`, studentData, {
         headers: this.getAuthHeaders()
       });
 
@@ -155,6 +171,7 @@ class StudentService {
 
   /**
    * List all students with optional filters and pagination
+   * GET /api/students/students/
    */
   async listStudents(filters?: StudentFilters): Promise<StudentsListResponse> {
     try {
@@ -176,7 +193,27 @@ class StudentService {
         headers: this.getAuthHeaders()
       });
 
-      return response.data;
+      // Handle the actual API response format
+      if (Array.isArray(response.data)) {
+        // API returns direct array, so we wrap it in expected format
+        return {
+          count: response.data.length,
+          next: null,
+          previous: null,
+          results: response.data
+        };
+      } else if (response.data && response.data.results) {
+        // API returns paginated format
+        return response.data;
+      } else {
+        // Fallback - treat as direct array
+        return {
+          count: 1,
+          next: null,
+          previous: null,
+          results: Array.isArray(response.data) ? response.data : [response.data]
+        };
+      }
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -184,10 +221,11 @@ class StudentService {
 
   /**
    * Get detailed information about a specific student
+   * GET /api/students/students/{student_uuid}/
    */
-  async getStudent(studentId: string | number): Promise<Student> {
+  async getStudent(studentUuid: string): Promise<Student> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/${studentId}/`, {
+      const response = await apiClient.get(`${this.baseURL}/${studentUuid}/`, {
         headers: this.getAuthHeaders()
       });
 
@@ -224,10 +262,12 @@ class StudentService {
 
   /**
    * Update student information (partial update)
+   * PATCH /api/students/students/{student_uuid}/
+   * Note: Only administrators can modify students
    */
-  async updateStudent(studentId: string | number, updateData: Partial<CreateStudentRequest>): Promise<Student> {
+  async updateStudent(studentUuid: string, updateData: Partial<CreateStudentRequest>): Promise<Student> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${studentId}/update/`, updateData, {
+      const response = await apiClient.patch(`${this.baseURL}/${studentUuid}/`, updateData, {
         headers: this.getAuthHeaders()
       });
 
@@ -239,10 +279,12 @@ class StudentService {
 
   /**
    * Full update of student information
+   * PUT /api/students/students/{student_uuid}/
+   * Note: Only administrators can modify students
    */
-  async replaceStudent(studentId: string | number, studentData: CreateStudentRequest): Promise<Student> {
+  async replaceStudent(studentUuid: string, studentData: CreateStudentRequest): Promise<Student> {
     try {
-      const response = await apiClient.put(`${this.baseURL}/${studentId}/update/`, studentData, {
+      const response = await apiClient.put(`${this.baseURL}/${studentUuid}/`, studentData, {
         headers: this.getAuthHeaders()
       });
 
@@ -254,10 +296,12 @@ class StudentService {
 
   /**
    * Soft delete a student
+   * DELETE /api/students/students/{student_uuid}/
+   * Note: Only administrators can delete students
    */
-  async deleteStudent(studentId: string | number): Promise<DeleteResponse> {
+  async deleteStudent(studentUuid: string): Promise<DeleteResponse> {
     try {
-      const response = await apiClient.delete(`${this.baseURL}/${studentId}/delete/`, {
+      const response = await apiClient.delete(`${this.baseURL}/${studentUuid}/`, {
         headers: this.getAuthHeaders()
       });
 
@@ -269,10 +313,11 @@ class StudentService {
 
   /**
    * Restore a previously soft-deleted student
+   * Note: This endpoint may not exist in the API, check documentation
    */
-  async restoreStudent(studentId: string | number): Promise<RestoreResponse> {
+  async restoreStudent(studentUuid: string): Promise<RestoreResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/${studentId}/restore/`, {}, {
+      const response = await apiClient.post(`${this.baseURL}/${studentUuid}/restore/`, {}, {
         headers: this.getAuthHeaders()
       });
 
@@ -288,9 +333,21 @@ class StudentService {
 
   /**
    * Upload CSV file containing student data for bulk creation
+   * POST /api/students/students/upload-csv/
    */
   async uploadStudentCSV(file: File): Promise<CSVUploadResponse> {
     try {
+      // Validate file before uploading
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        throw new Error('Please select a CSV file (.csv extension)');
+      }
+
+      // Validate file size (5MB limit as per documentation)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        throw new Error('File size must be less than 5MB');
+      }
+
       const formData = new FormData();
       formData.append('csv_file', file);
 
@@ -306,6 +363,7 @@ class StudentService {
 
   /**
    * Download CSV template for student upload
+   * GET /api/students/students/csv-template/
    */
   async downloadCSVTemplate(): Promise<Blob> {
     try {
@@ -325,6 +383,7 @@ class StudentService {
 
   /**
    * Get validation information for CSV upload
+   * GET /api/students/students/validation-info/
    */
   async getValidationInfo(): Promise<ValidationInfo> {
     try {
@@ -421,29 +480,6 @@ class StudentService {
   }
 
   /**
-   * Get students by program
-   */
-  async getStudentsByProgram(program: string, filters?: Omit<StudentFilters, 'program'>): Promise<StudentsListResponse> {
-    return this.listStudents({
-      ...filters,
-      program
-    });
-  }
-
-  /**
-   * Get students by academic year status
-   */
-  async getStudentsByAcademicStatus(
-    status: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed',
-    filters?: Omit<StudentFilters, 'academic_year_status'>
-  ): Promise<StudentsListResponse> {
-    return this.listStudents({
-      ...filters,
-      academic_year_status: status
-    });
-  }
-
-  /**
    * Get dashboard statistics for students
    */
   async getStudentStats(): Promise<{
@@ -496,19 +532,6 @@ class StudentService {
   }
 
   /**
-   * Get unique programs
-   */
-  async getPrograms(): Promise<string[]> {
-    try {
-      const response = await this.listStudents({ page_size: 1000 });
-      const programs = Array.from(new Set(response.results.map(student => student.program)));
-      return programs.sort();
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
-
-  /**
    * Get unique departments
    */
   async getDepartments(): Promise<string[]> {
@@ -522,34 +545,35 @@ class StudentService {
   }
 
   /**
-   * Get programs by department
+   * Get students by academic year status
    */
-  async getProgramsByDepartment(department: string): Promise<string[]> {
-    try {
-      const response = await this.getStudentsByDepartment(department, { page_size: 1000 });
-      const programs = Array.from(new Set(response.results.map(student => student.program)));
-      return programs.sort();
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
+  async getStudentsByAcademicStatus(
+    status: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed',
+    filters?: Omit<StudentFilters, 'academic_year_status'>
+  ): Promise<StudentsListResponse> {
+    return this.listStudents({
+      ...filters,
+      academic_year_status: status
+    });
   }
 
   /**
    * Bulk update student status
+   * Note: Only administrators can modify students
    */
   async bulkUpdateStudentStatus(
-    studentIds: (string | number)[],
+    studentUuids: string[],
     status: 'Enrolled' | 'Withdrawn' | 'Suspended'
   ): Promise<{ updated: number; errors: any[] }> {
     const results = { updated: 0, errors: [] as any[] };
 
-    for (const studentId of studentIds) {
+    for (const studentUuid of studentUuids) {
       try {
-        await this.updateStudent(studentId, { student_status: status });
+        await this.updateStudent(studentUuid, { student_status: status });
         results.updated++;
       } catch (error: any) {
         results.errors.push({
-          student_id: studentId,
+          student_uuid: studentUuid,
           error: error.message
         });
       }
@@ -560,20 +584,21 @@ class StudentService {
 
   /**
    * Bulk update academic year status
+   * Note: Only administrators can modify students
    */
   async bulkUpdateAcademicStatus(
-    studentIds: (string | number)[],
+    studentUuids: string[],
     status: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed'
   ): Promise<{ updated: number; errors: any[] }> {
     const results = { updated: 0, errors: [] as any[] };
 
-    for (const studentId of studentIds) {
+    for (const studentUuid of studentUuids) {
       try {
-        await this.updateStudent(studentId, { academic_year_status: status });
+        await this.updateStudent(studentUuid, { academic_year_status: status });
         results.updated++;
       } catch (error: any) {
         results.errors.push({
-          student_id: studentId,
+          student_uuid: studentUuid,
           error: error.message
         });
       }
@@ -592,34 +617,39 @@ class StudentService {
       if (status === 401) {
         return new Error(data.detail || 'Authentication required. Please log in again.');
       } else if (status === 403) {
-        return new Error(data.detail || 'You do not have permission to perform this action. Administrator privileges required.');
+        return new Error(data.detail || 'You do not have permission to perform this action. Administrator privileges may be required.');
       } else if (status === 404) {
         return new Error(data.detail || 'Student not found.');
       } else if (status === 400) {
-        // Handle validation errors
+        // Handle validation errors for CSV upload
+        if (data.success === false) {
+          if (data.errors && typeof data.errors === 'object') {
+            if (data.errors.csv_file) {
+              return new Error(Array.isArray(data.errors.csv_file) ? data.errors.csv_file[0] : data.errors.csv_file);
+            } else if (data.errors.csv_errors) {
+              return new Error(`CSV validation failed:\n${data.errors.csv_errors.join('\n')}`);
+            } else if (typeof data.errors === 'string') {
+              return new Error(data.errors);
+            }
+          }
+          return new Error(data.message || 'CSV upload failed');
+        }
+
+        // Handle standard validation errors - removed email and program field checks
         if (data.detail) {
           return new Error(data.detail);
         } else if (data.registration_number) {
           return new Error(Array.isArray(data.registration_number) ? data.registration_number[0] : data.registration_number);
-        } else if (data.email) {
-          return new Error(Array.isArray(data.email) ? data.email[0] : data.email);
         } else if (data.surname) {
           return new Error(Array.isArray(data.surname) ? data.surname[0] : data.surname);
         } else if (data.first_name) {
           return new Error(Array.isArray(data.first_name) ? data.first_name[0] : data.first_name);
-        } else if (data.csv_file) {
-          return new Error(Array.isArray(data.csv_file) ? data.csv_file[0] : data.csv_file);
+        } else if (data.department) {
+          return new Error(Array.isArray(data.department) ? data.department[0] : data.department);
+        } else if (data.mobile_phone) {
+          return new Error(Array.isArray(data.mobile_phone) ? data.mobile_phone[0] : data.mobile_phone);
         } else if (data.non_field_errors) {
           return new Error(Array.isArray(data.non_field_errors) ? data.non_field_errors[0] : data.non_field_errors);
-        } else if (data.error) {
-          return new Error(data.error);
-        } else if (data.errors) {
-          // Handle CSV validation errors
-          if (data.errors.csv_errors) {
-            return new Error(`CSV validation failed: ${data.errors.csv_errors.join(', ')}`);
-          } else if (typeof data.errors === 'string') {
-            return new Error(data.errors);
-          }
         }
         return new Error('Validation error occurred.');
       } else if (status === 413) {
@@ -630,7 +660,7 @@ class StudentService {
         return new Error(data.detail || 'Too many requests. Please try again later.');
       }
 
-      return new Error(data.detail || 'An error occurred during the request.');
+      return new Error(data.detail || data.message || 'An error occurred during the request.');
     } else if (error.request) {
       return new Error('Network error. Please check your connection.');
     } else {
