@@ -1,6 +1,6 @@
 import { apiClient } from '../api/config';
 
-// Card Interfaces
+// Card Interfaces (keep all existing interfaces)
 export interface Card {
   card_uuid: string;
   rfid_number: string;
@@ -148,6 +148,19 @@ export interface CardActionResponse {
 class CardService {
   private readonly baseURL = '/api/cards';
 
+  // Helper method to ensure we have a valid token (same as StudentService)
+  private getAuthHeaders() {
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+      throw new Error('No access token found. Please log in again.');
+    }
+
+    return {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    };
+  }
+
   // ================================
   // STANDARD CRUD METHODS
   // ================================
@@ -158,7 +171,9 @@ class CardService {
    */
   async createCard(cardData: CreateCardRequest): Promise<CreateCardResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/`, cardData);
+      const response = await apiClient.post(`${this.baseURL}/`, cardData, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -186,14 +201,13 @@ class CardService {
         ? `${this.baseURL}/?${queryParams.toString()}`
         : `${this.baseURL}/`;
 
-      const response = await apiClient.get(url);
+      const response = await apiClient.get(url, {
+        headers: this.getAuthHeaders()
+      });
 
       // Handle the actual API response format - it returns a direct array
       if (Array.isArray(response.data)) {
-        // API returns direct array, so we wrap it in expected format
         const cards = response.data as Card[];
-        
-        // Calculate summary from the cards
         const activeCards = cards.filter(card => card.is_active).length;
         const inactiveCards = cards.filter(card => !card.is_active).length;
         
@@ -209,10 +223,8 @@ class CardService {
           }
         };
       } else if (response.data && response.data.results) {
-        // API returns paginated format
         return response.data;
       } else {
-        // Fallback - treat as direct array
         const cards = Array.isArray(response.data) ? response.data : [response.data];
         const activeCards = cards.filter(card => card.is_active).length;
         const inactiveCards = cards.filter(card => !card.is_active).length;
@@ -240,7 +252,9 @@ class CardService {
    */
   async getCard(cardUuid: string): Promise<CardDetails> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/${cardUuid}/`);
+      const response = await apiClient.get(`${this.baseURL}/${cardUuid}/`, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -254,7 +268,9 @@ class CardService {
    */
   async updateCard(cardUuid: string, updateData: Partial<CreateCardRequest>): Promise<CardDetails> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/`, updateData);
+      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/`, updateData, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -268,7 +284,9 @@ class CardService {
    */
   async replaceCard(cardUuid: string, cardData: CreateCardRequest): Promise<CardDetails> {
     try {
-      const response = await apiClient.put(`${this.baseURL}/${cardUuid}/`, cardData);
+      const response = await apiClient.put(`${this.baseURL}/${cardUuid}/`, cardData, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -282,7 +300,9 @@ class CardService {
    */
   async deleteCard(cardUuid: string): Promise<{ message: string }> {
     try {
-      const response = await apiClient.delete(`${this.baseURL}/${cardUuid}/`);
+      const response = await apiClient.delete(`${this.baseURL}/${cardUuid}/`, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -300,7 +320,9 @@ class CardService {
    */
   async activateCard(cardUuid: string): Promise<CardActionResponse> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/activate/`, {});
+      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/activate/`, {}, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -314,7 +336,9 @@ class CardService {
    */
   async deactivateCard(cardUuid: string): Promise<CardActionResponse> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/deactivate/`, {});
+      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/deactivate/`, {}, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -332,23 +356,41 @@ class CardService {
    */
   async getStudentsWithoutCards(filters?: { search?: string; department?: string }): Promise<StudentsWithoutCardsResponse> {
     try {
-      const queryParams = new URLSearchParams();
+      // Add retry logic with delay
+      const executeWithRetry = async (attempt = 1): Promise<StudentsWithoutCardsResponse> => {
+        try {
+          const queryParams = new URLSearchParams();
 
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            queryParams.append(key, String(value));
+          if (filters) {
+            Object.entries(filters).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) {
+                queryParams.append(key, String(value));
+              }
+            });
           }
-        });
-      }
 
-      const url = queryParams.toString()
-        ? `${this.baseURL}/students-without-cards/?${queryParams.toString()}`
-        : `${this.baseURL}/students-without-cards/`;
+          const url = queryParams.toString()
+            ? `${this.baseURL}/students-without-cards/?${queryParams.toString()}`
+            : `${this.baseURL}/students-without-cards/`;
 
-      const response = await apiClient.get(url);
+          const response = await apiClient.get(url, {
+            headers: this.getAuthHeaders()
+          });
 
-      return response.data;
+          return response.data;
+        } catch (error: any) {
+          // If unauthorized and we haven't retried too many times, try again
+          if (error.response?.status === 401 && attempt < 3) {
+            console.log(`Auth token not ready yet, retrying (${attempt}/3)...`);
+            // Wait a bit before retrying to let token settle
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return executeWithRetry(attempt + 1);
+          }
+          throw error;
+        }
+      };
+
+      return await executeWithRetry();
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -360,9 +402,26 @@ class CardService {
    */
   async getCardStatistics(): Promise<CardStatistics> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/statistics/`);
+      // Add retry logic with delay
+      const executeWithRetry = async (attempt = 1): Promise<CardStatistics> => {
+        try {
+          const response = await apiClient.get(`${this.baseURL}/statistics/`, {
+            headers: this.getAuthHeaders()
+          });
+          return response.data;
+        } catch (error: any) {
+          // If unauthorized and we haven't retried too many times, try again
+          if (error.response?.status === 401 && attempt < 3) {
+            console.log(`Auth token not ready yet, retrying (${attempt}/3)...`);
+            // Wait a bit before retrying to let token settle
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return executeWithRetry(attempt + 1);
+          }
+          throw error;
+        }
+      };
 
-      return response.data;
+      return await executeWithRetry();
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -374,7 +433,9 @@ class CardService {
    */
   async bulkCreateCards(requestData: BulkCreateRequest): Promise<BulkCreateResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/bulk-create/`, requestData);
+      const response = await apiClient.post(`${this.baseURL}/bulk-create/`, requestData, {
+        headers: this.getAuthHeaders()
+      });
 
       return response.data;
     } catch (error: any) {
@@ -490,7 +551,7 @@ class CardService {
   }
 
   /**
-   * Create card with specific RFID
+   * Create card with specific RFID - FIXED THE METHOD NAME
    */
   async createCardWithRFID(studentUuid: string, rfidNumber: string, expiryDate?: string): Promise<CreateCardResponse> {
     return this.createCard({
