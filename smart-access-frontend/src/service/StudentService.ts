@@ -47,7 +47,6 @@ export interface StudentFilters {
   student_status?: 'Enrolled' | 'Withdrawn' | 'Suspended';
   is_active?: boolean;
   ordering?: string;
-  // Removed: program field (not in API documentation)
 }
 
 // CSV Upload Interfaces
@@ -155,7 +154,7 @@ class StudentService {
 
   /**
    * Create a new student
-   * POST /api/students/students/
+   * POST /api/students/
    */
   async createStudent(studentData: CreateStudentRequest): Promise<Student> {
     try {
@@ -171,7 +170,7 @@ class StudentService {
 
   /**
    * List all students with optional filters and pagination
-   * GET /api/students/students/
+   * GET /api/students/
    */
   async listStudents(filters?: StudentFilters): Promise<StudentsListResponse> {
     try {
@@ -221,7 +220,7 @@ class StudentService {
 
   /**
    * Get detailed information about a specific student
-   * GET /api/students/students/{student_uuid}/
+   * GET /api/students/{student_uuid}/
    */
   async getStudent(studentUuid: string): Promise<Student> {
     try {
@@ -262,7 +261,7 @@ class StudentService {
 
   /**
    * Update student information (partial update)
-   * PATCH /api/students/students/{student_uuid}/
+   * PATCH /api/students/{student_uuid}/
    * Note: Only administrators can modify students
    */
   async updateStudent(studentUuid: string, updateData: Partial<CreateStudentRequest>): Promise<Student> {
@@ -279,7 +278,7 @@ class StudentService {
 
   /**
    * Full update of student information
-   * PUT /api/students/students/{student_uuid}/
+   * PUT /api/students/{student_uuid}/
    * Note: Only administrators can modify students
    */
   async replaceStudent(studentUuid: string, studentData: CreateStudentRequest): Promise<Student> {
@@ -296,7 +295,7 @@ class StudentService {
 
   /**
    * Soft delete a student
-   * DELETE /api/students/students/{student_uuid}/
+   * DELETE /api/students/{student_uuid}/
    * Note: Only administrators can delete students
    */
   async deleteStudent(studentUuid: string): Promise<DeleteResponse> {
@@ -333,7 +332,7 @@ class StudentService {
 
   /**
    * Upload CSV file containing student data for bulk creation
-   * POST /api/students/students/upload-csv/
+   * POST /api/students/upload-csv/
    */
   async uploadStudentCSV(file: File): Promise<CSVUploadResponse> {
     try {
@@ -363,32 +362,18 @@ class StudentService {
 
   /**
    * Download CSV template for student upload
-   * GET /api/students/students/csv-template/
+   * GET /api/students/csv-template/
    */
   async downloadCSVTemplate(): Promise<Blob> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/csv-template/`, {
+      const response = await apiClient({
+        url: `${this.baseURL}/csv-template/`,
+        method: 'GET',
+        responseType: 'blob',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Accept': 'text/csv, application/octet-stream'
-        },
-        responseType: 'blob'
-      });
-
-      return response.data;
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
-
-  /**
-   * Get validation information for CSV upload
-   * GET /api/students/students/validation-info/
-   */
-  async getValidationInfo(): Promise<ValidationInfo> {
-    try {
-      const response = await apiClient.get(`${this.baseURL}/validation-info/`, {
-        headers: this.getAuthHeaders()
+          'Accept': 'text/csv',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
       });
 
       return response.data;
@@ -404,19 +389,36 @@ class StudentService {
     try {
       const blob = await this.downloadCSVTemplate();
       
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
+      // Create blob link to download
+      const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement('a');
       link.href = url;
-      link.download = filename;
+      link.setAttribute('download', filename);
+      link.style.display = 'none';
       
-      // Trigger download
+      // Add to document, click, and remove
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
+      // Clean up
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Get validation information for CSV upload
+   * GET /api/students/validation-info/
+   */
+  async getValidationInfo(): Promise<ValidationInfo> {
+    try {
+      const response = await apiClient.get(`${this.baseURL}/validation-info/`, {
+        headers: this.getAuthHeaders()
+      });
+
+      return response.data;
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -635,7 +637,7 @@ class StudentService {
           return new Error(data.message || 'CSV upload failed');
         }
 
-        // Handle standard validation errors - removed email and program field checks
+        // Handle standard validation errors
         if (data.detail) {
           return new Error(data.detail);
         } else if (data.registration_number) {
