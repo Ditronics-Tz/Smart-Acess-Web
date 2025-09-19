@@ -37,6 +37,12 @@ import AddStudent from './views/Registers/Student/AddStudent';
 import ViewStudent from './views/Registers/Student/ViewStudent';
 import CsvUpload from './views/Registers/Student/CsvUpload';
 
+// Import Card Management Components
+import AddCard from './views/Registers/Card/AddCard';
+import ViewCards from './views/Registers/Card/ViewCards';
+import ViewCardDetails from './views/Registers/Card/ViewCardDetails';
+import ManageCard from './views/Registers/Card/ManageCard';
+
 import './styles/global.css';
 
 // OTP Context for passing data between components
@@ -597,6 +603,43 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
                   <CsvUpload />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Registration Officer Dashboard - Card Management Routes */}
+            <Route
+              path="/register-dashboard/manage-cards"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ManageCard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/add-card"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <AddCard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/view-cards"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewCards />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/view-card-details/:cardUuid"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewCardDetails />
                 </ProtectedRoute>
               }
             />

@@ -18,6 +18,9 @@ import {
   Assessment,
   Search,
   Settings,
+  CreditCard,
+  Add as AddCardIcon,
+  ViewList,
 } from '@mui/icons-material';
 import { colors } from '../../../styles/themes/colors';
 
@@ -32,6 +35,9 @@ const links = [
   { id: "add-student", label: "Add Student", icon: <PersonAdd /> },
   { id: "manage-students", label: "Manage Students", icon: <People /> },
   { id: "bulk-upload", label: "Bulk Upload", icon: <FileUpload /> },
+  { id: "manage-cards", label: "Manage Cards", icon: <CreditCard /> },
+  { id: "add-card", label: "Add Card", icon: <AddCardIcon /> },
+  { id: "view-cards", label: "View Cards", icon: <ViewList /> },
   { id: "programs", label: "Programs", icon: <School /> },
   { id: "reports", label: "Reports", icon: <Assessment /> },
   { id: "settings", label: "Settings", icon: <Settings /> },
