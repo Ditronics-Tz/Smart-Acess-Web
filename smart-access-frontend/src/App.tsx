@@ -76,7 +76,7 @@ const ComingSoonPage: React.FC<{ title: string; description: string; icon?: Reac
   const navigate = useNavigate();
 
   const handleBackToDashboard = () => {
-    navigate('/registers-dashboard');
+    navigate('/register-dashboard');
   };
 
   return (
@@ -223,7 +223,7 @@ const RegistrationLoginWrapper: React.FC = () => {
         navigate('/otp-verify');
       } else {
         // Direct login
-        navigate('/registers-dashboard');
+        navigate('/register-dashboard');
       }
     }
   };
@@ -259,7 +259,7 @@ const OTPVerifyWrapper: React.FC = () => {
     if (userType === 'administrator') {
       navigate('/admin-dashboard');
     } else {
-      navigate('/registers-dashboard');
+      navigate('/register-dashboard');
     }
   };
 
@@ -569,7 +569,7 @@ function App() {
 
             {/* Protected Registration Officer Routes */}
             <Route
-              path="/registers-dashboard"
+              path="/register-dashboard"
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
                   <LogoutWrapper>

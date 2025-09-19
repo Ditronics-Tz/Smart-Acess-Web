@@ -134,7 +134,7 @@ const ViewCardDetails: React.FC = () => {
 
   const handleSidebarNavigation = (view: string) => {
     if (view === 'dashboard') {
-      navigate('/registers-dashboard');
+      navigate('/register-dashboard');
     } else {
       navigate(`/register-dashboard/${view}`);
     }

@@ -199,13 +199,13 @@ const AddCard: React.FC<AddCardProps> = ({ onBack }) => {
     if (onBack) {
       onBack();
     } else {
-      navigate('/registers-dashboard');
+      navigate('/register-dashboard');
     }
   };
 
   const handleSidebarNavigation = (view: string) => {
     if (view === 'dashboard') {
-      navigate('/registers-dashboard');
+      navigate('/register-dashboard');
     } else {
       navigate(`/register-dashboard/${view}`);
     }

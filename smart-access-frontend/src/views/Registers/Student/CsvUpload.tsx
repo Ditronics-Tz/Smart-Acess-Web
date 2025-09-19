@@ -132,12 +132,12 @@ const CsvUpload: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate('/registers-dashboard');
+    navigate('/register-dashboard');
   };
 
   const handleSidebarNavigation = (view: string) => {
     if (view === 'dashboard') {
-      navigate('/registers-dashboard');
+      navigate('/register-dashboard');
     } else {
       navigate(`/register-dashboard/${view}`);
     }

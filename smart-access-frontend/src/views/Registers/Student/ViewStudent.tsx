@@ -216,14 +216,14 @@ const ViewStudent: React.FC = () => {
 
   const handleSidebarNavigation = (view: string) => {
     if (view === 'dashboard') {
-      navigate('/registers-dashboard');
+      navigate('/register-dashboard');
     } else {
       navigate(`/register-dashboard/${view}`);
     }
   };
 
   const handleBack = () => {
-    navigate('/registers-dashboard');
+    navigate('/register-dashboard');
   };
 
   // Safe array for rendering - ensure we always have an array
