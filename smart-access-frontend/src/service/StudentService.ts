@@ -350,8 +350,22 @@ class StudentService {
       const formData = new FormData();
       formData.append('csv_file', file);
 
-      const response = await apiClient.post(`${this.baseURL}/upload-csv/`, formData, {
-        headers: this.getAuthHeadersForFormData()
+      // Get token
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No access token found. Please log in again.');
+      }
+
+      // Create a custom axios instance or config that doesn't interfere with FormData
+      const response = await apiClient({
+        method: 'POST',
+        url: `${this.baseURL}/upload-csv/`,
+        data: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': undefined  // This tells axios to remove Content-Type header
+        },
+        transformRequest: [(data) => data] // Don't transform the FormData
       });
 
       return response.data;
