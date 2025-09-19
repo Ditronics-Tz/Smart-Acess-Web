@@ -148,19 +148,6 @@ export interface CardActionResponse {
 class CardService {
   private readonly baseURL = '/api/cards';
 
-  // Helper method to ensure we have a valid token
-  private getAuthHeaders() {
-    const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found. Please log in again.');
-    }
-
-    return {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    };
-  }
-
   // ================================
   // STANDARD CRUD METHODS
   // ================================
@@ -171,9 +158,7 @@ class CardService {
    */
   async createCard(cardData: CreateCardRequest): Promise<CreateCardResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/`, cardData, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.post(`${this.baseURL}/`, cardData);
 
       return response.data;
     } catch (error: any) {
@@ -201,11 +186,49 @@ class CardService {
         ? `${this.baseURL}/?${queryParams.toString()}`
         : `${this.baseURL}/`;
 
-      const response = await apiClient.get(url, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.get(url);
 
-      return response.data;
+      // Handle the actual API response format - it returns a direct array
+      if (Array.isArray(response.data)) {
+        // API returns direct array, so we wrap it in expected format
+        const cards = response.data as Card[];
+        
+        // Calculate summary from the cards
+        const activeCards = cards.filter(card => card.is_active).length;
+        const inactiveCards = cards.filter(card => !card.is_active).length;
+        
+        return {
+          count: cards.length,
+          next: null,
+          previous: null,
+          results: cards,
+          summary: {
+            total_cards: cards.length,
+            active_cards: activeCards,
+            inactive_cards: inactiveCards
+          }
+        };
+      } else if (response.data && response.data.results) {
+        // API returns paginated format
+        return response.data;
+      } else {
+        // Fallback - treat as direct array
+        const cards = Array.isArray(response.data) ? response.data : [response.data];
+        const activeCards = cards.filter(card => card.is_active).length;
+        const inactiveCards = cards.filter(card => !card.is_active).length;
+        
+        return {
+          count: cards.length,
+          next: null,
+          previous: null,
+          results: cards,
+          summary: {
+            total_cards: cards.length,
+            active_cards: activeCards,
+            inactive_cards: inactiveCards
+          }
+        };
+      }
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -217,9 +240,7 @@ class CardService {
    */
   async getCard(cardUuid: string): Promise<CardDetails> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/${cardUuid}/`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.get(`${this.baseURL}/${cardUuid}/`);
 
       return response.data;
     } catch (error: any) {
@@ -233,9 +254,7 @@ class CardService {
    */
   async updateCard(cardUuid: string, updateData: Partial<CreateCardRequest>): Promise<CardDetails> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/`, updateData, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/`, updateData);
 
       return response.data;
     } catch (error: any) {
@@ -249,9 +268,7 @@ class CardService {
    */
   async replaceCard(cardUuid: string, cardData: CreateCardRequest): Promise<CardDetails> {
     try {
-      const response = await apiClient.put(`${this.baseURL}/${cardUuid}/`, cardData, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.put(`${this.baseURL}/${cardUuid}/`, cardData);
 
       return response.data;
     } catch (error: any) {
@@ -265,9 +282,7 @@ class CardService {
    */
   async deleteCard(cardUuid: string): Promise<{ message: string }> {
     try {
-      const response = await apiClient.delete(`${this.baseURL}/${cardUuid}/`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.delete(`${this.baseURL}/${cardUuid}/`);
 
       return response.data;
     } catch (error: any) {
@@ -285,9 +300,7 @@ class CardService {
    */
   async activateCard(cardUuid: string): Promise<CardActionResponse> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/activate/`, {}, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/activate/`, {});
 
       return response.data;
     } catch (error: any) {
@@ -301,9 +314,7 @@ class CardService {
    */
   async deactivateCard(cardUuid: string): Promise<CardActionResponse> {
     try {
-      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/deactivate/`, {}, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.patch(`${this.baseURL}/${cardUuid}/deactivate/`, {});
 
       return response.data;
     } catch (error: any) {
@@ -335,9 +346,7 @@ class CardService {
         ? `${this.baseURL}/students-without-cards/?${queryParams.toString()}`
         : `${this.baseURL}/students-without-cards/`;
 
-      const response = await apiClient.get(url, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.get(url);
 
       return response.data;
     } catch (error: any) {
@@ -351,9 +360,7 @@ class CardService {
    */
   async getCardStatistics(): Promise<CardStatistics> {
     try {
-      const response = await apiClient.get(`${this.baseURL}/statistics/`, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.get(`${this.baseURL}/statistics/`);
 
       return response.data;
     } catch (error: any) {
@@ -367,9 +374,7 @@ class CardService {
    */
   async bulkCreateCards(requestData: BulkCreateRequest): Promise<BulkCreateResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/bulk-create/`, requestData, {
-        headers: this.getAuthHeaders()
-      });
+      const response = await apiClient.post(`${this.baseURL}/bulk-create/`, requestData);
 
       return response.data;
     } catch (error: any) {
@@ -552,35 +557,80 @@ class CardService {
     cards_by_status: { [status: string]: number };
   }> {
     try {
-      const stats = await this.getCardStatistics();
-      
-      // Transform the response to match dashboard needs
-      const cardsByDepartment: { [department: string]: number } = {};
-      stats.cards_by_department.forEach(item => {
-        cardsByDepartment[item.student__department] = item.count;
-      });
+      // Try to get statistics from the statistics endpoint first
+      try {
+        const stats = await this.getCardStatistics();
+        
+        // Transform the response to match dashboard needs
+        const cardsByDepartment: { [department: string]: number } = {};
+        stats.cards_by_department.forEach(item => {
+          cardsByDepartment[item.student__department] = item.count;
+        });
 
-      const response = await this.listCards({ page_size: 1000 });
-      const cards = response.results;
+        const response = await this.listCards({ page_size: 1000 });
+        const cards = response.results;
 
-      const cardsByStatus: { [status: string]: number } = {};
-      cards.forEach(card => {
-        if (!cardsByStatus[card.student_status]) {
-          cardsByStatus[card.student_status] = 0;
-        }
-        cardsByStatus[card.student_status]++;
-      });
+        const cardsByStatus: { [status: string]: number } = {};
+        cards.forEach(card => {
+          if (!cardsByStatus[card.student_status]) {
+            cardsByStatus[card.student_status] = 0;
+          }
+          cardsByStatus[card.student_status]++;
+        });
 
-      return {
-        total_cards: stats.summary.total_cards,
-        active_cards: stats.summary.active_cards,
-        inactive_cards: stats.summary.inactive_cards,
-        coverage_percentage: stats.summary.coverage_percentage,
-        students_without_cards: stats.summary.students_without_cards,
-        recent_cards: stats.summary.recent_cards_30_days,
-        cards_by_department: cardsByDepartment,
-        cards_by_status: cardsByStatus
-      };
+        return {
+          total_cards: stats.summary.total_cards,
+          active_cards: stats.summary.active_cards,
+          inactive_cards: stats.summary.inactive_cards,
+          coverage_percentage: stats.summary.coverage_percentage,
+          students_without_cards: stats.summary.students_without_cards,
+          recent_cards: stats.summary.recent_cards_30_days,
+          cards_by_department: cardsByDepartment,
+          cards_by_status: cardsByStatus
+        };
+      } catch (statsError) {
+        // Fallback: calculate stats from card list
+        const response = await this.listCards({ page_size: 1000 });
+        const cards = response.results;
+
+        const cardsByDepartment: { [department: string]: number } = {};
+        const cardsByStatus: { [status: string]: number } = {};
+
+        cards.forEach(card => {
+          // Department stats
+          if (!cardsByDepartment[card.department]) {
+            cardsByDepartment[card.department] = 0;
+          }
+          cardsByDepartment[card.department]++;
+
+          // Status stats
+          if (!cardsByStatus[card.student_status]) {
+            cardsByStatus[card.student_status] = 0;
+          }
+          cardsByStatus[card.student_status]++;
+        });
+
+        const activeCards = cards.filter(card => card.is_active).length;
+        const inactiveCards = cards.filter(card => !card.is_active).length;
+
+        // Calculate recent cards (last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const recentCards = cards.filter(card => 
+          new Date(card.issued_date) >= thirtyDaysAgo
+        ).length;
+
+        return {
+          total_cards: cards.length,
+          active_cards: activeCards,
+          inactive_cards: inactiveCards,
+          coverage_percentage: 0, // Can't calculate without student count
+          students_without_cards: 0, // Can't calculate without student count
+          recent_cards: recentCards,
+          cards_by_department: cardsByDepartment,
+          cards_by_status: cardsByStatus
+        };
+      }
     } catch (error: any) {
       throw this.handleError(error);
     }
