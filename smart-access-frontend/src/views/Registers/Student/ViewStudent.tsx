@@ -487,8 +487,7 @@ const ViewStudent: React.FC = () => {
                             sx={{ color: colors.primary.main }}
                             title="View Details"
                             onClick={() => {
-                              // Navigate to student details view
-                              console.log('View student:', student.student_uuid);
+                              navigate(`/register-dashboard/student-details/${student.student_uuid}`);
                             }}
                           >
                             <Visibility />

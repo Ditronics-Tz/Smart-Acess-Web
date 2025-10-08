@@ -35,6 +35,7 @@ import Setting from './views/Admin/Setting';
 // Import Student Management Components
 import AddStudent from './views/Registers/Student/AddStudent';
 import ViewStudent from './views/Registers/Student/ViewStudent';
+import ViewStudentDetails from './views/Registers/Student/ViewStudentDetails';
 import CsvUpload from './views/Registers/Student/CsvUpload';
 
 // Import Card Management Components
@@ -594,6 +595,15 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
                   <ViewStudent />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/student-details/:studentUuid"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewStudentDetails />
                 </ProtectedRoute>
               }
             />

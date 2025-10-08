@@ -14,6 +14,7 @@ export interface Student {
   academic_year_status: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed';
   student_status: 'Enrolled' | 'Withdrawn' | 'Suspended';
   is_active: boolean;
+  photo_url?: string;
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
@@ -104,6 +105,23 @@ export interface ValidationInfo {
     can_view_students: boolean;
     can_modify_students: boolean;
     can_delete_students: boolean;
+  };
+}
+
+// Photo Upload Interfaces
+export interface PhotoUploadResponse {
+  success: boolean;
+  message: string;
+  data: {
+    student_uuid: string;
+    registration_number: string;
+    photo_url: string;
+    uploaded_at: string;
+    uploaded_by: {
+      username: string;
+      user_type: string;
+      full_name: string;
+    };
   };
 }
 
@@ -439,6 +457,59 @@ class StudentService {
   }
 
   // ================================
+  // PHOTO UPLOAD METHODS
+  // ================================
+
+  /**
+   * Upload a photo for an existing student
+   * POST /api/students/{student_uuid}/upload-photo/
+   * 
+   * @param studentUuid - The UUID of the student
+   * @param photoFile - The image file (JPEG or PNG, max 5MB)
+   * @returns Promise with upload response including photo URL
+   */
+  async uploadStudentPhoto(studentUuid: string, photoFile: File): Promise<PhotoUploadResponse> {
+    try {
+      // Validate file before uploading
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(photoFile.type.toLowerCase())) {
+        throw new Error('Invalid file type. Only JPEG and PNG images are allowed.');
+      }
+
+      // Validate file size (5MB limit as per documentation)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (photoFile.size > maxSize) {
+        throw new Error('File size too large. Maximum size is 5MB.');
+      }
+
+      const formData = new FormData();
+      formData.append('photo', photoFile);
+
+      // Get token
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        throw new Error('No access token found. Please log in again.');
+      }
+
+      // Make request with FormData
+      const response = await apiClient({
+        method: 'POST',
+        url: `${this.baseURL}/${studentUuid}/upload-photo/`,
+        data: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': undefined  // Let browser set Content-Type with boundary
+        },
+        transformRequest: [(data) => data] // Don't transform the FormData
+      });
+
+      return response.data;
+    } catch (error: any) {
+      throw this.handleError(error);
+    }
+  }
+
+  // ================================
   // CONVENIENCE METHODS
   // ================================
 
@@ -674,6 +745,11 @@ class StudentService {
         return new Error('Invalid file format. Please upload a CSV file.');
       } else if (status === 429) {
         return new Error(data.detail || 'Too many requests. Please try again later.');
+      } else if (status === 500) {
+        // Handle server errors (including photo upload errors)
+        if (data.success === false && data.error) {
+          return new Error(data.error);
+        }
       }
 
       return new Error(data.detail || data.message || 'An error occurred during the request.');
