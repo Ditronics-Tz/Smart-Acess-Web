@@ -1,6 +1,16 @@
 import { apiClient } from '../api/config';
 
 // Student Interfaces
+export interface StudentPhoto {
+  url: string;
+  uploaded_at: string;
+}
+
+export interface UserPermissions {
+  can_modify: boolean;
+  can_delete: boolean;
+}
+
 export interface Student {
   id: number;
   student_uuid: string;
@@ -14,10 +24,12 @@ export interface Student {
   academic_year_status: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed';
   student_status: 'Enrolled' | 'Withdrawn' | 'Suspended';
   is_active: boolean;
-  photo_url?: string;
+  photo?: StudentPhoto;
+  photo_url?: string; // Computed property for backward compatibility
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  user_permissions?: UserPermissions;
 }
 
 export interface CreateStudentRequest {
@@ -166,6 +178,20 @@ class StudentService {
     };
   }
 
+  // Helper method to normalize student data
+  private normalizeStudent(student: any): Student {
+    // If photo object exists, extract the URL to photo_url for backward compatibility
+    if (student.photo && student.photo.url) {
+      student.photo_url = student.photo.url;
+    }
+    return student;
+  }
+
+  // Helper method to normalize array of students
+  private normalizeStudents(students: any[]): Student[] {
+    return students.map(student => this.normalizeStudent(student));
+  }
+
   // ================================
   // STANDARD CRUD METHODS
   // ================================
@@ -180,7 +206,7 @@ class StudentService {
         headers: this.getAuthHeaders()
       });
 
-      return response.data;
+      return this.normalizeStudent(response.data);
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -217,18 +243,21 @@ class StudentService {
           count: response.data.length,
           next: null,
           previous: null,
-          results: response.data
+          results: this.normalizeStudents(response.data)
         };
       } else if (response.data && response.data.results) {
         // API returns paginated format
-        return response.data;
+        return {
+          ...response.data,
+          results: this.normalizeStudents(response.data.results)
+        };
       } else {
         // Fallback - treat as direct array
         return {
           count: 1,
           next: null,
           previous: null,
-          results: Array.isArray(response.data) ? response.data : [response.data]
+          results: Array.isArray(response.data) ? this.normalizeStudents(response.data) : [this.normalizeStudent(response.data)]
         };
       }
     } catch (error: any) {
@@ -246,7 +275,7 @@ class StudentService {
         headers: this.getAuthHeaders()
       });
 
-      return response.data;
+      return this.normalizeStudent(response.data);
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -288,7 +317,7 @@ class StudentService {
         headers: this.getAuthHeaders()
       });
 
-      return response.data;
+      return this.normalizeStudent(response.data);
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -305,7 +334,7 @@ class StudentService {
         headers: this.getAuthHeaders()
       });
 
-      return response.data;
+      return this.normalizeStudent(response.data);
     } catch (error: any) {
       throw this.handleError(error);
     }
@@ -337,6 +366,11 @@ class StudentService {
       const response = await apiClient.post(`${this.baseURL}/${studentUuid}/restore/`, {}, {
         headers: this.getAuthHeaders()
       });
+
+      // Normalize the student data in the response
+      if (response.data && response.data.data) {
+        response.data.data = this.normalizeStudent(response.data.data);
+      }
 
       return response.data;
     } catch (error: any) {
@@ -386,6 +420,7 @@ class StudentService {
         transformRequest: [(data) => data] // Don't transform the FormData
       });
 
+     
       return response.data;
     } catch (error: any) {
       throw this.handleError(error);
