@@ -30,9 +30,11 @@ import {
   CalendarToday,
   Key,
   Security,
+  Print,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import CardService, { CardDetails } from '../../../service/CardService';
+import IdCardService from '../../../service/IdCardService';
 import RegisterSidebar from '../shared/Sidebar';
 import { colors } from '../../../styles/themes/colors';
 
@@ -44,6 +46,8 @@ const ViewCardDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [card, setCard] = useState<CardDetails | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [printingCard, setPrintingCard] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // Action dialogs
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -106,6 +110,26 @@ const ViewCardDetails: React.FC = () => {
     } catch (error: any) {
       setError(error.message || 'Failed to delete card');
       setActionLoading(false);
+    }
+  };
+
+  const handlePrintIDCard = async () => {
+    if (!card) return;
+    
+    setPrintingCard(true);
+    setError(null);
+    
+    try {
+      await IdCardService.printIDCard(card.card_uuid);
+      setSuccess('ID Card PDF generated successfully! Check your downloads.');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSuccess(null), 5000);
+    } catch (error: any) {
+      console.error('Error printing ID card:', error);
+      setError(error.message || 'Failed to print ID card');
+    } finally {
+      setPrintingCard(false);
     }
   };
 
@@ -292,6 +316,13 @@ const ViewCardDetails: React.FC = () => {
             Refresh
           </Button>
         </Box>
+
+        {/* Success Alert */}
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
+            {success}
+          </Alert>
+        )}
 
         {/* Error Alert */}
         {error && (
@@ -488,6 +519,28 @@ const ViewCardDetails: React.FC = () => {
                 </Typography>
                 
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {/* Print ID Card Button - Available for all users */}
+                  <Tooltip title="Download student ID card as PDF">
+                    <Button
+                      variant="contained"
+                      startIcon={printingCard ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <Print />}
+                      onClick={handlePrintIDCard}
+                      disabled={printingCard || !card.is_active}
+                      sx={{ 
+                        backgroundColor: colors.primary.main,
+                        color: 'white',
+                        '&:hover': { 
+                          backgroundColor: colors.primary.hover
+                        },
+                        '&:disabled': {
+                          backgroundColor: '#ccc'
+                        }
+                      }}
+                    >
+                      {printingCard ? 'Generating PDF...' : 'Print ID Card'}
+                    </Button>
+                  </Tooltip>
+
                   {card.user_permissions.can_deactivate && (
                     card.is_active ? (
                       <Button
@@ -564,8 +617,17 @@ const ViewCardDetails: React.FC = () => {
                   )}
                 </Box>
 
+                {/* Info Messages */}
+                {!card.is_active && (
+                  <Alert severity="info" sx={{ mt: 2 }}>
+                    <Typography variant="body2">
+                      <strong>Note:</strong> ID card printing is disabled for inactive cards. Please activate the card first to print.
+                    </Typography>
+                  </Alert>
+                )}
+
                 {!card.user_permissions.can_modify && !card.user_permissions.can_deactivate && !card.user_permissions.can_delete && (
-                  <Typography variant="body2" sx={{ color: colors.text.secondary, fontStyle: 'italic' }}>
+                  <Typography variant="body2" sx={{ color: colors.text.secondary, fontStyle: 'italic', mt: 2 }}>
                     You don't have permission to modify this card.
                   </Typography>
                 )}
