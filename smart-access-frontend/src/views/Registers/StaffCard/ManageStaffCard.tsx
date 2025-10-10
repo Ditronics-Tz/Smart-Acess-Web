@@ -32,8 +32,6 @@ import {
   Assessment,
   GroupAdd,
   PersonOff,
-  TrendingUp,
-  Business,
   CheckCircle,
   Cancel,
   Warning,
@@ -51,13 +49,7 @@ interface StaffCardStatistics {
     active_cards: number;
     inactive_cards: number;
     staff_without_cards: number;
-    coverage_percentage: number;
-    recent_cards_30_days: number;
   };
-  cards_by_department: Array<{
-    staff__department: string;
-    count: number;
-  }>;
   user_info: {
     current_user: string;
     user_type: string;
@@ -88,32 +80,8 @@ const ManageStaffCard: React.FC = () => {
   const loadStatistics = async () => {
     setLoading(true);
     try {
-      // Mock implementation - replace with actual API call
-      const mockStats: StaffCardStatistics = {
-        summary: {
-          total_staff: 200,
-          total_cards: 150,
-          active_cards: 145,
-          inactive_cards: 5,
-          staff_without_cards: 50,
-          coverage_percentage: 75.0,
-          recent_cards_30_days: 25
-        },
-        cards_by_department: [
-          { staff__department: 'Computer Science', count: 45 },
-          { staff__department: 'Information Technology', count: 35 },
-          { staff__department: 'Human Resources', count: 20 },
-          { staff__department: 'Finance', count: 25 },
-          { staff__department: 'Administration', count: 15 },
-          { staff__department: 'Engineering', count: 10 }
-        ],
-        user_info: {
-          current_user: 'admin',
-          user_type: 'administrator',
-          generated_at: new Date().toISOString()
-        }
-      };
-      setStatistics(mockStats);
+      // TODO: Replace with actual API call to fetch staff card statistics
+      setStatistics(null);
     } catch (error: any) {
       console.error('Error loading statistics:', error);
       setError(error.message || 'Failed to load statistics');
@@ -341,80 +309,6 @@ const ManageStaffCard: React.FC = () => {
                     <Typography variant="body2" sx={{ color: colors.text.secondary }}>
                       Staff Without Cards
                     </Typography>
-                  </CardContent>
-                </Card>
-              </Box>
-
-              {/* Coverage and Recent Activity */}
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 2, 
-                flexWrap: 'wrap',
-                '& > *': { flex: '1 1 300px', minWidth: '300px' }
-              }}>
-                <Card>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                      <TrendingUp sx={{ color: colors.primary.main }} />
-                      <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.secondary.main }}>
-                        Coverage Statistics
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" sx={{ color: colors.text.secondary, mb: 0.5 }}>
-                        Coverage Percentage
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold', color: colors.primary.main }}>
-                          {statistics.summary.coverage_percentage.toFixed(1)}%
-                        </Typography>
-                        <Chip 
-                          label={statistics.summary.coverage_percentage >= 90 ? 'Excellent' : 
-                                statistics.summary.coverage_percentage >= 75 ? 'Good' : 'Needs Improvement'}
-                          color={statistics.summary.coverage_percentage >= 90 ? 'success' : 
-                                statistics.summary.coverage_percentage >= 75 ? 'primary' : 'warning'}
-                          size="small"
-                        />
-                      </Box>
-                    </Box>
-
-                    <Box>
-                      <Typography variant="body2" sx={{ color: colors.text.secondary, mb: 0.5 }}>
-                        Recent Cards (30 days)
-                      </Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: colors.secondary.main }}>
-                        {statistics.summary.recent_cards_30_days}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Card>
-
-                {/* Cards by Department */}
-                <Card>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                      <Business sx={{ color: colors.primary.main }} />
-                      <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.secondary.main }}>
-                        Cards by Department
-                      </Typography>
-                    </Box>
-                    
-                    <Box sx={{ maxHeight: '200px', overflowY: 'auto' }}>
-                      {statistics.cards_by_department.map((dept, index) => (
-                        <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                          <Typography variant="body2" sx={{ color: colors.text.secondary }}>
-                            {dept.staff__department}
-                          </Typography>
-                          <Chip 
-                            label={dept.count} 
-                            size="small" 
-                            variant="outlined"
-                            sx={{ color: colors.primary.main, borderColor: colors.primary.main }}
-                          />
-                        </Box>
-                      ))}
-                    </Box>
                   </CardContent>
                 </Card>
               </Box>
