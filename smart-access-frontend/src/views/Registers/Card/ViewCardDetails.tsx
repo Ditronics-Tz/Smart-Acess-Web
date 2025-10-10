@@ -453,10 +453,10 @@ const ViewCardDetails: React.FC = () => {
 
                 <Box sx={{ mb: 3 }}>
                   <Typography variant="body2" sx={{ color: colors.text.secondary, mb: 0.5 }}>
-                    Full Name
+                    Student Name
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.secondary.main }}>
-                    {card.student_info.first_name} {card.student_info.middle_name ? card.student_info.middle_name + ' ' : ''}{card.student_info.surname}
+                    {card.card_holder_name}
                   </Typography>
                 </Box>
 
@@ -465,7 +465,7 @@ const ViewCardDetails: React.FC = () => {
                     Registration Number
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {card.student_info.registration_number}
+                    {card.card_holder_number}
                   </Typography>
                 </Box>
 
@@ -477,33 +477,15 @@ const ViewCardDetails: React.FC = () => {
                     Department:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {card.student_info.department}
+                    {card.department}
                   </Typography>
                 </Box>
 
-                {card.student_info.mobile_phone && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                    <Phone sx={{ fontSize: 18, color: colors.text.secondary }} />
-                    <Typography variant="body2" sx={{ color: colors.text.secondary }}>
-                      Mobile Phone:
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {card.student_info.mobile_phone}
-                    </Typography>
-                  </Box>
-                )}
-
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 2 }}>
                   <Chip
-                    label={card.student_info.student_status}
-                    color={getStatusColor(card.student_info.student_status) as any}
+                    label={card.status}
+                    color={getStatusColor(card.status) as any}
                     size="small"
-                  />
-                  <Chip
-                    label={card.student_info.academic_year_status}
-                    color={getStatusColor(card.student_info.academic_year_status) as any}
-                    size="small"
-                    variant="outlined"
                   />
                 </Box>
               </CardContent>
@@ -644,7 +626,7 @@ const ViewCardDetails: React.FC = () => {
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>
             <Typography>
-              Are you sure you want to delete this card for "{card.student_info.first_name} {card.student_info.surname}"?
+              Are you sure you want to delete this card for "{card.card_holder_name}"?
             </Typography>
             <Typography variant="body2" sx={{ mt: 2, color: colors.text.secondary }}>
               RFID: {card.rfid_number}
@@ -683,7 +665,7 @@ const ViewCardDetails: React.FC = () => {
           </DialogTitle>
           <DialogContent>
             <Typography>
-              Are you sure you want to {actionDialog.action} this card for "{card.student_info.first_name} {card.student_info.surname}"?
+              Are you sure you want to {actionDialog.action} this card for "{card.card_holder_name}"?
             </Typography>
             <Typography variant="body2" sx={{ mt: 2, color: colors.text.secondary }}>
               RFID: {card.rfid_number}

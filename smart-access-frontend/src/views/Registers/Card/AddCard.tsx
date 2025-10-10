@@ -156,6 +156,7 @@ const AddCard: React.FC<AddCardProps> = ({ onBack }) => {
 
     try {
       const cleanedData: CreateCardRequest = {
+        card_type: 'student',
         student_uuid: formData.student_uuid,
         generate_rfid: generateRFID,
         ...(generateRFID ? {} : { rfid_number: formData.rfid_number?.trim() }),

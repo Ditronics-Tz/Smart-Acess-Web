@@ -4,10 +4,11 @@ import { apiClient } from '../api/config';
 export interface Card {
   card_uuid: string;
   rfid_number: string;
-  student_name: string;
-  registration_number: string;
+  card_type: string;
+  card_holder_name: string;
+  card_holder_number: string;
   department: string;
-  student_status: 'Enrolled' | 'Withdrawn' | 'Suspended';
+  status: 'Enrolled' | 'Withdrawn' | 'Suspended';
   is_active: boolean;
   issued_date: string;
   expiry_date?: string | null;
@@ -16,17 +17,6 @@ export interface Card {
 }
 
 export interface CardDetails extends Card {
-  student_info: {
-    student_uuid: string;
-    first_name: string;
-    surname: string;
-    middle_name?: string;
-    registration_number: string;
-    department: string;
-    mobile_phone?: string;
-    academic_year_status: 'Continuing' | 'Retake' | 'Deferred' | 'Probation' | 'Completed';
-    student_status: 'Enrolled' | 'Withdrawn' | 'Suspended';
-  };
   user_permissions: {
     can_modify: boolean;
     can_deactivate: boolean;
@@ -35,7 +25,8 @@ export interface CardDetails extends Card {
 }
 
 export interface CreateCardRequest {
-  student_uuid: string;
+  card_type?: string;
+  student_uuid?: string;
   rfid_number?: string;
   generate_rfid?: boolean;
   expiry_date?: string;
@@ -119,7 +110,8 @@ export interface CardStatistics {
 }
 
 export interface BulkCreateRequest {
-  student_uuids: string[];
+  card_type?: string;
+  student_uuids?: string[];
   generate_rfid?: boolean;
 }
 
@@ -433,7 +425,13 @@ class CardService {
    */
   async bulkCreateCards(requestData: BulkCreateRequest): Promise<BulkCreateResponse> {
     try {
-      const response = await apiClient.post(`${this.baseURL}/bulk-create/`, requestData, {
+      // Ensure card_type is set for student cards
+      const dataWithCardType = {
+        ...requestData,
+        card_type: 'student'
+      };
+
+      const response = await apiClient.post(`${this.baseURL}/bulk-create/`, dataWithCardType, {
         headers: this.getAuthHeaders()
       });
 
@@ -532,7 +530,7 @@ class CardService {
   async getCardByStudentRegistration(registrationNumber: string): Promise<Card | null> {
     try {
       const response = await this.searchCards(registrationNumber);
-      const card = response.results.find(c => c.registration_number === registrationNumber);
+      const card = response.results.find(c => c.card_holder_number === registrationNumber);
       return card || null;
     } catch (error: any) {
       throw this.handleError(error);
@@ -544,6 +542,7 @@ class CardService {
    */
   async createCardWithAutoRFID(studentUuid: string, expiryDate?: string): Promise<CreateCardResponse> {
     return this.createCard({
+      card_type: 'student',
       student_uuid: studentUuid,
       generate_rfid: true,
       expiry_date: expiryDate
@@ -555,6 +554,7 @@ class CardService {
    */
   async createCardWithRFID(studentUuid: string, rfidNumber: string, expiryDate?: string): Promise<CreateCardResponse> {
     return this.createCard({
+      card_type: 'student',
       student_uuid: studentUuid,
       rfid_number: rfidNumber,
       generate_rfid: false,
@@ -633,10 +633,10 @@ class CardService {
 
         const cardsByStatus: { [status: string]: number } = {};
         cards.forEach(card => {
-          if (!cardsByStatus[card.student_status]) {
-            cardsByStatus[card.student_status] = 0;
+          if (!cardsByStatus[card.status]) {
+            cardsByStatus[card.status] = 0;
           }
-          cardsByStatus[card.student_status]++;
+          cardsByStatus[card.status]++;
         });
 
         return {
@@ -665,10 +665,10 @@ class CardService {
           cardsByDepartment[card.department]++;
 
           // Status stats
-          if (!cardsByStatus[card.student_status]) {
-            cardsByStatus[card.student_status] = 0;
+          if (!cardsByStatus[card.status]) {
+            cardsByStatus[card.status] = 0;
           }
-          cardsByStatus[card.student_status]++;
+          cardsByStatus[card.status]++;
         });
 
         const activeCards = cards.filter(card => card.is_active).length;
@@ -810,6 +810,8 @@ class CardService {
           return new Error(Array.isArray(data.student) ? data.student[0] : data.student);
         } else if (data.rfid_number) {
           return new Error(Array.isArray(data.rfid_number) ? data.rfid_number[0] : data.rfid_number);
+        } else if (data.card_type) {
+          return new Error(Array.isArray(data.card_type) ? data.card_type[0] : data.card_type);
         } else if (data.student_uuid) {
           return new Error(Array.isArray(data.student_uuid) ? data.student_uuid[0] : data.student_uuid);
         } else if (data.expiry_date) {

@@ -489,15 +489,15 @@ const ViewCards: React.FC = () => {
                       <TableCell sx={{ fontWeight: 500, fontFamily: 'monospace' }}>
                         {card.rfid_number}
                       </TableCell>
-                      <TableCell>{card.student_name}</TableCell>
+                      <TableCell>{card.card_holder_name}</TableCell>
                       <TableCell sx={{ fontWeight: 500 }}>
-                        {card.registration_number}
+                        {card.card_holder_number}
                       </TableCell>
                       <TableCell>{card.department}</TableCell>
                       <TableCell>
                         <Chip
-                          label={card.student_status}
-                          color={getStatusColor(card.student_status) as any}
+                          label={card.status}
+                          color={getStatusColor(card.status) as any}
                           size="small"
                         />
                       </TableCell>
@@ -591,7 +591,7 @@ const ViewCards: React.FC = () => {
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>
             <Typography>
-              Are you sure you want to delete the card for "{deleteDialog.card?.student_name}" 
+              Are you sure you want to delete the card for "{deleteDialog.card?.card_holder_name}" 
               (RFID: {deleteDialog.card?.rfid_number})?
             </Typography>
             <Typography variant="body2" sx={{ mt: 2, color: colors.text.secondary }}>
@@ -625,7 +625,7 @@ const ViewCards: React.FC = () => {
           </DialogTitle>
           <DialogContent>
             <Typography>
-              Are you sure you want to {actionDialog.action} the card for "{actionDialog.card?.student_name}" 
+              Are you sure you want to {actionDialog.action} the card for "{actionDialog.card?.card_holder_name}" 
               (RFID: {actionDialog.card?.rfid_number})?
             </Typography>
             <Typography variant="body2" sx={{ mt: 2, color: colors.text.secondary }}>
