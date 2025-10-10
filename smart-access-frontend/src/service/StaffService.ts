@@ -332,7 +332,7 @@ class StaffService {
   /**
    * Get staff by department
    */
-  async getStaffByDepartment({ department, additionalParams }: { department: string; additionalParams?: Omit<StaffListParams, 'department'>; }): Promise<StaffListResponse> {
+  async getStaffByDepartment(department: string, additionalParams?: Omit<StaffListParams, 'department'>): Promise<StaffListResponse> {
     try {
       const params = { department, ...additionalParams };
       return await this.getStaffList(params);
