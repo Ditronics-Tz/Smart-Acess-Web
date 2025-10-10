@@ -115,6 +115,26 @@ export interface VerifyStaffCardResponse {
 	institution: string;
 }
 
+export interface StaffCardDetails {
+  card_uuid: string;
+  rfid_number: string;
+  card_type: string;
+  card_holder_name: string;
+  card_holder_number: string;
+  department: string;
+  status: string; // This appears to be employment_status
+  is_active: boolean;
+  issued_date: string;
+  expiry_date?: string | null;
+  created_at: string;
+  updated_at?: string;
+  user_permissions?: {
+    can_modify: boolean;
+    can_deactivate: boolean;
+    can_delete: boolean;
+  };
+}
+
 export interface StaffCardFilters {
   search?: string;
   is_active?: boolean;
@@ -146,13 +166,9 @@ class StaffCardService {
 		return response.data;
 	}
 
-	// 4. Print staff card (returns PDF Blob)
-	async printStaffCard(cardUuid: string): Promise<Blob> {
-		const response = await apiClient({
-			url: `${this.baseUrl}/${cardUuid}/print-staff-card/`,
-			method: 'GET',
-			responseType: 'blob',
-		});
+	// 5. Get staff card details
+	async getStaffCard(cardUuid: string): Promise<StaffCardDetails> {
+		const response = await apiClient.get(`${this.baseUrl}/${cardUuid}/`);
 		return response.data;
 	}
 

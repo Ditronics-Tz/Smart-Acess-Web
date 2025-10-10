@@ -29,35 +29,12 @@ import {
   CalendarToday,
   Key,
   Security,
-  Print,
   Badge,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
-import StaffCardService from '../../../service/StaffCardService';
+import StaffCardService, { StaffCardDetails } from '../../../service/StaffCardService';
 import RegisterSidebar from '../shared/Sidebar';
 import { colors } from '../../../styles/themes/colors';
-
-// Interface for staff card details (extends the basic staff card)
-interface StaffCardDetails {
-  card_uuid: string;
-  rfid_number: string;
-  card_type: string;
-  card_holder_name: string;
-  card_holder_number: string;
-  department: string;
-  position: string;
-  employment_status: string;
-  is_active: boolean;
-  issued_date: string;
-  expiry_date?: string | null;
-  created_at: string;
-  updated_at?: string;
-  user_permissions: {
-    can_modify: boolean;
-    can_deactivate: boolean;
-    can_delete: boolean;
-  };
-}
 
 const ViewStaffCardDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -67,8 +44,6 @@ const ViewStaffCardDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [card, setCard] = useState<StaffCardDetails | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [printingCard, setPrintingCard] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
 
   // Action dialogs
   const [deleteDialog, setDeleteDialog] = useState(false);
@@ -90,32 +65,8 @@ const ViewStaffCardDetails: React.FC = () => {
     setError(null);
     
     try {
-      // Mock implementation - replace with actual API call
-      // const cardData = await StaffCardService.getStaffCard(cardUuid);
-      
-      // Mock data for development
-      const mockCard: StaffCardDetails = {
-        card_uuid: cardUuid,
-        rfid_number: 'RF123456789',
-        card_type: 'staff',
-        card_holder_name: 'John Doe Smith',
-        card_holder_number: 'STAFF/2024/001',
-        department: 'Computer Science',
-        position: 'Senior Lecturer',
-        employment_status: 'Active',
-        is_active: true,
-        issued_date: '2024-01-15T10:30:00Z',
-        expiry_date: null,
-        created_at: '2024-01-15T10:30:00Z',
-        updated_at: '2024-01-15T10:30:00Z',
-        user_permissions: {
-          can_modify: true,
-          can_deactivate: true,
-          can_delete: true
-        }
-      };
-      
-      setCard(mockCard);
+      const cardData = await StaffCardService.getStaffCard(cardUuid);
+      setCard(cardData);
     } catch (error: any) {
       console.error('Error loading staff card:', error);
       setError(error.message || 'Failed to load staff card details');
@@ -156,37 +107,6 @@ const ViewStaffCardDetails: React.FC = () => {
     } catch (error: any) {
       setError(error.message || 'Failed to delete staff card');
       setActionLoading(false);
-    }
-  };
-
-  const handlePrintStaffCard = async () => {
-    if (!card) return;
-    
-    setPrintingCard(true);
-    setError(null);
-    
-    try {
-      const pdfBlob = await StaffCardService.printStaffCard(card.card_uuid);
-      
-      // Create download link
-      const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Staff_ID_Card_${card.card_holder_number}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-      setSuccess('Staff ID Card PDF generated successfully! Check your downloads.');
-      
-      // Clear success message after 5 seconds
-      setTimeout(() => setSuccess(null), 5000);
-    } catch (error: any) {
-      console.error('Error printing staff ID card:', error);
-      setError(error.message || 'Failed to print staff ID card');
-    } finally {
-      setPrintingCard(false);
     }
   };
 
@@ -366,13 +286,6 @@ const ViewStaffCardDetails: React.FC = () => {
           </Button>
         </Box>
 
-        {/* Success Alert */}
-        {success && (
-          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
-            {success}
-          </Alert>
-        )}
-
         {/* Error Alert */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
@@ -530,20 +443,10 @@ const ViewStaffCardDetails: React.FC = () => {
                   </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                  <Badge sx={{ fontSize: 18, color: colors.text.secondary }} />
-                  <Typography variant="body2" sx={{ color: colors.text.secondary }}>
-                    Position:
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    {card.position}
-                  </Typography>
-                </Box>
-
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 2 }}>
                   <Chip
-                    label={card.employment_status}
-                    color={getEmploymentStatusColor(card.employment_status) as any}
+                    label={card.status}
+                    color={getEmploymentStatusColor(card.status) as any}
                     size="small"
                   />
                 </Box>
@@ -560,29 +463,7 @@ const ViewStaffCardDetails: React.FC = () => {
                 </Typography>
                 
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {/* Print Staff Card Button - Available for all users */}
-                  <Tooltip title="Download staff ID card as PDF">
-                    <Button
-                      variant="contained"
-                      startIcon={printingCard ? <CircularProgress size={16} sx={{ color: 'white' }} /> : <Print />}
-                      onClick={handlePrintStaffCard}
-                      disabled={printingCard || !card.is_active}
-                      sx={{ 
-                        backgroundColor: colors.primary.main,
-                        color: 'white',
-                        '&:hover': { 
-                          backgroundColor: colors.primary.hover
-                        },
-                        '&:disabled': {
-                          backgroundColor: '#ccc'
-                        }
-                      }}
-                    >
-                      {printingCard ? 'Generating PDF...' : 'Print Staff ID Card'}
-                    </Button>
-                  </Tooltip>
-
-                  {card.user_permissions.can_deactivate && (
+                  {card.user_permissions?.can_deactivate && (
                     card.is_active ? (
                       <Button
                         variant="outlined"
@@ -620,7 +501,7 @@ const ViewStaffCardDetails: React.FC = () => {
                     )
                   )}
 
-                  {card.user_permissions.can_modify && (
+                  {card.user_permissions?.can_modify && (
                     <Button
                       variant="outlined"
                       startIcon={<Edit />}
@@ -638,7 +519,7 @@ const ViewStaffCardDetails: React.FC = () => {
                     </Button>
                   )}
 
-                  {card.user_permissions.can_delete && (
+                  {card.user_permissions?.can_delete && (
                     <Button
                       variant="outlined"
                       startIcon={<Delete />}
@@ -659,15 +540,7 @@ const ViewStaffCardDetails: React.FC = () => {
                 </Box>
 
                 {/* Info Messages */}
-                {!card.is_active && (
-                  <Alert severity="info" sx={{ mt: 2 }}>
-                    <Typography variant="body2">
-                      <strong>Note:</strong> Staff ID card printing is disabled for inactive cards. Please activate the card first to print.
-                    </Typography>
-                  </Alert>
-                )}
-
-                {!card.user_permissions.can_modify && !card.user_permissions.can_deactivate && !card.user_permissions.can_delete && (
+                {!card.user_permissions?.can_modify && !card.user_permissions?.can_deactivate && !card.user_permissions?.can_delete && (
                   <Typography variant="body2" sx={{ color: colors.text.secondary, fontStyle: 'italic', mt: 2 }}>
                     You don't have permission to modify this staff card.
                   </Typography>
