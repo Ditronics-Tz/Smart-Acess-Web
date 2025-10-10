@@ -73,6 +73,8 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
         top: 0,
         zIndex: 1200,
         borderRight: "none",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* Brand Section */}
@@ -122,8 +124,39 @@ const RegisterSidebar: React.FC<RegisterSidebarProps> = ({
       </Box>
 
       {/* Navigation */}
-      <Box sx={{ flex: 1, py: 2 }}>
-        <List sx={{ px: collapsed ? 1 : 2 }}>
+      <Box sx={{ 
+        flex: 1, 
+        minHeight: 0, // This is crucial for flex scrolling
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <List sx={{ 
+          px: collapsed ? 1 : 2,
+          py: 2,
+          flex: 1,
+          minHeight: 0, // This is crucial for flex scrolling
+          overflow: 'auto',
+          overflowX: 'hidden', // Hide horizontal scrollbar
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '4px',
+            margin: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '4px',
+            '&:hover': {
+              background: 'rgba(255, 255, 255, 0.4)',
+            },
+          },
+          // Firefox scrollbar styling
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)',
+        }}>
           {links.map((link) => (
             <ListItem key={link.id} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton

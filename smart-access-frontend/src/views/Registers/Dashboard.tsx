@@ -25,6 +25,14 @@ import {
   FileUpload,
   TrendingUp,
   Assessment,
+  Work,
+  GroupAdd,
+  CloudUpload,
+  CreditCard,
+  Add as AddCardIcon,
+  ViewList,
+  Settings,
+  Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../../service/AuthService';
@@ -184,12 +192,7 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
     },
   ];
 
-  const recentActivities = [
-    { action: "New student registered", name: "John Doe", time: "2 hours ago", type: "success" },
-    { action: "Student record updated", name: "Jane Smith", time: "4 hours ago", type: "info" },
-    { action: "Bulk upload completed", name: "50 students", time: "1 day ago", type: "success" },
-    { action: "Student status changed", name: "Mike Johnson", time: "2 days ago", type: "warning" },
-  ];
+
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -378,96 +381,331 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
             ))}
           </Box>
 
-          {/* Recent Activities and Quick Actions */}
-          <Box sx={{ 
-            display: "flex", 
-            gap: 3,
-            flexWrap: "wrap"
-          }}>
-            {/* Recent Activities */}
-            <Box sx={{ flex: "2 1 600px", minWidth: "500px" }}>
-              <Paper sx={{ p: 3, border: `1px solid #e0e0e0`, height: "100%" }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.secondary.main, mb: 3 }}>
-                  Recent Activities
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {recentActivities.map((activity, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        p: 2,
-                        border: `1px solid #e0e0e0`,
-                        borderRadius: "8px",
-                        backgroundColor: "#fafafa",
-                      }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 32,
-                          height: 32,
-                          bgcolor: activity.type === "success" ? "rgba(46, 125, 50, 0.1)" :
-                                   activity.type === "warning" ? "rgba(237, 108, 2, 0.1)" :
-                                   "rgba(2, 136, 209, 0.1)",
-                          mr: 2,
-                        }}
-                      >
-                        <PersonAdd sx={{ fontSize: 16, color: colors.primary.main }} />
-                      </Avatar>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {activity.action}: {activity.name}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: colors.text.secondary }}>
-                          {activity.time}
-                        </Typography>
-                      </Box>
+          {/* Quick Actions Grid */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h5" sx={{ fontWeight: "bold", color: colors.secondary.main, mb: 3 }}>
+              Quick Actions
+            </Typography>
+            <Box sx={{ 
+              display: "flex", 
+              gap: 2,
+              flexWrap: "wrap"
+            }}>
+              {/* Student Management */}
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('add-student')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <PersonAdd sx={{ color: colors.primary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Add Student</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Register new student</Typography>
                     </Box>
-                  ))}
-                </Box>
-              </Paper>
-            </Box>
+                  </Box>
+                </CardContent>
+              </Card>
 
-            {/* Quick Actions */}
-            <Box sx={{ flex: "1 1 300px", minWidth: "300px" }}>
-              <Paper sx={{ p: 3, border: `1px solid #e0e0e0`, height: "100%" }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.secondary.main, mb: 3 }}>
-                  Quick Actions
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <Card 
-                    sx={{ 
-                      cursor: "pointer", 
-                      "&:hover": { backgroundColor: "#f5f5f5" },
-                      border: `1px solid #e0e0e0`
-                    }}
-                    onClick={() => handleSidebarNavigation('add-student')}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <PersonAdd sx={{ color: colors.primary.main, mr: 2 }} />
-                        <Typography variant="body2">Add New Student</Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                  <Card 
-                    sx={{ 
-                      cursor: "pointer", 
-                      "&:hover": { backgroundColor: "#f5f5f5" },
-                      border: `1px solid #e0e0e0`
-                    }}
-                    onClick={() => handleSidebarNavigation('bulk-upload')}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <FileUpload sx={{ color: colors.secondary.main, mr: 2 }} />
-                        <Typography variant="body2">Bulk Upload</Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Box>
-              </Paper>
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('manage-students')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <People sx={{ color: colors.secondary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Manage Students</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>View & edit records</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('bulk-upload')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <FileUpload sx={{ color: colors.primary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Bulk Upload</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>CSV import students</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              {/* Staff Management */}
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('add-staff')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <GroupAdd sx={{ color: colors.secondary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Add Staff</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Register new staff</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('manage-staff')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Work sx={{ color: colors.primary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Manage Staff</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>View & edit staff</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('staff-csv-upload')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <CloudUpload sx={{ color: colors.secondary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Staff CSV Upload</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Bulk import staff</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              {/* Card Management */}
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('manage-cards')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <CreditCard sx={{ color: colors.primary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Manage Cards</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>ID card management</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('add-card')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <AddCardIcon sx={{ color: colors.secondary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Add Card</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Issue new ID card</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('view-cards')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <ViewList sx={{ color: colors.primary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>View Cards</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Browse card records</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              {/* Other Management */}
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('programs')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <School sx={{ color: colors.secondary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Programs</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Academic programs</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('reports')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Assessment sx={{ color: colors.primary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Reports</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Analytics & reports</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              <Card 
+                sx={{ 
+                  flex: "1 1 280px",
+                  minWidth: "250px",
+                  cursor: "pointer", 
+                  "&:hover": { 
+                    backgroundColor: "#f8f9fa",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+                  },
+                  border: `1px solid #e0e0e0`,
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => handleSidebarNavigation('settings')}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Settings sx={{ color: colors.secondary.main, fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Settings</Typography>
+                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>System configuration</Typography>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
             </Box>
           </Box>
         </Container>
