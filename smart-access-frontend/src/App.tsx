@@ -56,6 +56,12 @@ import ViewStaffCard from './views/Registers/StaffCard/ViewStaffCard';
 import ViewStaffCardDetails from './views/Registers/StaffCard/ViewStaffCardDetails';
 import ManageStaffCard from './views/Registers/StaffCard/ManageStaffCard';
 
+// Import Security Card Management Components
+import AddSecurityCard from './views/Registers/SecurityCard/AddSecurityCard';
+import ManageSecurityCard from './views/Registers/SecurityCard/ManageSecurityCard';
+import ViewSecurityCards from './views/Registers/SecurityCard/ViewSecurityCards';
+import ViewSecurityCardDetails from './views/Registers/SecurityCard/ViewSecurityCardDetails';
+
 import './styles/global.css';
 
 // OTP Context for passing data between components
@@ -736,6 +742,43 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
                   <ViewStaffCardDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Registration Officer Dashboard - Security Card Management Routes */}
+            <Route
+              path="/register-dashboard/manage-security-cards"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ManageSecurityCard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/add-security-card"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <AddSecurityCard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/view-security-cards"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewSecurityCards />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/view-security-card-details/:cardUuid"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewSecurityCardDetails />
                 </ProtectedRoute>
               }
             />

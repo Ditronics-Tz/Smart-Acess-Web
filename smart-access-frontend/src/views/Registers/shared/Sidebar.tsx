@@ -24,6 +24,7 @@ import {
   Work,
   GroupAdd,
   CloudUpload,
+  Security,
 } from '@mui/icons-material';
 import { colors } from '../../../styles/themes/colors';
 
@@ -47,6 +48,9 @@ const links = [
   { id: "manage-staff-cards", label: "Manage Staff Cards", icon: <CreditCard /> },
   { id: "add-staff-card", label: "Add Staff Card", icon: <AddCardIcon /> },
   { id: "view-staff-cards", label: "View Staff Cards", icon: <ViewList /> },
+  { id: "manage-security-cards", label: "Manage Security Cards", icon: <Security /> },
+  { id: "add-security-card", label: "Add Security Card", icon: <AddCardIcon /> },
+  { id: "view-security-cards", label: "View Security Cards", icon: <ViewList /> },
   { id: "reports", label: "Reports", icon: <Assessment /> },
   { id: "settings", label: "Settings", icon: <Settings /> },
 ];
