@@ -23,6 +23,7 @@ import {
   Alert,
   CircularProgress,
   Pagination,
+  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -38,6 +39,9 @@ import {
   CheckCircle,
   Cancel,
   Delete,
+  Edit,
+  Add,
+  Security,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import SecurityCardService, { SecurityCard, SecurityCardFilters } from '../../../service/SecurityServiceCard';
@@ -49,6 +53,7 @@ const ViewSecurityCards: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [cards, setCards] = useState<SecurityCard[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
@@ -107,6 +112,59 @@ const ViewSecurityCards: React.FC = () => {
     }
   };
 
+  const handleActivateCard = async (cardId: string) => {
+    try {
+      await SecurityCardService.activateSecurityCard(cardId);
+      setSuccess('Card activated successfully');
+      loadSecurityCards();
+    } catch (error: any) {
+      setError(error.message || 'Failed to activate card');
+    }
+  };
+
+  const handleDeactivateCard = async (cardId: string) => {
+    try {
+      await SecurityCardService.deactivateSecurityCard(cardId);
+      setSuccess('Card deactivated successfully');
+      loadSecurityCards();
+    } catch (error: any) {
+      setError(error.message || 'Failed to deactivate card');
+    }
+  };
+
+  const handleDeleteCard = async (cardId: string) => {
+    if (!window.confirm('Are you sure you want to delete this security card? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await SecurityCardService.deleteSecurityCard(cardId);
+      setSuccess('Card deleted successfully');
+      loadSecurityCards();
+    } catch (error: any) {
+      setError(error.message || 'Failed to delete card');
+    }
+  };
+
+  const handleCardAction = async () => {
+    if (!actionDialog.card) return;
+
+    const { actionType, card } = actionDialog;
+
+    try {
+      if (actionType === 'activate') {
+        await handleActivateCard(card.card_uuid);
+      } else if (actionType === 'deactivate') {
+        await handleDeactivateCard(card.card_uuid);
+      } else if (actionType === 'delete') {
+        await handleDeleteCard(card.card_uuid);
+      }
+      setActionDialog({ open: false, card: null, actionType: 'activate' });
+    } catch (error: any) {
+      setError(error.message || `Failed to ${actionType} card`);
+    }
+  };
+
   const handleFilterChange = (field: keyof SecurityCardFilters) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
   ) => {
@@ -140,25 +198,6 @@ const ViewSecurityCards: React.FC = () => {
     setPage(1);
   };
 
-  const handleCardAction = async () => {
-    if (!actionDialog.card) return;
-
-    const { card, actionType } = actionDialog;
-
-    try {
-      if (actionType === 'activate') {
-        await SecurityCardService.activateCard(card.card_uuid);
-      } else if (actionType === 'deactivate') {
-        await SecurityCardService.deactivateCard(card.card_uuid);
-      }
-      // Note: Delete is not implemented in the service in this example
-      setActionDialog({ open: false, card: null, actionType: 'activate' });
-      loadSecurityCards(); // Refresh the list
-    } catch (error: any) {
-      setError(error.message || `Failed to ${actionType} card`);
-    }
-  };
-
   const handleSidebarNavigation = (view: string) => {
     if (view === 'dashboard') {
       navigate('/register-dashboard');
@@ -169,6 +208,18 @@ const ViewSecurityCards: React.FC = () => {
 
   const handleBack = () => {
     navigate('/register-dashboard');
+  };
+
+  const handleAddCard = () => {
+    navigate('/register-dashboard/add-security-card');
+  };
+
+  const handleViewDetails = (cardId: string) => {
+    navigate(`/register-dashboard/view-security-card-details/${cardId}`);
+  };
+
+  const handleEditCard = (cardId: string) => {
+    navigate(`/register-dashboard/edit-security-card/${cardId}`);
   };
 
   const safeCards = Array.isArray(cards) ? cards : [];
@@ -189,57 +240,82 @@ const ViewSecurityCards: React.FC = () => {
         backgroundColor: "#f8f9fa",
         p: 3
       }}>
+                {/* Header */}
         <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
           <IconButton 
             onClick={handleBack}
             sx={{ 
               backgroundColor: colors.primary.main,
               color: colors.neutral.white,
-              '&:hover': { backgroundColor: colors.primary.hover }
+              '&:hover': { backgroundColor: colors.primary.dark }
             }}
           >
             <ArrowBack />
           </IconButton>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h4" sx={{ fontWeight: 'bold', color: colors.secondary.main }}>
-              Manage Security Cards
+              Security Cards
             </Typography>
             <Typography variant="body2" sx={{ color: colors.text.secondary }}>
-              View and manage security personnel cards
+              View and manage all security personnel access cards
             </Typography>
           </Box>
           <Button
             variant="contained"
+            startIcon={<Add />}
+            onClick={handleAddCard}
+            sx={{
+              backgroundColor: colors.primary.main,
+              '&:hover': { backgroundColor: colors.primary.dark }
+            }}
+          >
+            Add Card
+          </Button>
+          <Button
+            variant="outlined"
             startIcon={<Refresh />}
             onClick={loadSecurityCards}
             disabled={loading}
             sx={{ 
-              backgroundColor: colors.primary.main,
-              '&:hover': { backgroundColor: colors.primary.hover }
+              borderColor: colors.primary.main,
+              color: colors.primary.main,
+              '&:hover': {
+                borderColor: colors.primary.dark,
+                backgroundColor: 'rgba(248, 112, 96, 0.04)'
+              }
             }}
           >
             Refresh
           </Button>
         </Box>
 
+        {/* Alerts */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
+        
+        {success && (
+          <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccess(null)}>
+            {success}
+          </Alert>
+        )}
 
+        {/* Filters */}
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
-              <PersonSearch sx={{ color: colors.primary.main }} />
+              <Security sx={{ color: colors.primary.main }} />
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.secondary.main }}>
-                Search & Filter Cards
+                Search & Filter Security Cards
               </Typography>
             </Box>
 
             <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
               <TextField
-                placeholder="Search by name, employee ID, or RFID..."
+                size="small"
+                placeholder="Search by employee ID, name, badge, or RFID..."
                 value={filters.search || ''}
                 onChange={handleSearchChange}
                 InputProps={{
@@ -266,7 +342,7 @@ const ViewSecurityCards: React.FC = () => {
 
             {showFilters && (
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <FormControl sx={{ flex: '1 1 200px', minWidth: '150px' }}>
+                <FormControl size="small" sx={{ flex: '1 1 200px', minWidth: '150px' }}>
                   <InputLabel>Status</InputLabel>
                   <Select
                     value={filters.is_active === undefined ? '' : filters.is_active.toString()}
@@ -280,7 +356,7 @@ const ViewSecurityCards: React.FC = () => {
                     }}
                     label="Status"
                   >
-                    <MenuItem value="">All</MenuItem>
+                    <MenuItem value="">All Status</MenuItem>
                     <MenuItem value="true">Active</MenuItem>
                     <MenuItem value="false">Inactive</MenuItem>
                   </Select>
@@ -388,9 +464,7 @@ const ViewSecurityCards: React.FC = () => {
                             size="small"
                             sx={{ color: '#d32f2f' }}
                             title="Delete Card"
-                            onClick={() => {
-                              // setActionDialog({ open: true, card, actionType: 'delete' })
-                            }}
+                            onClick={() => setActionDialog({ open: true, card, actionType: 'delete' })}
                           >
                             <Delete />
                           </IconButton>

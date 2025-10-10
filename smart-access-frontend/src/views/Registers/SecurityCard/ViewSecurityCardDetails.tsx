@@ -157,7 +157,7 @@ const ViewSecurityCardDetails: React.FC = () => {
             sx={{ 
               backgroundColor: colors.primary.main,
               color: colors.neutral.white,
-              '&:hover': { backgroundColor: colors.primary.hover }
+              '&:hover': { backgroundColor: colors.primary.dark }
             }}
           >
             <ArrowBack />
@@ -279,14 +279,20 @@ const ViewSecurityCardDetails: React.FC = () => {
   );
 };
 
-const InfoRow: React.FC<{ icon: React.ReactElement; label: string; value: string }> = ({ icon, label, value }) => (
-  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-    {React.cloneElement(icon, { sx: { color: colors.primary.main } })}
-    <Box>
-      <Typography variant="body2" sx={{ color: colors.text.secondary }}>{label}</Typography>
-      <Typography variant="body1" sx={{ fontWeight: 500 }}>{value}</Typography>
+const InfoRow: React.FC<{ icon: React.ReactElement; label: string; value: string }> = ({ icon, label, value }) => {
+  const iconWithColor = React.cloneElement(icon, {
+    style: { color: colors.primary.main }
+  } as any);
+
+  return (
+    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+      {iconWithColor}
+      <Box>
+        <Typography variant="body2" sx={{ color: colors.text.secondary }}>{label}</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 500 }}>{value}</Typography>
+      </Box>
     </Box>
-  </Box>
-);
+  );
+};
 
 export default ViewSecurityCardDetails;
