@@ -116,6 +116,16 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
       case 'view-cards':
         navigate('/register-dashboard/view-cards');
         break;
+      // Staff card navigation cases:
+      case 'manage-staff-cards':
+        navigate('/register-dashboard/manage-staff-cards');
+        break;
+      case 'add-staff-card':
+        navigate('/register-dashboard/add-staff-card');
+        break;
+      case 'view-staff-cards':
+        navigate('/register-dashboard/view-staff-cards');
+        break;
       default:
         navigate('/register-dashboard');
     }

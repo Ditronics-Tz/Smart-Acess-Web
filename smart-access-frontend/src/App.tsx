@@ -50,6 +50,12 @@ import ViewCards from './views/Registers/Card/ViewCards';
 import ViewCardDetails from './views/Registers/Card/ViewCardDetails';
 import ManageCard from './views/Registers/Card/ManageCard';
 
+// Import Staff Card Management Components
+import AddStaffCard from './views/Registers/StaffCard/AddStaffCard';
+import ViewStaffCard from './views/Registers/StaffCard/ViewStaffCard';
+import ViewStaffCardDetails from './views/Registers/StaffCard/ViewStaffCardDetails';
+import ManageStaffCard from './views/Registers/StaffCard/ManageStaffCard';
+
 import './styles/global.css';
 
 // OTP Context for passing data between components
@@ -693,6 +699,43 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
                   <ViewCardDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Registration Officer Dashboard - Staff Card Management Routes */}
+            <Route
+              path="/register-dashboard/manage-staff-cards"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ManageStaffCard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/add-staff-card"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <AddStaffCard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/view-staff-cards"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewStaffCard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/view-staff-card-details/:cardUuid"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewStaffCardDetails />
                 </ProtectedRoute>
               }
             />
