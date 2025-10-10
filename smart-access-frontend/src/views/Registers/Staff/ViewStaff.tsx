@@ -145,7 +145,7 @@ const ViewStaff: React.FC = () => {
   // Extract unique departments from loaded staff
   useEffect(() => {
     if (staff && staff.length > 0) {
-      const uniqueDepartments = [...new Set(staff.map(s => s.department))].sort();
+      const uniqueDepartments = Array.from(new Set(staff.map(s => s.department))).sort();
       setDepartments(uniqueDepartments);
     }
   }, [staff]);
@@ -473,7 +473,7 @@ const ViewStaff: React.FC = () => {
                           {userPermissions?.can_upload_photos && (
                             <IconButton
                               size="small"
-                              sx={{ color: colors.accent.main }}
+                              sx={{ color: colors.primary.main }}
                               title="Upload Photo"
                               onClick={() => {
                                 // Navigate to photo upload or open modal

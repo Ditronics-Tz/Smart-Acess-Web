@@ -83,6 +83,15 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
       case 'bulk-upload':
         navigate('/register-dashboard/bulk-upload');
         break;
+      case 'add-staff':
+        navigate('/register-dashboard/add-staff');
+        break;
+      case 'manage-staff':
+        navigate('/register-dashboard/manage-staff');
+        break;
+      case 'staff-csv-upload':
+        navigate('/register-dashboard/staff-csv-upload');
+        break;
       case 'programs':
         navigate('/register-dashboard/programs');
         break;

@@ -21,6 +21,9 @@ import {
   CreditCard,
   Add as AddCardIcon,
   ViewList,
+  Work,
+  GroupAdd,
+  CloudUpload,
 } from '@mui/icons-material';
 import { colors } from '../../../styles/themes/colors';
 
@@ -35,6 +38,9 @@ const links = [
   { id: "add-student", label: "Add Student", icon: <PersonAdd /> },
   { id: "manage-students", label: "Manage Students", icon: <People /> },
   { id: "bulk-upload", label: "Bulk Upload", icon: <FileUpload /> },
+  { id: "add-staff", label: "Add Staff", icon: <GroupAdd /> },
+  { id: "manage-staff", label: "Manage Staff", icon: <Work /> },
+  { id: "staff-csv-upload", label: "Staff CSV Upload", icon: <CloudUpload /> },
   { id: "manage-cards", label: "Manage Cards", icon: <CreditCard /> },
   { id: "add-card", label: "Add Card", icon: <AddCardIcon /> },
   { id: "view-cards", label: "View Cards", icon: <ViewList /> },

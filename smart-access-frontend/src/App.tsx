@@ -38,6 +38,12 @@ import ViewStudent from './views/Registers/Student/ViewStudent';
 import ViewStudentDetails from './views/Registers/Student/ViewStudentDetails';
 import CsvUpload from './views/Registers/Student/CsvUpload';
 
+// Import Staff Management Components
+import AddStaff from './views/Registers/Staff/AddStaff';
+import ViewStaff from './views/Registers/Staff/ViewStaff';
+import ViewStaffDetails from './views/Registers/Staff/ViewStaffDetails';
+import StaffCsvUpload from './views/Registers/Staff/StaffCsv';
+
 // Import Card Management Components
 import AddCard from './views/Registers/Card/AddCard';
 import ViewCards from './views/Registers/Card/ViewCards';
@@ -613,6 +619,43 @@ function App() {
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
                   <CsvUpload />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Registration Officer Dashboard - Staff Management Routes */}
+            <Route
+              path="/register-dashboard/add-staff"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <AddStaff />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/manage-staff"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewStaff />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/staff-details/:staffUuid"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <ViewStaffDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/register-dashboard/staff-csv-upload"
+              element={
+                <ProtectedRoute requiredUserType="registration_officer">
+                  <StaffCsvUpload />
                 </ProtectedRoute>
               }
             />
