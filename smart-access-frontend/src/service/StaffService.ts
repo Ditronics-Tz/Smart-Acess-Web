@@ -73,6 +73,10 @@ export interface StaffDetailsResponse extends Staff {
     can_modify: boolean;
     can_delete: boolean;
   };
+  photo?: {
+    url: string;
+    uploaded_at: string;
+  };
 }
 
 export interface CreateStaffResponse extends Staff {

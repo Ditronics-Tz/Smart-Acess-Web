@@ -112,8 +112,8 @@ const ViewStaffDetails: React.FC = () => {
       setPhotoDialog(false);
       setSelectedPhoto(null);
       
-      // Refresh staff details to get updated photo URL
-      loadStaffDetails();
+      // Refresh staff details to get updated photo information
+      await loadStaffDetails();
     } catch (error: any) {
       setError(error.message || 'Failed to upload photo');
     } finally {
@@ -318,6 +318,7 @@ const ViewStaffDetails: React.FC = () => {
               <CardContent sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
                   <Avatar
+                    src={staff.photo?.url}
                     sx={{ 
                       width: 80, 
                       height: 80, 
@@ -325,8 +326,8 @@ const ViewStaffDetails: React.FC = () => {
                       fontSize: '2rem'
                     }}
                   >
-                    {/* If staff has photo, show it, otherwise show initials */}
-                    {staff.first_name?.charAt(0)}{staff.surname?.charAt(0)}
+                    {/* If staff has no photo, show initials */}
+                    {!staff.photo && `${staff.first_name?.charAt(0)}${staff.surname?.charAt(0)}`}
                   </Avatar>
                   <Box>
                     <Typography variant="h5" sx={{ fontWeight: 'bold', color: colors.secondary.main }}>
@@ -373,6 +374,20 @@ const ViewStaffDetails: React.FC = () => {
                         </Typography>
                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
                           {staff.mobile_phone}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
+
+                  {staff.photo && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <PhotoCamera sx={{ color: colors.primary.main }} />
+                      <Box>
+                        <Typography variant="body2" sx={{ color: colors.text.secondary }}>
+                          Photo Uploaded
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                          {formatDate(staff.photo.uploaded_at)}
                         </Typography>
                       </Box>
                     </Box>
