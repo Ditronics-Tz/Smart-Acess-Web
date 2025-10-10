@@ -44,7 +44,6 @@ const links = [
   { id: "manage-cards", label: "Manage Cards", icon: <CreditCard /> },
   { id: "add-card", label: "Add Card", icon: <AddCardIcon /> },
   { id: "view-cards", label: "View Cards", icon: <ViewList /> },
-  { id: "programs", label: "Programs", icon: <School /> },
   { id: "reports", label: "Reports", icon: <Assessment /> },
   { id: "settings", label: "Settings", icon: <Settings /> },
 ];

@@ -100,9 +100,6 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
       case 'staff-csv-upload':
         navigate('/register-dashboard/staff-csv-upload');
         break;
-      case 'programs':
-        navigate('/register-dashboard/programs');
-        break;
       case 'reports':
         navigate('/register-dashboard/reports');
         break;
@@ -629,32 +626,6 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
               </Card>
 
               {/* Other Management */}
-              <Card 
-                sx={{ 
-                  flex: "1 1 280px",
-                  minWidth: "250px",
-                  cursor: "pointer", 
-                  "&:hover": { 
-                    backgroundColor: "#f8f9fa",
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-                  },
-                  border: `1px solid #e0e0e0`,
-                  transition: "all 0.2s ease"
-                }}
-                onClick={() => handleSidebarNavigation('programs')}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <School sx={{ color: colors.secondary.main, fontSize: 28 }} />
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Programs</Typography>
-                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>Academic programs</Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-
               <Card 
                 sx={{ 
                   flex: "1 1 280px",

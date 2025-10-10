@@ -712,19 +712,6 @@ function App() {
             />
 
             <Route
-              path="/register-dashboard/programs"
-              element={
-                <ProtectedRoute requiredUserType="registration_officer">
-                  <ComingSoonPage 
-                    title="Academic Programs" 
-                    description="Manage academic programs, departments, and course offerings for student registration."
-                    icon={<span>🎓</span>}
-                  />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
               path="/register-dashboard/reports"
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
