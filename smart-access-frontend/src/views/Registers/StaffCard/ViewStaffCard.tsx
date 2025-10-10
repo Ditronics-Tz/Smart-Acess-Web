@@ -43,48 +43,9 @@ import {
   Person,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import StaffCardService, { StaffWithoutCard } from '../../../service/StaffCardService';
+import StaffCardService, { StaffWithoutCard, StaffCard, StaffCardFilters, StaffCardsListResponse } from '../../../service/StaffCardService';
 import RegisterSidebar from '../shared/Sidebar';
 import { colors } from '../../../styles/themes/colors';
-
-// Interface for staff card (similar to Card interface but for staff)
-interface StaffCard {
-  card_uuid: string;
-  rfid_number: string;
-  card_type: string;
-  card_holder_name: string;
-  card_holder_number: string;
-  department: string;
-  position: string;
-  employment_status: string;
-  is_active: boolean;
-  issued_date: string;
-  expiry_date?: string | null;
-  created_at: string;
-  updated_at?: string;
-}
-
-interface StaffCardFilters {
-  search?: string;
-  is_active?: boolean;
-  staff__department?: string;
-  staff__employment_status?: string;
-  ordering?: string;
-  page?: number;
-  page_size?: number;
-}
-
-interface StaffCardsListResponse {
-  count: number;
-  next: string | null;
-  previous: string | null;
-  results: StaffCard[];
-  summary: {
-    total_cards: number;
-    active_cards: number;
-    inactive_cards: number;
-  };
-}
 
 const ViewStaffCard: React.FC = () => {
   const navigate = useNavigate();
@@ -138,27 +99,17 @@ const ViewStaffCard: React.FC = () => {
   const loadCards = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      // This would be implemented in StaffCardService - for now using mock data structure
-      // const response = await StaffCardService.listStaffCards({
-      //   ...filters,
-      //   page,
-      //   page_size: pageSize,
-      // });
+      const response = await StaffCardService.listStaffCards({
+        ...filters,
+        page,
+        page_size: pageSize,
+      });
 
-      // Mock implementation - replace with actual API call
-      const mockResponse: StaffCardsListResponse = {
-        count: 0,
-        next: null,
-        previous: null,
-        results: [],
-        summary: { total_cards: 0, active_cards: 0, inactive_cards: 0 }
-      };
-
-      setCards(mockResponse.results || []);
-      setTotalCount(mockResponse.count || 0);
-      setSummary(mockResponse.summary || { total_cards: 0, active_cards: 0, inactive_cards: 0 });
+      setCards(response.results || []);
+      setTotalCount(response.count || 0);
+      setSummary(response.summary || { total_cards: 0, active_cards: 0, inactive_cards: 0 });
     } catch (error: any) {
       console.error('Error loading staff cards:', error);
       setError(error.message || 'Failed to load staff cards');
@@ -515,7 +466,6 @@ const ViewStaffCard: React.FC = () => {
                   <TableCell sx={{ fontWeight: 'bold' }}>Staff Name</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Staff Number</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Department</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Position</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Employment Status</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Card Status</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Issued Date</TableCell>
@@ -525,14 +475,14 @@ const ViewStaffCard: React.FC = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4 }}>
                       <CircularProgress />
                       <Typography variant="body2" sx={{ mt: 2 }}>Loading staff cards...</Typography>
                     </TableCell>
                   </TableRow>
                 ) : cards.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 4 }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4 }}>
                       <Typography variant="body2" sx={{ color: colors.text.secondary }}>
                         {error ? 'Failed to load staff cards. Please try refreshing.' : 'No staff cards found matching your criteria'}
                       </Typography>
@@ -549,11 +499,10 @@ const ViewStaffCard: React.FC = () => {
                         {card.card_holder_number}
                       </TableCell>
                       <TableCell>{card.department}</TableCell>
-                      <TableCell>{card.position}</TableCell>
                       <TableCell>
                         <Chip
-                          label={card.employment_status}
-                          color={getStatusColor(card.employment_status) as any}
+                          label={card.status}
+                          color={getStatusColor(card.status) as any}
                           size="small"
                         />
                       </TableCell>

@@ -71,6 +71,33 @@ export interface PrintStaffCardResponse {
 	// The response is a PDF file, so this can be a Blob or void
 }
 
+export interface StaffCard {
+  card_uuid: string;
+  rfid_number: string;
+  card_type: string;
+  card_holder_name: string;
+  card_holder_number: string;
+  department: string;
+  status: string; // This appears to be employment_status
+  is_active: boolean;
+  issued_date: string;
+  expiry_date?: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface StaffCardsListResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: StaffCard[];
+  summary: {
+    total_cards: number;
+    active_cards: number;
+    inactive_cards: number;
+  };
+}
+
 export interface VerifyStaffCardResponse {
 	success: boolean;
 	verified: boolean;
@@ -86,6 +113,16 @@ export interface VerifyStaffCardResponse {
 	};
 	verified_at: string;
 	institution: string;
+}
+
+export interface StaffCardFilters {
+  search?: string;
+  is_active?: boolean;
+  staff__department?: string;
+  staff__employment_status?: string;
+  ordering?: string;
+  page?: number;
+  page_size?: number;
 }
 
 class StaffCardService {
@@ -119,10 +156,34 @@ class StaffCardService {
 		return response.data;
 	}
 
-	// 5. Verify staff card (public endpoint)
-	async verifyStaffCard(staffUuid: string): Promise<VerifyStaffCardResponse> {
-		const response = await apiClient.get(`${this.baseUrl}/verify/staff/${staffUuid}/`);
-		return response.data;
+	// 6. List staff cards with filtering and pagination
+	async listStaffCards(params?: StaffCardFilters): Promise<StaffCardsListResponse> {
+		const response = await apiClient.get(`${this.baseUrl}/`, {
+			params: {
+				...params,
+				card_type: 'staff'
+			}
+		});
+
+		// Handle different response formats
+		const data = response.data;
+		if (Array.isArray(data)) {
+			// API returns array directly
+			return {
+				count: data.length,
+				next: null,
+				previous: null,
+				results: data,
+				summary: {
+					total_cards: data.length,
+					active_cards: data.filter(card => card.is_active).length,
+					inactive_cards: data.filter(card => !card.is_active).length
+				}
+			};
+		} else {
+			// API returns paginated response as documented
+			return data;
+		}
 	}
 }
 
