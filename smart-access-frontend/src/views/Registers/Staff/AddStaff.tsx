@@ -38,6 +38,76 @@ const AddStaff: React.FC<AddStaffProps> = ({ onBack }) => {
   const [success, setSuccess] = useState<string | null>(null);
   const [employmentStatusOptions, setEmploymentStatusOptions] = useState<string[]>([]);
 
+  // Position options for academic and administrative roles
+  const positionOptions = [
+    
+    'Senior Lecturer',
+    'Lecturer',
+    'Assistant Lecturer',
+    'Tutorial Assistant',
+    'Research Assistant',
+    'Teaching Assistant',
+    
+    // Administrative Positions
+    'Dean',
+    'Head of Department',
+    'Program Coordinator',
+    'Academic Registrar',
+    'Student Affairs Officer',
+    
+    // Support Staff
+    'Accountant',
+    'ICT Officer',
+    'Systems Administrator',
+    'Network Administrator',
+    'IT Support Specialist',
+    'Librarian',
+    'Library Assistant',
+    'Administrative Assistant',
+    'Secretary',
+    'Receptionist',
+    
+    // Other Roles
+    'Security Officer',
+    'Maintenance Technician',
+    'Driver',
+    'Cleaner',
+    'Gardener'
+  ];
+
+  // Department options for academic departments
+  const departmentOptions = [
+    // Engineering & Technology
+    'Computer Engineering',
+    'Electronics Engineering',
+    'Electrical Engineering',
+    'Mechanical Engineering',
+    'Civil Engineering',
+    'Chemical Engineering',
+    
+    // Sciences
+    'Mathematics',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'Computer Science',
+    'Information Technology',
+    
+    // Social Sciences & Humanities
+    'General Studies',
+    'Business Administration',
+    'Economics',
+    
+    
+    // Health Sciences
+    'Nursing',
+    'Pharmacy',
+    'Medical Laboratory Sciences',
+    'Public Health',
+    
+
+  ];
+
   // Form data state - matching API documentation
   const [formData, setFormData] = useState<CreateStaffRequest>({
     surname: '',
@@ -306,29 +376,39 @@ const AddStaff: React.FC<AddStaffProps> = ({ onBack }) => {
                   helperText="Must be unique across all staff"
                   inputProps={{ maxLength: 20 }}
                 />
-                <TextField
-                  label="Department *"
-                  value={formData.department}
-                  onChange={handleInputChange('department')}
-                  sx={{ flex: '1 1 250px', minWidth: '200px' }}
-                  disabled={loading}
-                  placeholder="Enter department name"
-                  helperText="e.g., IT Department, Human Resources"
-                  inputProps={{ maxLength: 255 }}
-                />
+                <FormControl sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+                  <InputLabel>Department *</InputLabel>
+                  <Select
+                    value={formData.department}
+                    onChange={handleSelectChange('department')}
+                    label="Department *"
+                    disabled={loading}
+                  >
+                    {departmentOptions.map((department) => (
+                      <MenuItem key={department} value={department}>
+                        {department}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
 
               <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-                <TextField
-                  label="Position *"
-                  value={formData.position}
-                  onChange={handleInputChange('position')}
-                  sx={{ flex: '1 1 250px', minWidth: '200px' }}
-                  disabled={loading}
-                  placeholder="Enter job position"
-                  helperText="e.g., System Administrator, Manager"
-                  inputProps={{ maxLength: 100 }}
-                />
+                <FormControl sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+                  <InputLabel>Position *</InputLabel>
+                  <Select
+                    value={formData.position}
+                    onChange={handleSelectChange('position')}
+                    label="Position *"
+                    disabled={loading}
+                  >
+                    {positionOptions.map((position) => (
+                      <MenuItem key={position} value={position}>
+                        {position}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <FormControl sx={{ flex: '1 1 250px', minWidth: '200px' }}>
                   <InputLabel>Employment Status</InputLabel>
                   <Select
@@ -362,6 +442,12 @@ const AddStaff: React.FC<AddStaffProps> = ({ onBack }) => {
                 </Typography>
                 <Typography variant="body2" sx={{ color: colors.text.secondary, mb: 0.5 }}>
                   • Optional fields: Middle Name, Mobile Phone, Employment Status
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.text.secondary, mb: 0.5 }}>
+                  • Department: Select from predefined academic and administrative departments
+                </Typography>
+                <Typography variant="body2" sx={{ color: colors.text.secondary, mb: 0.5 }}>
+                  • Position: Select from predefined academic and administrative roles
                 </Typography>
                 <Typography variant="body2" sx={{ color: colors.text.secondary }}>
                   • Staff numbers must be unique across all staff members
