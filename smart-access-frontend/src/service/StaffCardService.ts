@@ -166,6 +166,14 @@ class StaffCardService {
 		return response.data;
 	}
 
+	// 4. Print Staff Card
+	async printStaffCard(cardUuid: string): Promise<Blob> {
+		const response = await apiClient.post(`${this.baseUrl}/${cardUuid}/print-staff-card/`, {}, {
+			responseType: 'blob',
+		});
+		return response.data;
+	}
+
 	// 5. Get staff card details
 	async getStaffCard(cardUuid: string): Promise<StaffCardDetails> {
 		const response = await apiClient.get(`${this.baseUrl}/${cardUuid}/`);

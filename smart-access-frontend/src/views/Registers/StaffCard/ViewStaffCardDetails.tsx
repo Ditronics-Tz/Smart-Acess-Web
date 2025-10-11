@@ -30,6 +30,7 @@ import {
   Key,
   Security,
   Badge,
+  Print,
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import StaffCardService, { StaffCardDetails } from '../../../service/StaffCardService';
@@ -107,6 +108,22 @@ const ViewStaffCardDetails: React.FC = () => {
     } catch (error: any) {
       setError(error.message || 'Failed to delete staff card');
       setActionLoading(false);
+    }
+  };
+
+  const handlePrintCard = async () => {
+    if (!cardUuid) return;
+    try {
+      const blob = await StaffCardService.printStaffCard(cardUuid);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Staff_Card_${card?.card_holder_number}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error: any) {
+      setError(error.message || 'Failed to print card');
     }
   };
 
@@ -449,6 +466,21 @@ const ViewStaffCardDetails: React.FC = () => {
                     color={getEmploymentStatusColor(card.status) as any}
                     size="small"
                   />
+                </Box>
+
+                <Box sx={{ mt: 3 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<Print />}
+                    onClick={handlePrintCard}
+                    fullWidth
+                    sx={{
+                      backgroundColor: colors.primary.main,
+                      '&:hover': { backgroundColor: colors.primary.hover }
+                    }}
+                  >
+                    Print Card
+                  </Button>
                 </Box>
               </CardContent>
             </Card>
