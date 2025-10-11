@@ -797,19 +797,6 @@ function App() {
               }
             />
 
-            <Route
-              path="/register-dashboard/settings"
-              element={
-                <ProtectedRoute requiredUserType="registration_officer">
-                  <ComingSoonPage 
-                    title="Registration Settings" 
-                    description="Configure registration preferences, notification settings, and personal account management."
-                    icon={<span>⚙️</span>}
-                  />
-                </ProtectedRoute>
-              }
-            />
-
             {/* Catch all route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

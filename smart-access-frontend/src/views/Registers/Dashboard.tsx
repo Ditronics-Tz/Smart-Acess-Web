@@ -100,9 +100,6 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
       case 'staff-csv-upload':
         navigate('/register-dashboard/staff-csv-upload');
         break;
-      case 'settings':
-        navigate('/register-dashboard/settings');
-        break;
       // Add these missing card navigation cases:
       case 'manage-cards':
         navigate('/register-dashboard/manage-cards');
@@ -629,33 +626,6 @@ const Dashboard: React.FC<RegistersDashboardProps> = ({ onLogout }) => {
                     <Box>
                       <Typography variant="h6" sx={{ fontWeight: 600 }}>View Cards</Typography>
                       <Typography variant="body2" sx={{ color: colors.text.secondary }}>Browse card records</Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              {/* Other Management */}
-              <Card 
-                sx={{ 
-                  flex: "1 1 280px",
-                  minWidth: "250px",
-                  cursor: "pointer", 
-                  "&:hover": { 
-                    backgroundColor: "#f8f9fa",
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-                  },
-                  border: `1px solid #e0e0e0`,
-                  transition: "all 0.2s ease"
-                }}
-                onClick={() => handleSidebarNavigation('settings')}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Settings sx={{ color: colors.secondary.main, fontSize: 28 }} />
-                    <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>Settings</Typography>
-                      <Typography variant="body2" sx={{ color: colors.text.secondary }}>System configuration</Typography>
                     </Box>
                   </Box>
                 </CardContent>

@@ -51,7 +51,6 @@ const links = [
   { id: "manage-security-cards", label: "Manage Security Cards", icon: <Security /> },
   { id: "add-security-card", label: "Add Security Card", icon: <AddCardIcon /> },
   { id: "view-security-cards", label: "View Security Cards", icon: <ViewList /> },
-  { id: "settings", label: "Settings", icon: <Settings /> },
 ];
 
 const RegisterSidebar: React.FC<RegisterSidebarProps> = ({ 
