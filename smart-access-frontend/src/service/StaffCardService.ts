@@ -146,7 +146,7 @@ export interface StaffCardFilters {
 }
 
 class StaffCardService {
-  private baseUrl = '/api/cards';
+  private baseUrl = 'api/cards';
 
   // 1. Create a single staff card
   async createStaffCard(data: CreateSingleStaffCardRequest): Promise<CreateSingleStaffCardResponse> {

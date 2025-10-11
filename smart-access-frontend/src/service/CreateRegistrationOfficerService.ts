@@ -18,7 +18,7 @@ export interface CreateOfficerResponse {
 }
 
 class CreateRegistrationOfficerService {
-  private readonly baseURL = '/auth';
+  private readonly baseURL = 'auth';
 
   async createRegistrationOfficer(officerData: CreateOfficerRequest): Promise<CreateOfficerResponse> {
     try {

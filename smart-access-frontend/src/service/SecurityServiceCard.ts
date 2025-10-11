@@ -196,7 +196,7 @@ export interface SecurityCardStatistics {
 }
 
 class SecurityCardService {
-  private baseUrl = '/api/cards';
+  private baseUrl = 'api/cards';
 
   // 1. Create a single security card
   async createSecurityCard(data: CreateSingleSecurityCardRequest): Promise<CreateSingleSecurityCardResponse> {

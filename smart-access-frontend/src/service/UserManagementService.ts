@@ -58,7 +58,7 @@ export interface UserManagementFilters {
 }
 
 class UserManagementService {
-  private readonly baseURL = '/auth';
+  private readonly baseURL = 'auth';
 
   // Helper method to ensure we have a valid token
   private getAuthHeaders() {

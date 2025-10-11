@@ -71,7 +71,7 @@ export interface CreateUserResponse {
 }
 
 class AuthService {
-  private readonly baseURL = '/auth';
+  private readonly baseURL = 'auth';
 
   // Updated login method to handle direct JWT token response
   async login(credentials: LoginRequest): Promise<LoginResponse> {

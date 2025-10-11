@@ -157,7 +157,7 @@ export interface ApiErrorResponse {
 }
 
 class StaffService {
-  private readonly baseURL = '/api/staff';
+  private readonly baseURL = 'api/staff';
 
   /**
    * Get list of staff members with optional filtering and pagination

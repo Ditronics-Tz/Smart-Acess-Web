@@ -138,7 +138,7 @@ export interface CardActionResponse {
 }
 
 class CardService {
-  private readonly baseURL = '/api/cards';
+  private readonly baseURL = 'api/cards';
 
   // Helper method to ensure we have a valid token (same as StudentService)
   private getAuthHeaders() {

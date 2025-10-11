@@ -59,8 +59,8 @@ export interface RestoreResponse {
   data: SecurityPersonnel;
 }
 
-class SecurityPersonelService {
-  private readonly baseURL = '/api/administrator/security-personnel';
+class SecurityPersonnelService {
+  private readonly baseURL = 'api/administrator/security-personnel';
 
   // Fix: Use same authentication pattern as UserManagementService
   private getAuthHeaders() {
@@ -330,4 +330,4 @@ class SecurityPersonelService {
   }
 }
 
-export default new SecurityPersonelService();
+export default new SecurityPersonnelService();

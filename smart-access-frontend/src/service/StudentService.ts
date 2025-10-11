@@ -149,7 +149,7 @@ export interface RestoreResponse {
 }
 
 class StudentService {
-  private readonly baseURL = '/api/students';
+  private readonly baseURL = 'api/students';
 
   // Helper method to ensure we have a valid token
   private getAuthHeaders() {

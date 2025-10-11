@@ -17,7 +17,7 @@ export interface ListBackupsResponse {
 }
 
 class SettingsService {
-  private baseUrl = '/api/administrator';
+  private baseUrl = 'api/administrator';
 
   /**
    * Create a database backup

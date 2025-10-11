@@ -97,8 +97,8 @@ export interface RestoreResponse {
 }
 
 class AdminService {
-  private readonly physicalLocationsBaseURL = '/api/administrator/physical-locations';
-  private readonly accessGatesBaseURL = '/api/administrator/access-gates';
+  private readonly physicalLocationsBaseURL = 'api/administrator/physical-locations';
+  private readonly accessGatesBaseURL = 'api/administrator/access-gates';
 
   // Helper method to ensure we have a valid token
   private getAuthHeaders() {
