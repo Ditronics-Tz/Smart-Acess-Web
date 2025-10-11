@@ -437,7 +437,7 @@ const ViewSecurityCards: React.FC = () => {
                             size="small"
                             sx={{ color: colors.primary.main }}
                             title="View Details"
-                            onClick={() => navigate(`/register-dashboard/security-card-details/${card.card_uuid}`)}
+                            onClick={() => handleViewDetails(card.card_uuid)}
                           >
                             <Visibility />
                           </IconButton>

@@ -101,13 +101,13 @@ const ViewSecurityCardDetails: React.FC = () => {
   };
 
   const handlePrintCard = async () => {
-    if (!cardUuid) return;
+    if (!cardUuid || !cardDetails) return;
     try {
       const blob = await SecurityCardService.printSecurityCard(cardUuid);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Security_Card_${cardDetails?.security.employee_id}.pdf`;
+      a.download = `Security_Card_${cardDetails.security_info.employee_id}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -182,15 +182,15 @@ const ViewSecurityCardDetails: React.FC = () => {
                     height: 200,
                     bgcolor: colors.primary.main,
                   }}
-                  src={cardDetails.security.photo_url || undefined}
+                  src={cardDetails.security_info.photo_url || undefined}
                 >
                   <Person sx={{ fontSize: '8rem' }} />
                 </Avatar>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-                  {cardDetails.security.full_name}
+                  {cardDetails.security_info.full_name}
                 </Typography>
                 <Typography variant="body2" sx={{ color: colors.text.secondary }}>
-                  {cardDetails.security.employee_id}
+                  {cardDetails.security_info.employee_id}
                 </Typography>
                 <Button
                   variant="contained"
@@ -212,10 +212,10 @@ const ViewSecurityCardDetails: React.FC = () => {
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   <InfoRow icon={<CreditCard />} label="RFID Number" value={cardDetails.rfid_number} />
-                  <InfoRow icon={<Badge />} label="Employee ID" value={cardDetails.security.employee_id} />
-                  <InfoRow icon={<Badge />} label="Badge Number" value={cardDetails.security.badge_number} />
-                  <InfoRow icon={<Phone />} label="Phone Number" value={cardDetails.security.phone_number || 'N/A'} />
-                  <InfoRow icon={<CalendarToday />} label="Hire Date" value={new Date(cardDetails.security.hire_date).toLocaleDateString()} />
+                  <InfoRow icon={<Badge />} label="Employee ID" value={cardDetails.security_info.employee_id} />
+                  <InfoRow icon={<Badge />} label="Badge Number" value={cardDetails.security_info.badge_number} />
+                  <InfoRow icon={<Phone />} label="Phone Number" value={cardDetails.security_info.phone_number || 'N/A'} />
+                  <InfoRow icon={<CalendarToday />} label="Hire Date" value={cardDetails.security_info.hire_date ? new Date(cardDetails.security_info.hire_date).toLocaleDateString() : 'N/A'} />
                   <InfoRow icon={<CalendarToday />} label="Card Issued Date" value={new Date(cardDetails.issued_date).toLocaleDateString()} />
                   <InfoRow icon={<CalendarToday />} label="Card Expiry Date" value={cardDetails.expiry_date ? new Date(cardDetails.expiry_date).toLocaleDateString() : 'N/A'} />
                   
@@ -226,8 +226,8 @@ const ViewSecurityCardDetails: React.FC = () => {
                       color={cardDetails.is_active ? 'success' : 'error'}
                     />
                     <Chip
-                      label={cardDetails.security.is_active ? 'Personnel Active' : 'Personnel Inactive'}
-                      color={cardDetails.security.is_active ? 'success' : 'error'}
+                      label={cardDetails.security_info.is_active ? 'Personnel Active' : 'Personnel Inactive'}
+                      color={cardDetails.security_info.is_active ? 'success' : 'error'}
                       variant="outlined"
                     />
                   </Box>

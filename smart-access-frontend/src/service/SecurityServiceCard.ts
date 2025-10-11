@@ -77,6 +77,8 @@ export interface SecurityCard {
   card_type: string;
   card_holder_name: string;
   card_holder_number: string; // employee_id
+  department?: string;
+  status?: string;
   is_active: boolean;
   issued_date: string;
   expiry_date?: string | null;
@@ -113,6 +115,22 @@ export interface VerifySecurityCardResponse {
 }
 
 export interface SecurityCardDetails {
+  id: number;
+  student_info: any;
+  staff_info: any;
+  security_info: {
+    security_id: string;
+    employee_id: string;
+    badge_number: string;
+    full_name: string;
+    phone_number: string;
+    is_active: boolean;
+    photo_url?: string;
+    hire_date?: string;
+  };
+  card_holder_name: string;
+  card_holder_number: string;
+  department: string;
   card_uuid: string;
   rfid_number: string;
   card_type: string;
@@ -121,17 +139,10 @@ export interface SecurityCardDetails {
   expiry_date?: string | null;
   created_at: string;
   updated_at?: string;
-  security: {
-    security_uuid: string;
-    employee_id: string;
-    badge_number: string;
-    full_name: string;
-    phone_number?: string;
-    hire_date: string;
-    is_active: boolean;
-    photo_url?: string;
-  };
-  user_permissions?: {
+  student: any;
+  staff: any;
+  security_personnel: string;
+  user_permissions: {
     can_modify: boolean;
     can_deactivate: boolean;
     can_delete: boolean;
@@ -219,7 +230,25 @@ class SecurityCardService {
 				card_type: 'security'
 			}
 		});
-    return response.data;
+
+		// Handle both response formats: direct array or paginated response
+		if (Array.isArray(response.data)) {
+			// Server returns array directly
+			return {
+				count: response.data.length,
+				next: null,
+				previous: null,
+				results: response.data,
+				summary: {
+					total_cards: response.data.length,
+					active_cards: response.data.filter(card => card.is_active).length,
+					inactive_cards: response.data.filter(card => !card.is_active).length,
+				}
+			};
+		} else {
+			// Server returns paginated response
+			return response.data;
+		}
 	}
 
   // 6. Print Security Card
