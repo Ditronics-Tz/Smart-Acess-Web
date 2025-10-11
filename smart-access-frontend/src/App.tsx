@@ -798,19 +798,6 @@ function App() {
             />
 
             <Route
-              path="/register-dashboard/reports"
-              element={
-                <ProtectedRoute requiredUserType="registration_officer">
-                  <ComingSoonPage 
-                    title="Student Reports" 
-                    description="Generate comprehensive reports on student enrollment, demographics, academic status, and registration analytics."
-                    icon={<span>📊</span>}
-                  />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
               path="/register-dashboard/settings"
               element={
                 <ProtectedRoute requiredUserType="registration_officer">
