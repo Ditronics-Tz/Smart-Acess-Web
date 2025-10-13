@@ -356,19 +356,25 @@ const ManageCard: React.FC = () => {
                     </Box>
                     
                     <Box sx={{ maxHeight: '200px', overflowY: 'auto' }}>
-                      {statistics.cards_by_department.map((dept, index) => (
-                        <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-                          <Typography variant="body2" sx={{ color: colors.text.secondary }}>
-                            {dept.student__department}
-                          </Typography>
-                          <Chip 
-                            label={dept.count} 
-                            size="small" 
-                            variant="outlined"
-                            sx={{ color: colors.primary.main, borderColor: colors.primary.main }}
-                          />
-                        </Box>
-                      ))}
+                      {statistics.cards_by_department && statistics.cards_by_department.length > 0 ? (
+                        statistics.cards_by_department.map((dept, index) => (
+                          <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+                            <Typography variant="body2" sx={{ color: colors.text.secondary }}>
+                              {dept.student__department}
+                            </Typography>
+                            <Chip 
+                              label={dept.count} 
+                              size="small" 
+                              variant="outlined"
+                              sx={{ color: colors.primary.main, borderColor: colors.primary.main }}
+                            />
+                          </Box>
+                        ))
+                      ) : (
+                        <Typography variant="body2" sx={{ color: colors.text.secondary, textAlign: 'center', py: 2 }}>
+                          No department data available
+                        </Typography>
+                      )}
                     </Box>
                   </CardContent>
                 </Card>

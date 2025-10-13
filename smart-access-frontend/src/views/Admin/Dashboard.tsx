@@ -113,37 +113,6 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     },
   ]
 
-  const statsCards = [
-    {
-      title: "Total Users",
-      value: "248",
-      change: "+12% from last month",
-      icon: <People sx={{ fontSize: 24, color: colors.secondary.main }} />,
-      changeColor: "success.main",
-    },
-    {
-      title: "Active Sessions",
-      value: "156",
-      change: "+8% from last week",
-      icon: <Security sx={{ fontSize: 24, color: colors.primary.main }} />,
-      changeColor: "success.main",
-    },
-    {
-      title: "System Health",
-      value: "98%",
-      change: "All systems operational",
-      icon: <Settings sx={{ fontSize: 24, color: colors.primary.main }} />,
-      changeColor: "success.main",
-    },
-    {
-      title: "Access Requests",
-      value: "23",
-      change: "3 pending approval",
-      icon: <PersonAdd sx={{ fontSize: 24, color: colors.secondary.main }} />,
-      changeColor: "warning.main",
-    },
-  ]
-
   const handleSidebarNavigation = useAdminNavigation();
 
   return (
@@ -247,7 +216,7 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                   "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
                 }}
               >
-                <Badge badgeContent={3} color="error">
+                <Badge badgeContent={0} color="error">
                   <Notifications />
                 </Badge>
               </IconButton>
@@ -350,50 +319,6 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               </Box>
             </Paper>
 
-            {/* Stats Overview */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
-              {statsCards.map((stat, index) => (
-                <Box key={index} sx={{ flex: { xs: "1 1 100%", sm: "1 1 calc(50% - 12px)", md: "1 1 calc(25% - 18px)" } }}>
-                  <Card
-                    sx={{
-                      height: "100%",
-                      boxShadow: 2,
-                      "&:hover": {
-                        boxShadow: 4,
-                        transform: "translateY(-2px)",
-                        transition: "all 0.3s ease",
-                      },
-                    }}
-                  >
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-                        <Box>
-                          <Typography variant="body2" color="text.secondary" fontWeight="500">
-                            {stat.title}
-                          </Typography>
-                          <Typography variant="h3" fontWeight="bold" color={colors.secondary.main}>
-                            {stat.value}
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            p: 1.5,
-                            backgroundColor: index % 2 === 0 ? "rgba(16, 37, 66, 0.1)" : "rgba(248, 112, 96, 0.1)",
-                            borderRadius: 2,
-                          }}
-                        >
-                          {stat.icon}
-                        </Box>
-                      </Box>
-                      <Typography variant="caption" sx={{ color: stat.changeColor, fontWeight: 500 }}>
-                        {stat.change}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Box>
-              ))}
-            </Box>
-
             {/* Quick Actions */}
             <Box>
               <Typography variant="h4" fontWeight="bold" sx={{ color: colors.secondary.main, mb: 3 }}>
@@ -422,15 +347,6 @@ const Dashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                           {card.description}
                         </Typography>
-                        <Chip
-                          label={card.stats}
-                          size="small"
-                          sx={{
-                            backgroundColor: colors.primary.light,
-                            color: colors.primary.main,
-                            fontWeight: "bold",
-                          }}
-                        />
                       </CardContent>
                     </Card>
                   </Box>
