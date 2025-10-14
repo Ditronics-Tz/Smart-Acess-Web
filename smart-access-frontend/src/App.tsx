@@ -31,6 +31,7 @@ import LoginTypeModal from './components/common/LoginTypeModal';
 import AuthService from './service/AuthService';
 import AccessControl from './views/Admin/AccessControl/AccessControl';
 import Setting from './views/Admin/Setting';
+import Reports from './views/Admin/Reports';
 
 // Import Student Management Components
 import AddStudent from './views/Registers/Student/AddStudent';
@@ -563,9 +564,9 @@ function App() {
               path="/admin-dashboard/reports"
               element={
                 <ProtectedRoute requiredUserType="administrator">
-                  <Box sx={{ width: "100vw", height: "100vh", display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Typography variant="h4">Reports View - Coming Soon</Typography>
-                  </Box>
+                  <LogoutWrapper>
+                    <Reports />
+                  </LogoutWrapper>
                 </ProtectedRoute>
               }
             />

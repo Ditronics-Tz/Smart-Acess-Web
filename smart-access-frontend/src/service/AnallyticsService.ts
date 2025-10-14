@@ -411,45 +411,51 @@ class AnalyticsService {
       errors: [] as string[]
     };
 
-    // Execute all requests in parallel
-    const promises = [
-      this.getDashboardOverview().catch(err => ({ error: `Dashboard: ${err.message}` })),
-      this.getCardAnalytics().catch(err => ({ error: `Cards: ${err.message}` })),
-      this.getVerificationAnalytics().catch(err => ({ error: `Verifications: ${err.message}` })),
-      this.getUserDemographics().catch(err => ({ error: `Demographics: ${err.message}` })),
-      this.getSystemHealth().catch(err => ({ error: `Health: ${err.message}` })),
-      this.getSystemAlerts().catch(err => ({ error: `Alerts: ${err.message}` }))
-    ];
+    try {
+      // Execute all requests in parallel
+      const promises = [
+        this.getDashboardOverview().catch(err => ({ error: `Dashboard: ${err.message}` })),
+        this.getCardAnalytics().catch(err => ({ error: `Cards: ${err.message}` })),
+        this.getVerificationAnalytics().catch(err => ({ error: `Verifications: ${err.message}` })),
+        this.getUserDemographics().catch(err => ({ error: `Demographics: ${err.message}` })),
+        this.getSystemHealth().catch(err => ({ error: `Health: ${err.message}` })),
+        this.getSystemAlerts().catch(err => ({ error: `Alerts: ${err.message}` }))
+      ];
 
-    const responses = await Promise.all(promises);
+      const responses = await Promise.all(promises);
 
-    // Process responses
-    responses.forEach((response, index) => {
-      if ('error' in response) {
-        results.errors.push(response.error || 'Unknown error occurred');
-      } else if (response.success && response.data) {
-        switch (index) {
-          case 0:
-            results.dashboard = response.data as DashboardOverview;
-            break;
-          case 1:
-            results.cards = response.data as CardAnalytics;
-            break;
-          case 2:
-            results.verifications = response.data as VerificationAnalytics;
-            break;
-          case 3:
-            results.demographics = response.data as UserDemographics;
-            break;
-          case 4:
-            results.health = response.data as SystemHealth;
-            break;
-          case 5:
-            results.alerts = response.data as SystemAlerts;
-            break;
+      // Process responses
+      responses.forEach((response, index) => {
+        if ('error' in response) {
+          results.errors.push(response.error || 'Unknown error occurred');
+        } else if (response.success && response.data) {
+          switch (index) {
+            case 0:
+              results.dashboard = response.data as DashboardOverview;
+              break;
+            case 1:
+              results.cards = response.data as CardAnalytics;
+              break;
+            case 2:
+              results.verifications = response.data as VerificationAnalytics;
+              break;
+            case 3:
+              results.demographics = response.data as UserDemographics;
+              break;
+            case 4:
+              results.health = response.data as SystemHealth;
+              break;
+            case 5:
+              results.alerts = response.data as SystemAlerts;
+              break;
+          }
         }
-      }
-    });
+      });
+
+    } catch (error) {
+      console.error('Failed to fetch analytics data:', error);
+      results.errors.push('Network error occurred');
+    }
 
     return results;
   }
